@@ -19,7 +19,19 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@/hooks/useAuthGuard":["./app/hooks/useAuthGuard"],
+      "@/hooks/usePratos":["./app/hooks/usePratos"],
+      "@/hooks/useCategorias":["./app/hooks/useCategorias"],
+
+      "@/context/AuthContext":["./app/context/AuthContext"],
+      
+      "@/components/CardapioPDF":["./app/components/CardapioPDF"],
+      "@/components/PratoItem":["./app/components/PratoItem"],
+      "@/components/FormularioPrato":["./app/components/FormularioPrato"],
+      "@/components/EditarPratoModal":["./app/components/EditarPratoModal"],
+      "@/components/NovoPratoModal":["./app/components/NovoPratoModal"],
+      "@/components/ListaDePratosPainel":["./app/components/ListaDePratosPainel"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
