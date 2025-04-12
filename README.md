@@ -41,7 +41,7 @@ git clone https://github.com/Josandonas/Restaurante-Chaufa.git
 cd Restaurante-Chaufa
 
 # Instale as dependências
-pnpm install
+npm install
 
 # Copie o arquivo .env.example e configure as variáveis
 cp .env.example .env
@@ -56,10 +56,10 @@ AUTH_SECRET="uma_chave_secreta_segura"
 
 ```bash
 # Execute as migrações do banco de dados
-pnpm prisma migrate dev
+npm prisma migrate dev
 
 # Rode o projeto
-pnpm dev
+npm run dev
 ```
 
 Acesse a aplicação em: [http://localhost:3000](http://localhost:3000)
@@ -69,10 +69,10 @@ Acesse a aplicação em: [http://localhost:3000](http://localhost:3000)
 ## **Scripts disponíveis**
 
 ```bash
-pnpm dev           # Inicia o servidor de desenvolvimento
-pnpm build         # Gera a build para produção
-pnpm start         # Inicia o servidor em modo produção
-pnpm prisma studio # Abre painel visual para o banco de dados
+npm dev           # Inicia o servidor de desenvolvimento
+npm build         # Gera a build para produção
+npm start         # Inicia o servidor em modo produção
+npm prisma studio # Abre painel visual para o banco de dados
 ```
 
 ---
