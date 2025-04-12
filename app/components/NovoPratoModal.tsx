@@ -21,10 +21,9 @@ export function NovoPratoModal({ onClose, onCreate }: NovoPratoModalProps) {
   const [categorias, setCategorias] = useState<string[]>([]);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'cardapio'), snapshot => {
-      const lista = snapshot.docs.map(doc => doc.data().categoria);
-      const unicos = [...new Set(lista)];
-      setCategorias(unicos);
+    const unsubscribe = onSnapshot(collection(db, 'categorias'), snapshot => {
+      const nomes = snapshot.docs.map(doc => doc.data().nome as string);
+      setCategorias(nomes);
     });
     return unsubscribe;
   }, []);
@@ -32,6 +31,13 @@ export function NovoPratoModal({ onClose, onCreate }: NovoPratoModalProps) {
   const salvar = async () => {
     const categoriaFinal = usarNovaCategoria ? novaCategoria.trim() : categoria;
     if (!nome || !categoriaFinal || preco <= 0) return;
+
+    if (usarNovaCategoria && novaCategoria.trim() && !categorias.includes(novaCategoria.trim())) {
+      await addDoc(collection(db, 'categorias'), {
+        nome: novaCategoria.trim(),
+        criado_em: new Date()
+      });
+    }
 
     const novoPrato: Omit<Prato, 'id'> = {
       nome,
@@ -47,67 +53,67 @@ export function NovoPratoModal({ onClose, onCreate }: NovoPratoModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-lg w-full space-y-4">
+      <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-lg w-full space-y-4">
         <h2 className="text-2xl font-semibold">Novo Prato</h2>
 
         <input
-        className="w-full border border-gray-300 p-3 rounded-md"
-        placeholder="Nome"
-        value={nome}
-        onChange={e => setNome(e.target.value)}
+          className="w-full border border-gray-300 p-3 rounded-md"
+          placeholder="Nome"
+          value={nome}
+          onChange={e => setNome(e.target.value)}
         />
 
         <div className="flex items-center gap-2">
-        <input
+          <input
             type="checkbox"
             id="usarNovaCategoria"
             checked={usarNovaCategoria}
             onChange={() => setUsarNovaCategoria(!usarNovaCategoria)}
             className="accent-blue-600"
-        />
-        <label htmlFor="usarNovaCategoria" className="text-sm">Cadastrar nova categoria</label>
+          />
+          <label htmlFor="usarNovaCategoria" className="text-sm">Cadastrar nova categoria</label>
         </div>
 
         {!usarNovaCategoria ? (
-        <select
+          <select
             className="w-full border border-gray-300 p-3 rounded-md"
             value={categoria}
             onChange={e => setCategoria(e.target.value)}
-        >
+          >
             <option value="">Selecione uma categoria existente</option>
             {categorias.map((cat, i) => (
-            <option key={i} value={cat}>{cat}</option>
+              <option key={i} value={cat}>{cat}</option>
             ))}
-        </select>
+          </select>
         ) : (
-        <input
+          <input
             className="w-full border border-gray-300 p-3 rounded-md"
             placeholder="Digite nova categoria"
             value={novaCategoria}
             onChange={e => setNovaCategoria(e.target.value)}
-        />
+          />
         )}
 
         <textarea
-        className="w-full border border-gray-300 p-3 rounded-md"
-        placeholder="Descrição"
-        value={descricao}
-        onChange={e => setDescricao(e.target.value)}
+          className="w-full border border-gray-300 p-3 rounded-md"
+          placeholder="Descrição"
+          value={descricao}
+          onChange={e => setDescricao(e.target.value)}
         />
 
         <input
-        type="number"
-        className="w-full border border-gray-300 p-3 rounded-md"
-        placeholder="Preço"
-        value={preco}
-        onChange={e => setPreco(parseFloat(e.target.value))}
+          type="number"
+          className="w-full border border-gray-300 p-3 rounded-md"
+          placeholder="Preço"
+          value={preco}
+          onChange={e => setPreco(parseFloat(e.target.value))}
         />
 
         <div className="flex justify-end gap-2 pt-2">
-        <button onClick={onClose} className="px-4 py-2 bg-red-400 hover:bg-red-600 rounded-md text-sm">Cancelar</button>
-        <button onClick={salvar} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm">Salvar</button>
+          <button onClick={onClose} className="px-4 py-2 bg-red-400 hover:bg-red-600 rounded-md text-sm">Cancelar</button>
+          <button onClick={salvar} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm">Salvar</button>
         </div>
-        </div>
+      </div>
     </div>
   );
 }

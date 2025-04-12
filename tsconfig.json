@@ -35,6 +35,7 @@
       "@/components/EditarPratoModal":["./app/components/EditarPratoModal"],
       "@/components/NovoPratoModal":["./app/components/NovoPratoModal"],
       "@/components/ListaDePratosPainel":["./app/components/ListaDePratosPainel"],
+      "@/components/ListaDeCategoriasPainel":["./app/components/ListaDeCategoriasPainel"],
       "@/components/ConfirmacaoModal":["./app/components/ConfirmacaoModal"],
       
       
