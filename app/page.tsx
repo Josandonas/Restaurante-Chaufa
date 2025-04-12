@@ -53,7 +53,7 @@ export default function Home() {
   }, []);
 
   const login = () => {
-    signInWithEmailAndPassword(auth, 'admin@chaufarestaurante.com', 'Fome2@-FogAO\\1').catch(console.error);
+    signInWithEmailAndPassword(auth, '', '').catch(console.error);
   };
 
   const logout = () => signOut(auth);
