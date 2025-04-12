@@ -15,7 +15,7 @@ Aplicação web para gerenciamento de cardápio digital, com edição de pratos,
 - **Zod**
 - **Lucia Auth**
 - **Prisma ORM**
-- **PostgreSQL**
+- **Firebase**
 - **PDFMake** (geração de PDFs)
 - **QR Code** (integração futura)
 
@@ -26,8 +26,7 @@ Aplicação web para gerenciamento de cardápio digital, com edição de pratos,
 Antes de rodar o projeto, certifique-se de ter instalado:
 
 - [Node.js (v18+)](https://nodejs.org/)
-- [PostgreSQL](https://www.postgresql.org/)
-- [pnpm](https://pnpm.io/) ou `npm`/`yarn` (adaptar se necessário)
+- [npm](https://npm.io/) ou `npm`/`yarn` (adaptar se necessário)
 
 ---
 
@@ -47,16 +46,18 @@ npm install
 cp .env.example .env
 ```
 
-Edite o `.env` com suas credenciais, por exemplo:
+Edite o `.env` com suas credenciais do firebase, por exemplo:
 
 ```env
-DATABASE_URL="postgresql://usuario:senha@localhost:5432/restaurante"
-AUTH_SECRET="uma_chave_secreta_segura"
+NEXT_PUBLIC_FIREBASE_API_KEY=etc...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=etc...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=etc...
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=etc...
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=etc...
+NEXT_PUBLIC_FIREBASE_APP_ID=etc...
 ```
 
 ```bash
-# Execute as migrações do banco de dados
-npm prisma migrate dev
 
 # Rode o projeto
 npm run dev
@@ -72,7 +73,6 @@ Acesse a aplicação em: [http://localhost:3000](http://localhost:3000)
 npm dev           # Inicia o servidor de desenvolvimento
 npm build         # Gera a build para produção
 npm start         # Inicia o servidor em modo produção
-npm prisma studio # Abre painel visual para o banco de dados
 ```
 
 ---
