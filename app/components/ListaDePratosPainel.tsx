@@ -1,5 +1,8 @@
 'use client';
 
+import { useState } from 'react';
+import { ConfirmacaoModal } from '@/components/ConfirmacaoModal';
+
 interface Prato {
   id: string;
   nome: string;
@@ -15,6 +18,15 @@ interface ListaDePratosProps {
 }
 
 export function ListaDePratos({ pratos, onEditar, onRemover }: ListaDePratosProps) {
+  const [pratoSelecionado, setPratoSelecionado] = useState<Prato | null>(null);
+
+  const confirmarRemocao = () => {
+    if (pratoSelecionado) {
+      onRemover(pratoSelecionado.id);
+      setPratoSelecionado(null);
+    }
+  };
+
   return (
     <div className="grid gap-4">
       {pratos.map(prato => (
@@ -28,19 +40,32 @@ export function ListaDePratos({ pratos, onEditar, onRemover }: ListaDePratosProp
           <div className="flex gap-2 md:flex-col md:items-end">
             <button
               onClick={() => onEditar(prato)}
-              className="px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow"
+              className="px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow min-w-[96px]"
             >
               Editar
             </button>
             <button
-              onClick={() => onRemover(prato.id)}
-              className="px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-md shadow"
+              onClick={() => setPratoSelecionado(prato)}
+              className="px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-md shadow min-w-[96px]"
             >
               Remover
             </button>
           </div>
         </div>
       ))}
+
+      {pratoSelecionado && (
+        <ConfirmacaoModal
+          titulo="Confirmar Exclusão"
+          mensagem={
+            <>
+              Deseja remover o prato <b>&#34;{pratoSelecionado.nome}&#34;</b>? Esta ação não poderá ser desfeita.
+            </>
+          }
+          onConfirmar={confirmarRemocao}
+          onCancelar={() => setPratoSelecionado(null)}
+        />
+      )}
     </div>
   );
 }

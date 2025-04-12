@@ -29,9 +29,15 @@
       "@/components/CardapioPDF":["./app/components/CardapioPDF"],
       "@/components/PratoItem":["./app/components/PratoItem"],
       "@/components/FormularioPrato":["./app/components/FormularioPrato"],
+      "@/components/PainelPratos":["./app/components/PainelPratos"],
+      "@/components/PainelCategorias":["./app/components/PainelCategorias"],
+
       "@/components/EditarPratoModal":["./app/components/EditarPratoModal"],
       "@/components/NovoPratoModal":["./app/components/NovoPratoModal"],
-      "@/components/ListaDePratosPainel":["./app/components/ListaDePratosPainel"]
+      "@/components/ListaDePratosPainel":["./app/components/ListaDePratosPainel"],
+      "@/components/ConfirmacaoModal":["./app/components/ConfirmacaoModal"],
+      
+      
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
