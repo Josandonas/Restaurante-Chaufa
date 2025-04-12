@@ -1,36 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Restaurante Chaufa
 
-First, run the development server:
+Aplicação web para gerenciamento de cardápio digital, com edição de pratos, geração de PDF, visualização responsiva e autenticação de usuários. Ideal para restaurantes que desejam um cardápio dinâmico e acessível via QR Code.
+
+---
+
+## **Tecnologias utilizadas**
+
+- **Next.js** (App Router)
+- **React**
+- **TypeScript**
+- **Tailwind CSS**
+- **ShadCN UI**
+- **Zod**
+- **Lucia Auth**
+- **Prisma ORM**
+- **PostgreSQL**
+- **PDFMake** (geração de PDFs)
+- **QR Code** (integração futura)
+
+---
+
+## **Pré-requisitos**
+
+Antes de rodar o projeto, certifique-se de ter instalado:
+
+- [Node.js (v18+)](https://nodejs.org/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [pnpm](https://pnpm.io/) ou `npm`/`yarn` (adaptar se necessário)
+
+---
+
+## **Instalação e execução**
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone o repositório
+git clone https://github.com/Josandonas/Restaurante-Chaufa.git
+
+# Acesse a pasta
+cd Restaurante-Chaufa
+
+# Instale as dependências
+pnpm install
+
+# Copie o arquivo .env.example e configure as variáveis
+cp .env.example .env
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Edite o `.env` com suas credenciais, por exemplo:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+DATABASE_URL="postgresql://usuario:senha@localhost:5432/restaurante"
+AUTH_SECRET="uma_chave_secreta_segura"
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Execute as migrações do banco de dados
+pnpm prisma migrate dev
 
-## Learn More
+# Rode o projeto
+pnpm dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Acesse a aplicação em: [http://localhost:3000](http://localhost:3000)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## **Scripts disponíveis**
 
-## Deploy on Vercel
+```bash
+pnpm dev           # Inicia o servidor de desenvolvimento
+pnpm build         # Gera a build para produção
+pnpm start         # Inicia o servidor em modo produção
+pnpm prisma studio # Abre painel visual para o banco de dados
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## **Funcionalidades**
+
+- Visualização pública de cardápio
+- Geração de PDF com data, hora e versão
+- Autenticação de usuários (admin)
+- CRUD completo de pratos (nome, descrição, preço, categoria)
+- Responsivo para mobile e desktop
+- Atualização automática do conteúdo
+- Interface moderna com Tailwind + ShadCN
+- Estrutura pronta para suporte multilíngue (PT/EN)
+- Agrupamento por categoria no PDF
+- Suporte futuro para logotipo, imagens e paginação em PDF
+
+---
+
+## **Estrutura do projeto**
+
+```
+.
+├── app/                # Rotas App Router do Next.js
+│   ├── api/            # Rotas da API (auth, pratos, etc.)
+│   ├── painel/         # Área administrativa
+│   └── page.tsx        # Página inicial (menu público)
+├── components/         # Componentes reutilizáveis
+├── lib/                # Funções utilitárias e configurações (auth, prisma)
+├── prisma/             # Schema do banco de dados
+├── public/             # Arquivos estáticos
+├── styles/             # Estilos globais
+├── types/              # Tipagens auxiliares
+├── .env.example        # Exemplo de variáveis de ambiente
+└── README.md
+```
+
+---
+
+## **Contribuição**
+
+Pull requests são bem-vindos! Para contribuir:
+
+1. Fork este repositório
+2. Crie uma branch: `git checkout -b minha-feature`
+3. Commit suas alterações: `git commit -m 'feat: nova feature'`
+4. Push: `git push origin minha-feature`
+5. Abra um Pull Request
+
+---
+
+## **Licença**
+
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+
+---
+
+## **Autor**
+
+Desenvolvido por [Josandonas](https://github.com/Josandonas)
