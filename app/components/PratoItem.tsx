@@ -1,10 +1,4 @@
-type Prato = {
-  id: string;
-  nome: string;
-  preco: number;
-  categoria: string;
-  descricao: string;
-};
+import type { Prato } from '@/models/Prato';
 
 type Props = {
   prato: Prato;

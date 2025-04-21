@@ -1,39 +1,19 @@
 import { useEffect, useState } from 'react';
-import { db } from '@/lib/firebase';
-import {
-  collection,
-  onSnapshot,
-  deleteDoc,
-  doc,
-  updateDoc,
-  addDoc,
-  DocumentData
-} from 'firebase/firestore';
 import type { User } from 'firebase/auth';
-
-interface Prato {
-  id: string;
-  nome: string;
-  preco: number;
-  categoria: string;
-  descricao: string;
-}
-export type { Prato };
-export function usePratos(user: User | null){
+import type { Prato } from '@/models/Prato';
+import * as pratoService from '@/services/pratoService';
+export function usePratos(user: User | null, ativos: boolean = true) {
   const [pratos, setPratos] = useState<Prato[]>([]);
   const [modalAberto, setModalAberto] = useState(false);
   const [pratoEditando, setPratoEditando] = useState<Prato | null>(null);
 
   useEffect(() => {
     if (!user) return;
-
-    const unsubscribe = onSnapshot(collection(db, 'cardapio'), snapshot => {
-      const lista = snapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as DocumentData) })) as Prato[];
-      setPratos(lista);
-    });
-
+    const unsubscribe = ativos
+      ? pratoService.listenPratos(setPratos)
+      : pratoService.listenPratosLixeira(setPratos);
     return () => unsubscribe();
-  }, [user]);
+  }, [user, ativos]);
 
   const abrirModal = (prato: Prato) => {
     setPratoEditando(prato);
@@ -47,26 +27,17 @@ export function usePratos(user: User | null){
 
   const salvarEdicao = async () => {
     if (pratoEditando) {
-      const ref = doc(db, 'cardapio', pratoEditando.id);
-      await updateDoc(ref, {
-        nome: pratoEditando.nome,
-        preco: pratoEditando.preco,
-        categoria: pratoEditando.categoria,
-        descricao: pratoEditando.descricao
-      });
+      await pratoService.updatePrato(pratoEditando);
       fecharModal();
     }
   };
 
   const removerPrato = async (id: string) => {
-    const confirmado = confirm('Deseja remover este prato?');
-    if (confirmado) {
-      await deleteDoc(doc(db, 'cardapio', id));
-    }
+    await pratoService.removePrato(id);
   };
 
-  const adicionarPrato = async (novo: Omit<Prato, 'id'>) => {
-    await addDoc(collection(db, 'cardapio'), novo);
+  const adicionarPrato = async (prato: Omit<Prato, 'id'>) => {
+    await pratoService.addPrato(prato);
   };
 
   return {
@@ -77,7 +48,8 @@ export function usePratos(user: User | null){
     fecharModal,
     salvarEdicao,
     removerPrato,
+    adicionarPrato,
     setPratoEditando,
-    adicionarPrato 
+    setModalAberto,
   };
 }

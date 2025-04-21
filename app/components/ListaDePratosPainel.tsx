@@ -3,13 +3,7 @@
 import { useState } from 'react';
 import { ConfirmacaoModal } from '@/components/ConfirmacaoModal';
 
-interface Prato {
-  id: string;
-  nome: string;
-  preco: number;
-  categoria: string;
-  descricao: string;
-}
+import type { Prato } from '@/models/Prato';
 
 interface ListaDePratosProps {
   pratos: Prato[];
@@ -20,7 +14,7 @@ interface ListaDePratosProps {
 export function ListaDePratos({ pratos, onEditar, onRemover }: ListaDePratosProps) {
   const [pratoSelecionado, setPratoSelecionado] = useState<Prato | null>(null);
 
-  const confirmarRemocao = () => {
+  const confirmarLixeira = () => {
     if (pratoSelecionado) {
       onRemover(pratoSelecionado.id);
       setPratoSelecionado(null);
@@ -29,7 +23,7 @@ export function ListaDePratos({ pratos, onEditar, onRemover }: ListaDePratosProp
 
   return (
     <div className="grid gap-4">
-      {pratos.map(prato => (
+      {[...pratos].sort((a, b) => a.categoria.localeCompare(b.categoria)).map(prato => (
         <div key={prato.id} className="bg-white rounded-2xl shadow-md p-6 flex flex-col md:flex-row justify-between items-start md:items-center">
           <div className="flex-1 mb-4 md:mb-0">
             <h2 className="text-xl font-semibold text-gray-800 mb-1">{prato.nome}</h2>
@@ -46,9 +40,9 @@ export function ListaDePratos({ pratos, onEditar, onRemover }: ListaDePratosProp
             </button>
             <button
               onClick={() => setPratoSelecionado(prato)}
-              className="px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-md shadow min-w-[96px]"
+              className="px-4 py-2 text-sm text-white bg-red-500 hover:bg-red-600 rounded-md shadow min-w-[96px]"
             >
-              Remover
+              Mover para lixeira
             </button>
           </div>
         </div>
@@ -59,10 +53,10 @@ export function ListaDePratos({ pratos, onEditar, onRemover }: ListaDePratosProp
           titulo="Confirmar Exclusão"
           mensagem={
             <>
-              Deseja remover o prato <b>&#34;{pratoSelecionado.nome}&#34;</b>? Esta ação não poderá ser desfeita.
+              Tem certeza que deseja mover o prato <b>{pratoSelecionado.nome}</b> para a lixeira?
             </>
           }
-          onConfirmar={confirmarRemocao}
+          onConfirmar ={confirmarLixeira}
           onCancelar={() => setPratoSelecionado(null)}
         />
       )}

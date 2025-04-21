@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { usePratos, type Prato } from '@/hooks/usePratos';
+import { usePratos } from '@/hooks/usePratos';
 import { ListaDePratos } from './ListaDePratosPainel';
 import { EditarPratoModal } from './EditarPratoModal';
 import { NovoPratoModal } from './NovoPratoModal';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import type { Prato } from '@/models/Prato';
 
 export function PainelPratos() {
   const { user } = useAuthGuard();
@@ -15,11 +16,10 @@ export function PainelPratos() {
     pratoEditando,
     abrirModal,
     salvarEdicao,
-    removerPrato,
     fecharModal,
     setPratoEditando,
     adicionarPrato
-  } = usePratos(user);
+  } = usePratos(user, true);
 
   const [modalNovoPrato, setModalNovoPrato] = useState(false);
 
@@ -44,7 +44,10 @@ export function PainelPratos() {
       <ListaDePratos
         pratos={pratos}
         onEditar={abrirModal}
-        onRemover={removerPrato}
+        onRemover={async (id) => {
+          const { moverParaLixeiraPrato } = await import('@/services/pratoService');
+          await moverParaLixeiraPrato(id);
+        }}
       />
 
       {modalAberto && pratoEditando && (

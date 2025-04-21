@@ -7,11 +7,12 @@ import { auth } from '@/lib/firebase';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { PainelPratos } from '@/components/PainelPratos';
 import { PainelCategorias } from '@/components/PainelCategorias';
+  import { PainelLixeira } from '@/components/PainelLixeira';
 
 export default function AdminPainelPage() {
   const router = useRouter();
   const { user, loading } = useAuthGuard();
-  const [abaAtiva, setAbaAtiva] = useState<'pratos' | 'categorias'>('pratos');
+  const [abaAtiva, setAbaAtiva] = useState<'pratos' | 'categorias' | 'lixeira'>('pratos');
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -58,11 +59,19 @@ export default function AdminPainelPage() {
         >
           Categorias
         </button>
+        <button
+          onClick={() => setAbaAtiva('lixeira')}
+          className={`px-4 py-2 rounded shadow ${abaAtiva === 'lixeira' ? 'bg-yellow-600 text-white' : 'bg-white text-gray-800 border'}`}
+        >
+          Lixeira
+        </button>
       </div>
 
       {/* Conteúdo condicional */}
       {abaAtiva === 'pratos' && <PainelPratos />}
       {abaAtiva === 'categorias' && <PainelCategorias />}
+      {abaAtiva === 'lixeira' && <PainelLixeira />}
+
     </main>
   );
 }

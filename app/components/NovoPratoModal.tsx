@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, addDoc, onSnapshot } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import type { Prato } from '@/hooks/usePratos';
+import type { Prato } from '@/models/Prato';
+import * as categoriaService from '@/services/categoriaService';
+import * as pratoService from '@/services/pratoService';
 
 interface NovoPratoModalProps {
   onClose: () => void;
@@ -21,22 +21,29 @@ export function NovoPratoModal({ onClose, onCreate }: NovoPratoModalProps) {
   const [categorias, setCategorias] = useState<string[]>([]);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'categorias'), snapshot => {
-      const nomes = snapshot.docs.map(doc => doc.data().nome as string);
-      setCategorias(nomes);
+    const unsubscribe = categoriaService.listenCategorias((cats) => {
+      setCategorias(cats.map(c => c.nome));
     });
     return unsubscribe;
   }, []);
 
+  const [erroCategoria, setErroCategoria] = useState("");
+
+  const normalizar = (str: string) => str.trim().toLocaleLowerCase();
+
   const salvar = async () => {
+    setErroCategoria("");
     const categoriaFinal = usarNovaCategoria ? novaCategoria.trim() : categoria;
     if (!nome || !categoriaFinal || preco <= 0) return;
 
-    if (usarNovaCategoria && novaCategoria.trim() && !categorias.includes(novaCategoria.trim())) {
-      await addDoc(collection(db, 'categorias'), {
-        nome: novaCategoria.trim(),
-        criado_em: new Date()
-      });
+    // Verificação de duplicidade de categoria (case/acento)
+    if (usarNovaCategoria && novaCategoria.trim()) {
+      const existe = categorias.some(cat => normalizar(cat) === normalizar(novaCategoria));
+      if (existe) {
+        setErroCategoria("Já existe uma categoria com esse nome (verifique acentuação e caixa).");
+        return;
+      }
+      await categoriaService.addCategoria({ nome: novaCategoria.trim(), criado_em: new Date(), ativo: true });
     }
 
     const novoPrato: Omit<Prato, 'id'> = {
@@ -44,12 +51,13 @@ export function NovoPratoModal({ onClose, onCreate }: NovoPratoModalProps) {
       categoria: categoriaFinal,
       descricao,
       preco,
+      ativo: true,
     };
 
-    await addDoc(collection(db, 'cardapio'), novoPrato);
-    onCreate(novoPrato);
+    await pratoService.addPrato(novoPrato);
     onClose();
   };
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -109,6 +117,7 @@ export function NovoPratoModal({ onClose, onCreate }: NovoPratoModalProps) {
           onChange={e => setPreco(parseFloat(e.target.value))}
         />
 
+        {erroCategoria && <div className="text-red-600 text-sm mb-2">{erroCategoria}</div>}
         <div className="flex justify-end gap-2 pt-2">
           <button onClick={onClose} className="px-4 py-2 bg-red-400 hover:bg-red-600 rounded-md text-sm">Cancelar</button>
           <button onClick={salvar} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm">Salvar</button>

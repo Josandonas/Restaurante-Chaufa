@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { addDoc, collection } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import type { Prato } from '@/models/Prato';
+import * as pratoService from '@/services/pratoService';
 
 type Props = {
   onSalvar: () => Promise<void>;
@@ -25,13 +25,14 @@ export function FormularioPrato({ onSalvar }: Props) {
     }
 
     try {
-      await addDoc(collection(db, 'cardapio'), {
+      const novoPrato: Omit<Prato, 'id'> = {
         nome: form.nome,
         preco: parseFloat(form.preco),
         categoria: form.categoria,
         descricao: form.descricao,
-      });
-
+        ativo: true,
+      };
+      await pratoService.addPrato(novoPrato);
       setForm({ nome: '', preco: '', categoria: '', descricao: '' });
       setErro('');
       await onSalvar();

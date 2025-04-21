@@ -1,33 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Dispatch, SetStateAction } from 'react';
+import { useCategorias } from '@/hooks/useCategorias';
 
-interface Prato {
-  id: string;
-  nome: string;
-  preco: number;
-  categoria: string;
-  descricao: string;
-}
+import type { Prato } from '@/models/Prato';
 
 interface EditarPratoModalProps {
   prato: Prato;
   onClose: () => void;
   onSave: () => void;
   setPratoEditando: Dispatch<SetStateAction<Prato | null>>;
-  categorias: string[];
 }
 
-export function EditarPratoModal({ prato, onClose, onSave, setPratoEditando, categorias }: EditarPratoModalProps) {
-  const [usarNovaCategoria, setUsarNovaCategoria] = useState(false);
-  const [novaCategoria, setNovaCategoria] = useState('');
+export function EditarPratoModal({ prato, onClose, onSave, setPratoEditando }: EditarPratoModalProps) {
+  const { categorias } = useCategorias(true);
 
-  useEffect(() => {
-    if (usarNovaCategoria && novaCategoria.trim()) {
-      setPratoEditando({ ...prato, categoria: novaCategoria });
-    }
-  }, [novaCategoria, usarNovaCategoria, prato, setPratoEditando]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -41,36 +29,16 @@ export function EditarPratoModal({ prato, onClose, onSave, setPratoEditando, cat
           onChange={e => setPratoEditando({ ...prato, nome: e.target.value })}
         />
 
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="usarNovaCategoria"
-            checked={usarNovaCategoria}
-            onChange={e => setUsarNovaCategoria(e.target.checked)}
-            className="accent-blue-600"
-          />
-          <label htmlFor="usarNovaCategoria" className="text-sm">Cadastrar nova categoria</label>
-        </div>
-
-        {usarNovaCategoria ? (
-          <input
-            className="w-full border border-gray-300 p-3 rounded-md"
-            placeholder="Nova categoria"
-            value={novaCategoria}
-            onChange={e => setNovaCategoria(e.target.value)}
-          />
-        ) : (
-          <select
-            className="w-full border border-gray-300 p-3 rounded-md"
-            value={prato.categoria}
-            onChange={e => setPratoEditando({ ...prato, categoria: e.target.value })}
-          >
-            <option value="">Selecione uma categoria</option>
-            {categorias.map((cat, idx) => (
-              <option key={idx} value={cat}>{cat}</option>
-            ))}
-          </select>
-        )}
+        <select
+          className="w-full border border-gray-300 p-3 rounded-md"
+          value={prato.categoria}
+          onChange={e => setPratoEditando({ ...prato, categoria: e.target.value })}
+        >
+          <option value="">Selecione uma categoria</option>
+          {categorias.map(cat => (
+            <option key={cat.id} value={cat.nome}>{cat.nome}</option>
+          ))}
+        </select>
 
         <textarea
           className="w-full border border-gray-300 p-3 rounded-md"
@@ -84,7 +52,10 @@ export function EditarPratoModal({ prato, onClose, onSave, setPratoEditando, cat
           className="w-full border border-gray-300 p-3 rounded-md"
           placeholder="Preço"
           value={prato.preco}
-          onChange={e => setPratoEditando({ ...prato, preco: parseFloat(e.target.value) })}
+          onChange={e => {
+            const value = parseFloat(e.target.value);
+            setPratoEditando({ ...prato, preco: isNaN(value) ? 0 : value });
+          }}
         />
 
         <div className="flex justify-end gap-2 pt-2">

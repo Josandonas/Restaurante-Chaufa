@@ -37,8 +37,7 @@
       "@/components/ListaDePratosPainel":["./app/components/ListaDePratosPainel"],
       "@/components/ListaDeCategoriasPainel":["./app/components/ListaDeCategoriasPainel"],
       "@/components/ConfirmacaoModal":["./app/components/ConfirmacaoModal"],
-      
-      
+      "@/components/*": ["./app/components/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

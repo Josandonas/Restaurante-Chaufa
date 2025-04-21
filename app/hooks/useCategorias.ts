@@ -1,33 +1,24 @@
 import { useEffect, useState } from 'react';
-import { collection, onSnapshot, addDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import type { Categoria } from '@/models/Categoria';
+import * as categoriaService from '@/services/categoriaService';
 
-export interface Categoria {
-  id: string;
-  nome: string;
-}
-
-export function useCategorias() {
+export function useCategorias(ativos: boolean = true) {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'categorias'), snapshot => {
-      const lista = snapshot.docs.map(doc => ({
-        id: doc.id,
-        nome: doc.data().nome,
-      }));
-      setCategorias(lista);
-    });
-
-    return unsubscribe;
-  }, []);
+    const unsubscribe = ativos
+      ? categoriaService.listenCategorias(setCategorias)
+      : categoriaService.listenCategoriasLixeira(setCategorias);
+    return () => unsubscribe();
+  }, [ativos]);
 
   const adicionarCategoria = async (nome: string) => {
-    await addDoc(collection(db, 'categorias'), {
-      nome: nome.trim(),
-      criado_em: new Date(),
-    });
+    await categoriaService.addCategoria(nome.trim());
   };
 
-  return { categorias, adicionarCategoria };
+  const restaurarCategoria = async (categoriaId: string) => {
+    await categoriaService.restaurarCategoria(categoriaId);
+  };
+
+  return { categorias, adicionarCategoria, restaurarCategoria };
 }

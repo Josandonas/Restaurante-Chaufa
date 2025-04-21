@@ -9,14 +9,7 @@ import {
   //  Font
   } from '@react-pdf/renderer';
   
-  // Tipagem compartilhada com a página principal
-  interface Prato {
-    id: string;
-    nome: string;
-    preco: number;
-    categoria: string;
-    descricao: string;
-  }
+  import type { Prato } from '@/models/Prato';
   
   interface Props {
     pratos: Prato[];
