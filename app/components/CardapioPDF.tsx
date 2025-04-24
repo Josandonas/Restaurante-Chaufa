@@ -1,20 +1,33 @@
-// components/CardapioPDF.tsx
+/**
+ * CardapioPDF.tsx
+ * 
+ * Componente para geração do PDF do cardápio utilizando react-pdf/renderer.
+ * Este componente renderiza a lista de pratos em um formato padronizado para download.
+ */
 
 import {
-    Document,
-    Page,
-    Text,
-    View,
-    StyleSheet,
-  //  Font
-  } from '@react-pdf/renderer';
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+} from '@react-pdf/renderer';
+
+import type { Prato } from '@/models/Prato';
+import { UI_LABELS } from '@/lib/constants';
   
-  import type { Prato } from '@/models/Prato';
-  
-  interface Props {
-    pratos: Prato[];
-    versao: { numero: string; ultimaAtualizacao: string };
-  }
+  /**
+ * Props para o componente CardapioPDF
+ */
+interface CardapioPDFProps {
+  /** Lista de pratos para exibir no cardápio */
+  pratos: Prato[];
+  /** Informações de versão do cardápio */
+  versao: { 
+    numero: string; 
+    ultimaAtualizacao: string; 
+  };
+}
   
   const styles = StyleSheet.create({
     page: {
@@ -62,21 +75,24 @@ import {
     }
   });
   
-  export function CardapioPDF({ pratos, versao }: Props) {
+/**
+ * Componente que gera um PDF do cardápio
+ */
+export function CardapioPDF({ pratos, versao }: CardapioPDFProps) {
     return (
       <Document>
         <Page size="A4" style={styles.page}>
-          <Text style={styles.title}>Cardápio Digital</Text>
+          <Text style={styles.title}>{UI_LABELS.CARDAPIO}</Text>
           {pratos.map(prato => (
             <View key={prato.id} style={styles.item}>
               <Text style={styles.nome}>{prato.nome}</Text>
               <Text style={styles.categoria}>{prato.categoria}</Text>
-              <Text style={styles.descricao}>{prato.descricao}</Text>
+              <Text style={styles.descricao}>{prato.descricao || UI_LABELS.SEM_DESCRICAO}</Text>
               <Text style={styles.preco}>R$ {prato.preco.toFixed(2)}</Text>
             </View>
           ))}
            <Text style={styles.footer}>
-            Versão: {versao.numero} | Baixado em: {new Date(versao.ultimaAtualizacao).toLocaleString()}
+            {UI_LABELS.VERSAO_INFO.replace('{0}', versao.numero)} | {UI_LABELS.PDF_INFO}
           </Text>
         </Page>
       </Document>

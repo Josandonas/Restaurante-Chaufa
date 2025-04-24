@@ -1,126 +1,134 @@
+/**
+ * NovoPratoModal.tsx
+ * 
+ * Componente de modal para criação de novos pratos.
+ * Utiliza o FormularioPrato como componente reutilizável.
+ */
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import type { Prato } from '@/models/Prato';
+import { useCategorias } from '@/hooks/useCategorias';
+import { FormularioPrato, PratoFormValues } from './FormularioPrato';
 import * as categoriaService from '@/services/categoriaService';
 import * as pratoService from '@/services/pratoService';
+import { UI_LABELS, ERROR_MESSAGES, LOADING_STATES } from '@/lib/constants';
 
 interface NovoPratoModalProps {
   onClose: () => void;
-  onCreate: (novo: Omit<Prato, 'id'>) => void;
-  categorias: string[];
+  onCreate?: (novo: Omit<Prato, 'id'>) => void;
 }
 
+/**
+ * Modal para criação de novos pratos
+ */
 export function NovoPratoModal({ onClose, onCreate }: NovoPratoModalProps) {
-  const [nome, setNome] = useState('');
-  const [categoria, setCategoria] = useState('');
-  const [usarNovaCategoria, setUsarNovaCategoria] = useState(false);
-  const [novaCategoria, setNovaCategoria] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [preco, setPreco] = useState<number>(0);
-  const [categorias, setCategorias] = useState<string[]>([]);
-
-  useEffect(() => {
-    const unsubscribe = categoriaService.listenCategorias((cats) => {
-      setCategorias(cats.map(c => c.nome));
-    });
-    return unsubscribe;
-  }, []);
-
-  const [erroCategoria, setErroCategoria] = useState("");
-
-  const normalizar = (str: string) => str.trim().toLocaleLowerCase();
-
-  const salvar = async () => {
-    setErroCategoria("");
-    const categoriaFinal = usarNovaCategoria ? novaCategoria.trim() : categoria;
-    if (!nome || !categoriaFinal || preco <= 0) return;
-
-    // Verificação de duplicidade de categoria (case/acento)
-    if (usarNovaCategoria && novaCategoria.trim()) {
-      const existe = categorias.some(cat => normalizar(cat) === normalizar(novaCategoria));
-      if (existe) {
-        setErroCategoria("Já existe uma categoria com esse nome (verifique acentuação e caixa).");
-        return;
+  // Obtém lista de categorias ativas
+  const { categorias, loading, error: categoriasError } = useCategorias(true);
+  // Estado para mensagens de erro
+  const [erro, setErro] = useState<string | null>(null);
+  // Lista de nomes de categorias para o formulário
+  const categoriasNomes = categorias.map(cat => cat.nome);
+  
+  /**
+   * Normaliza string para comparação
+   */
+  const normalizar = useCallback((str: string) => str.trim().toLocaleLowerCase(), []);
+  
+  /**
+   * Verifica se uma categoria já existe (independente de capitalização/acentuação)
+   */
+  const categoriaExiste = useCallback((nome: string): boolean => {
+    return categoriasNomes.some(cat => normalizar(cat) === normalizar(nome));
+  }, [categoriasNomes, normalizar]);
+  
+  /**
+   * Manipula a submissão do formulário
+   */
+  const handleSubmit = useCallback(async (valores: PratoFormValues) => {
+    try {
+      // Verifica se está usando nova categoria
+      if (valores.categoria.startsWith('nova:')) {
+        const novaCategoriaNome = valores.categoria.substring(5).trim();
+        
+        // Verifica duplicidade
+        if (categoriaExiste(novaCategoriaNome)) {
+          setErro(ERROR_MESSAGES.CATEGORIA_DUPLICADA);
+          return;
+        }
+        
+        // Cria nova categoria
+        await categoriaService.addCategoria({ 
+          nome: novaCategoriaNome, 
+          criado_em: new Date(), 
+          ativo: true 
+        });
+        
+        // Atualiza categoria do prato para usar o nome correto
+        valores.categoria = novaCategoriaNome;
       }
-      await categoriaService.addCategoria({ nome: novaCategoria.trim(), criado_em: new Date(), ativo: true });
+      
+      // Cria o novo prato
+      const novoPrato: Omit<Prato, 'id'> = {
+        nome: valores.nome,
+        categoria: valores.categoria,
+        descricao: valores.descricao,
+        preco: typeof valores.preco === 'string' ? parseFloat(valores.preco) : valores.preco,
+        ativo: true,
+      };
+      
+      // Salva o prato
+      await pratoService.addPrato(novoPrato);
+      
+      // Notifica o componente pai se callback fornecido
+      if (onCreate) {
+        onCreate(novoPrato);
+      }
+      
+      // Fecha o modal
+      onClose();
+    } catch (error) {
+      console.error('Erro ao criar novo prato:', error);
+      setErro(ERROR_MESSAGES.ERRO_ADICIONAR_PRATO);
     }
-
-    const novoPrato: Omit<Prato, 'id'> = {
-      nome,
-      categoria: categoriaFinal,
-      descricao,
-      preco,
-      ativo: true,
-    };
-
-    await pratoService.addPrato(novoPrato);
-    onClose();
-  };
-
-
+  }, [categoriaExiste, onClose, onCreate]);
+  
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-lg w-full space-y-4">
-        <h2 className="text-2xl font-semibold">Novo Prato</h2>
-
-        <input
-          className="w-full border border-gray-300 p-3 rounded-md"
-          placeholder="Nome"
-          value={nome}
-          onChange={e => setNome(e.target.value)}
-        />
-
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="usarNovaCategoria"
-            checked={usarNovaCategoria}
-            onChange={() => setUsarNovaCategoria(!usarNovaCategoria)}
-            className="accent-blue-600"
-          />
-          <label htmlFor="usarNovaCategoria" className="text-sm">Cadastrar nova categoria</label>
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-titulo"
+    >
+      <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-lg w-full">
+        <div className="flex justify-between items-center mb-4">
+          <h2 id="modal-titulo" className="text-2xl font-semibold">{UI_LABELS.NOVO_PRATO}</h2>
+          {erro && <p className="text-red-500 text-sm">{erro}</p>}
         </div>
-
-        {!usarNovaCategoria ? (
-          <select
-            className="w-full border border-gray-300 p-3 rounded-md"
-            value={categoria}
-            onChange={e => setCategoria(e.target.value)}
-          >
-            <option value="">Selecione uma categoria existente</option>
-            {categorias.map((cat, i) => (
-              <option key={i} value={cat}>{cat}</option>
-            ))}
-          </select>
+        
+        {loading ? (
+          <div className="py-4 text-center text-gray-500">{LOADING_STATES.CARREGANDO_CATEGORIAS}</div>
+        ) : categoriasError ? (
+          <div className="py-4 text-center text-red-500">{categoriasError}</div>
         ) : (
-          <input
-            className="w-full border border-gray-300 p-3 rounded-md"
-            placeholder="Digite nova categoria"
-            value={novaCategoria}
-            onChange={e => setNovaCategoria(e.target.value)}
+          <FormularioPrato
+            categorias={categoriasNomes}
+            onSubmit={handleSubmit}
+            onError={setErro}
+            textoBotao={UI_LABELS.SALVAR}
+            permiteNovaCategoria={true}
           />
         )}
-
-        <textarea
-          className="w-full border border-gray-300 p-3 rounded-md"
-          placeholder="Descrição"
-          value={descricao}
-          onChange={e => setDescricao(e.target.value)}
-        />
-
-        <input
-          type="number"
-          className="w-full border border-gray-300 p-3 rounded-md"
-          placeholder="Preço"
-          value={preco}
-          onChange={e => setPreco(parseFloat(e.target.value))}
-        />
-
-        {erroCategoria && <div className="text-red-600 text-sm mb-2">{erroCategoria}</div>}
-        <div className="flex justify-end gap-2 pt-2">
-          <button onClick={onClose} className="px-4 py-2 bg-red-400 hover:bg-red-600 rounded-md text-sm">Cancelar</button>
-          <button onClick={salvar} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm">Salvar</button>
+        
+        <div className="flex justify-end gap-2 mt-6">
+          <button 
+            onClick={onClose} 
+            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-sm"
+            aria-label="Cancelar e fechar modal"
+          >
+            {UI_LABELS.CANCELAR}
+          </button>
         </div>
       </div>
     </div>
