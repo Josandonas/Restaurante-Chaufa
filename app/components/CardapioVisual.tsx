@@ -219,7 +219,7 @@ export function CardapioVisual({ pratos, loading }: CardapioVisualProps) {
         {/* Conteúdo principal do cardápio */}
         <div className="p-6 bg-[#2A2322] relative">
           {/* Imagem de fundo decorativa */}
-          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url(/images/food-pattern.png)', backgroundSize: '400px', backgroundRepeat: 'repeat' }}></div>
+          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url(/images/food-pattern.png)', backgroundSize: '400px', backgroundRepeat: 'space' }}></div>
           {loading || processando ? (
             <div className="py-8 text-center text-amber-200">
               <p>{textos.carregando[idioma]}</p>
@@ -235,13 +235,13 @@ export function CardapioVisual({ pratos, loading }: CardapioVisualProps) {
                   {/* Imagens de pratos destacados */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="relative rounded-lg overflow-hidden h-32 shadow-lg">
-                      <Image src="/images/prato-frango.jpg" alt="Prato de frango" fill style={{objectFit: 'cover'}} />
+                      <Image src="/images/prato-frango.jpeg" alt="Prato de frango" fill style={{objectFit: 'cover'}} />
                     </div>
                     <div className="relative rounded-lg overflow-hidden h-32 shadow-lg">
-                      <Image src="/images/prato-batata.jpg" alt="Prato de batata" fill style={{objectFit: 'cover'}} />
+                      <Image src="/images/prato-batata.png" alt="Prato de batata" fill style={{objectFit: 'cover'}} />
                     </div>
                     <div className="relative rounded-lg overflow-hidden h-32 shadow-lg">
-                      <Image src="/images/prato-carne.jpg" alt="Prato de carne" fill style={{objectFit: 'cover'}} />
+                      <Image src="/images/prato-carne.png" alt="Prato de carne" fill style={{objectFit: 'cover'}} />
                     </div>
                   </div>
                   
