@@ -11,6 +11,7 @@ class LoginI18n {
                 password: 'Senha',
                 rememberMe: 'Manter-me conectado por 30 dias',
                 loginButton: 'Entrar no Painel',
+                backToMenu: 'Voltar ao Cardápio',
                 peruvianFood: 'Comida Peruana Autêntica 🇵🇪'
             },
             es: {
@@ -20,6 +21,7 @@ class LoginI18n {
                 password: 'Contraseña',
                 rememberMe: 'Mantenerme conectado por 30 días',
                 loginButton: 'Ingresar al Panel',
+                backToMenu: 'Volver al Menú',
                 peruvianFood: 'Comida Peruana Auténtica 🇵🇪'
             }
         };

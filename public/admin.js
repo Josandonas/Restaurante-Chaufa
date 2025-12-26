@@ -10,6 +10,7 @@
  */
 
 import App from './js/app.js';
+import './js/utils/paginationLayout.js';
 
 // A aplicação é inicializada automaticamente pelo app.js
 // quando o DOM estiver pronto.

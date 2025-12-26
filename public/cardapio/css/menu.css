@@ -1,0 +1,891 @@
+/* Reset e Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: linear-gradient(135deg, #2a1a1a 0%, #3d2520 50%, #2a1a1a 100%);
+    color: #f5f5f5;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Elementos decorativos de fundo */
+body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(200, 70, 60, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(220, 180, 140, 0.06) 0%, transparent 50%);
+    animation: rotate 60s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.decorative-pattern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.03;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 35px,
+        rgba(255,255,255,.05) 35px,
+        rgba(255,255,255,.05) 70px
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+.container {
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ==================== HEADER ==================== */
+.header {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, #2a1a1a 0%, #3d2520 100%);
+    border-bottom: 3px solid #c8463c;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    z-index: 100;
+    padding: 15px 20px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.logo-container {
+    width: 100px;
+    height: 100px;
+    transition: all 0.3s;
+    background: #ffffff;
+    padding: 5px;
+    border-radius: 50%;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.3);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.logo-container:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
+
+.logo-container img {
+    width: 120%;
+    height: 120%;
+    object-fit: contain;
+    display: block;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: nowrap;
+}
+
+.language-selector {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    background: rgba(200, 70, 60, 0.1);
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(200, 70, 60, 0.3);
+}
+
+.btn-lang {
+    width: 36px;
+    height: 36px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-lang:hover {
+    background: rgba(200, 70, 60, 0.2);
+    transform: scale(1.05);
+}
+
+.btn-lang.active {
+    background: rgba(200, 70, 60, 0.3);
+    border-color: #c8463c;
+    transform: scale(1.1);
+}
+
+.btn-pdf {
+    background: linear-gradient(135deg, #c8463c 0%, #d85850 100%);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.8em;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 4px 12px rgba(200, 70, 60, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-pdf:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 18px rgba(200, 70, 60, 0.6);
+}
+
+/* ==================== CONTEÚDO ==================== */
+.content {
+    padding: 30px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Seções de categoria */
+.category-section {
+    margin-bottom: 50px;
+    background: rgba(42, 26, 26, 0.6);
+    border: 2px solid #c8463c;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.category-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(200, 70, 60, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #c8463c;
+}
+
+.category-title {
+    font-size: 1.8em;
+    color: #dcb48c;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.dishes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.dish-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(200, 70, 60, 0.2);
+    transition: all 0.3s;
+}
+
+.dish-item:hover {
+    background: rgba(200, 70, 60, 0.05);
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 8px;
+}
+
+.dish-mini-image {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #c8463c;
+    box-shadow: 0 2px 8px rgba(200, 70, 60, 0.3);
+}
+
+.dish-mini-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dish-info {
+    flex: 1;
+}
+
+.dish-name {
+    font-size: 1.05em;
+    color: #f5f5f5;
+    flex: 1;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}
+
+.dish-description {
+    font-size: 0.85em;
+    color: #bbb;
+    font-style: italic;
+    margin-top: 5px;
+    display: block;
+}
+
+.dish-prices {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    white-space: nowrap;
+    margin-left: 20px;
+}
+
+.price-value {
+    font-size: 1.05em;
+    color: #dcb48c;
+    font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+/* ==================== SEÇÃO HERO - PRATOS EM DESTAQUE ==================== */
+.highlights-section {
+    margin-bottom: 50px;
+    padding: 40px 20px;
+}
+
+.highlights-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.highlights-title {
+    font-size: 2em;
+    color: #dcb48c;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+    margin-bottom: 10px;
+}
+
+/* Grid circular de pratos */
+.highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 25px;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.highlight-card {
+    position: relative;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.highlight-card:hover {
+    transform: translateY(-15px) scale(1.05);
+}
+
+/* Imagem circular do prato */
+.highlight-image-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 15px;
+}
+
+.highlight-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #c8463c;
+    box-shadow: 0 8px 25px rgba(200, 70, 60, 0.5);
+    background: linear-gradient(135deg, #3d2520 0%, #2a1a1a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3em;
+    transition: all 0.3s;
+}
+
+.highlight-card:hover .highlight-image {
+    border-color: #f4d03f;
+    box-shadow: 0 12px 35px rgba(244, 208, 63, 0.6);
+    transform: rotate(5deg);
+}
+
+/* Badge de preço */
+.highlight-price-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: linear-gradient(135deg, #c8463c 0%, #d85850 100%);
+    color: #fff;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(200, 70, 60, 0.6);
+    border: 3px solid #fff;
+    z-index: 3;
+}
+
+.highlight-price-badge .currency {
+    font-size: 0.7em;
+    line-height: 1;
+}
+
+.highlight-price-badge .amount {
+    font-size: 1.3em;
+    line-height: 1;
+}
+
+/* Nome do prato */
+.highlight-name {
+    font-size: 1.3em;
+    color: #fff;
+    margin-bottom: 8px;
+    font-weight: 700;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+    min-height: 2.6em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.highlight-description {
+    color: #d0d0d0;
+    font-size: 0.9em;
+    line-height: 1.4;
+    margin-top: 8px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+
+
+/* Rodapé */
+.footer {
+    background: #2a1a1a;
+    border-top: 3px solid #c8463c;
+    padding: 25px 20px;
+    text-align: center;
+    margin-top: 50px;
+    position: relative;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 25px;
+}
+
+.footer-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #dcb48c;
+    font-size: 0.95em;
+}
+
+.footer-item a {
+    color: #dcb48c;
+    text-decoration: none;
+    transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(200, 70, 60, 0.1);
+    border: 1px solid rgba(200, 70, 60, 0.3);
+}
+
+.footer-item a:hover {
+    color: #fff;
+    background: rgba(200, 70, 60, 0.25);
+    border-color: #c8463c;
+    text-decoration: underline;
+    transform: translateY(-2px);
+}
+
+/* Botão Admin Discreto no Footer */
+.admin-link-footer {
+    position: absolute;
+    bottom: 8px;
+    right: 15px;
+    font-size: 0.85em;
+    color: rgba(150, 150, 150, 0.4);
+    text-decoration: none;
+    transition: all 0.3s;
+    opacity: 0.5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(42, 26, 26, 0.3);
+}
+
+.admin-link-footer:hover {
+    color: rgba(220, 180, 140, 0.9);
+    opacity: 1;
+    background: rgba(200, 70, 60, 0.2);
+    transform: scale(1.1);
+}
+
+/* Botão Flutuante WhatsApp - FAB */
+.whatsapp-fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    border-radius: 50%;
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+    z-index: 999;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: pulse 2s infinite;
+}
+
+.whatsapp-fab:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 8px 30px rgba(37, 211, 102, 0.6);
+    animation: none;
+}
+
+.whatsapp-fab svg {
+    width: 32px;
+    height: 32px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 30px rgba(37, 211, 102, 0.7);
+    }
+}
+
+/* Estados */
+.loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: #dcb48c;
+    font-size: 1.4em;
+}
+
+.error {
+    background: rgba(200, 70, 60, 0.2);
+    border: 2px solid #c8463c;
+    color: #ff9090;
+    padding: 25px;
+    border-radius: 15px;
+    margin: 25px;
+    text-align: center;
+    font-size: 1.05em;
+}
+
+/* ==================== RESPONSIVIDADE ==================== */
+
+/* Notebooks pequenos e tablets landscape (1024px - 1366px) */
+@media (max-width: 1366px) {
+    .header {
+        padding: 12px 15px;
+    }
+    
+    .logo-container {
+        width: 120px;
+    }
+    
+    .btn-pdf {
+        font-size: 0.8em;
+        padding: 7px 14px;
+    }
+    
+    .category-title {
+        font-size: 1.6em;
+    }
+    
+    .highlights-title {
+        font-size: 2em;
+    }
+}
+
+/* Tablets (768px - 1024px) */
+@media (max-width: 1024px) {
+    .header {
+        padding: 12px 15px;
+    }
+    
+    .header-content {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+    }
+    
+    .logo-container {
+        width: 110px;
+    }
+    
+    .header-controls {
+        gap: 10px;
+    }
+    
+    .btn-lang {
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+    }
+    
+    .btn-pdf {
+        font-size: 0.75em;
+        padding: 6px 12px;
+    }
+    
+    .category-title {
+        font-size: 1.5em;
+    }
+    
+    .dish-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+.dish-prices {
+margin-left: 0;
+}
+    
+/* Hero responsivo */
+.highlights-section {
+padding: 40px 15px;
+}
+    
+.highlights-logo {
+max-width: 220px;
+}
+    
+.highlights-tagline {
+font-size: 1.5em;
+}
+    
+.highlights-subtitle {
+font-size: 1em;
+}
+    
+.highlights-grid {
+grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+gap: 30px;
+}
+    
+.highlight-image-wrapper {
+width: 150px;
+height: 150px;
+}
+    
+.highlight-price-badge {
+width: 60px;
+height: 60px;
+}
+    
+.highlight-name {
+font-size: 1.1em;
+}
+    
+.highlights-footer-text {
+font-size: 1.6em;
+}
+}
+
+/* Mobile (até 768px) */
+@media (max-width: 768px) {
+    .header {
+        padding: 8px 10px;
+    }
+    
+    .logo-container {
+        width: 70px;
+    }
+    
+    .header-controls {
+        flex-direction: row;
+        gap: 6px;
+    }
+    
+    .language-selector {
+        padding: 3px 5px;
+        gap: 3px;
+    }
+    
+    .btn-lang {
+        width: 28px;
+        height: 28px;
+        font-size: 13px;
+    }
+    
+    .btn-pdf {
+        font-size: 0.65em;
+        padding: 5px 8px;
+        gap: 3px;
+    }
+    
+    .content {
+        padding: 20px 12px;
+    }
+    
+    .category-section {
+        padding: 18px;
+        margin-bottom: 35px;
+    }
+    
+    .category-title {
+        font-size: 1.3em;
+    }
+    
+    .dish-name {
+        font-size: 1em;
+    }
+    
+    /* Hero mobile */
+    .highlights-section {
+        padding: 20px 10px;
+        border-radius: 12px;
+    }
+    
+    .highlights-header {
+        margin-bottom: 20px;
+    }
+    
+    .highlights-logo {
+        max-width: 140px;
+    }
+    
+    .highlights-tagline {
+        font-size: 1.1em;
+        margin-bottom: 6px;
+    }
+    
+    .highlights-subtitle {
+        font-size: 0.8em;
+    }
+    
+    .highlights-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        padding: 5px;
+    }
+    
+    .highlight-image-wrapper {
+        width: 110px;
+        height: 110px;
+    }
+    
+    .highlight-price-badge {
+        width: 50px;
+        height: 50px;
+        top: -6px;
+        right: -6px;
+        border-width: 2px;
+    }
+    
+    .highlight-price-badge .currency {
+        font-size: 0.6em;
+    }
+    
+    .highlight-price-badge .amount {
+        font-size: 1.1em;
+    }
+    
+    .highlight-name {
+        font-size: 0.9em;
+        min-height: auto;
+        margin-bottom: 4px;
+    }
+    
+    .highlight-description {
+        display: none;
+    }
+    
+    .highlights-footer {
+        margin-top: 20px;
+        padding-top: 15px;
+    }
+    
+    .highlights-footer-text {
+        font-size: 1.1em;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+    }
+    
+    .footer-item {
+        font-size: 0.9em;
+    }
+    
+    /* Botão Admin em Mobile - Mais Visível */
+    .admin-link-footer {
+        bottom: 10px;
+        left: 15px;
+        right: auto;
+        font-size: 1em;
+        color: rgba(220, 180, 140, 0.7);
+        opacity: 0.8;
+        padding: 6px 12px;
+        background: rgba(42, 26, 26, 0.6);
+        border: 1px solid rgba(220, 180, 140, 0.3);
+    }
+}
+
+/* Mobile pequeno (até 480px) */
+@media (max-width: 480px) {
+    .header {
+        padding: 8px 10px;
+    }
+    
+    .logo-container {
+        width: 85px;
+    }
+    
+    .btn-lang {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+    
+    .btn-pdf {
+        font-size: 0.65em;
+        padding: 5px 8px;
+    }
+    
+    .category-title {
+        font-size: 1.2em;
+        letter-spacing: 1px;
+    }
+    
+    /* Hero mobile pequeno */
+    .highlights-section {
+        padding: 20px 8px;
+    }
+    
+    .highlights-logo {
+        max-width: 120px;
+    }
+    
+    .highlights-tagline {
+        font-size: 1em;
+    }
+    
+    .highlights-subtitle {
+        font-size: 0.75em;
+    }
+    
+    .highlights-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .highlight-image-wrapper {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .highlight-price-badge {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .highlight-name {
+        font-size: 1em;
+    }
+    
+    .highlights-footer {
+        margin-top: 15px;
+        padding-top: 12px;
+    }
+    
+    .highlights-footer-text {
+        font-size: 1em;
+    }
+    
+    .highlights-footer-text strong {
+        font-size: 1.15em;
+    }
+    
+    .highlights-title {
+        font-size: 1.4em;
+        letter-spacing: 2px;
+    }
+    
+    .highlight-name {
+        font-size: 1.3em;
+    }
+}

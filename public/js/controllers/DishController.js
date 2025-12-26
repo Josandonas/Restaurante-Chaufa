@@ -130,17 +130,20 @@ class DishController {
         let filtered = this.dishes.filter(d => d.destaque);
         
         // Filtrar por busca
-        if (this.searchTerm) {
+        if (this.searchTermDestaques && this.searchTermDestaques.length > 0) {
             const lang = i18n.getCurrentLanguage();
+            const searchLower = this.searchTermDestaques.toLowerCase();
             filtered = filtered.filter(d => {
                 const name = lang === 'pt' ? d.nome_pt : d.nome_es;
-                return name.toLowerCase().includes(this.searchTerm);
+                const desc = lang === 'pt' ? d.descricao_pt : d.descricao_es;
+                return name.toLowerCase().includes(searchLower) || 
+                       (desc && desc.toLowerCase().includes(searchLower));
             });
         }
         
         // Filtrar por categoria
-        if (this.selectedCategory) {
-            filtered = filtered.filter(d => d.categoria_id == this.selectedCategory);
+        if (this.selectedCategoryDestaques && this.selectedCategoryDestaques !== '') {
+            filtered = filtered.filter(d => d.categoria_id == this.selectedCategoryDestaques);
         }
         
         // Aplicar paginação
@@ -197,10 +200,118 @@ class DishController {
             tbody.appendChild(row);
         });
 
+        // Renderizar cards mobile
+        this.renderMobileCards('lista', dishes);
+
         // Ocultar botões de deletar se for editor
         if (window.currentUserRole === 'editor') {
             this.hideDeleteButtonsInList();
         }
+    }
+
+    renderMobileCards(type, dishes) {
+        const container = document.getElementById(`${type}MobileCards`);
+        if (!container) {
+            const tableContainer = document.querySelector(`#${type}Table`)?.closest('.table-container');
+            if (tableContainer) {
+                const cardsContainer = document.createElement('div');
+                cardsContainer.id = `${type}MobileCards`;
+                cardsContainer.className = 'dishes-mobile-cards';
+                tableContainer.parentNode.insertBefore(cardsContainer, tableContainer.nextSibling);
+            } else {
+                return;
+            }
+        }
+
+        const cardsContainer = document.getElementById(`${type}MobileCards`);
+        cardsContainer.innerHTML = '';
+
+        dishes.forEach((dish, index) => {
+            const dishName = i18n.getCurrentLanguage() === 'pt' ? dish.nome_pt : dish.nome_es;
+            const categoryName = dish.categoria_nome_pt || dish.categoria_nome_es || '-';
+            const statusText = dish.ativo ? i18n.t('active') : i18n.t('inactive');
+            const statusClass = dish.ativo ? 'active' : 'inactive';
+            const destacadoText = dish.destaque ? (i18n.getCurrentLanguage() === 'pt' ? 'Sim' : 'Sí') : 'Não';
+            
+            const card = document.createElement('div');
+            card.className = 'dish-card-mobile';
+            
+            const imageHtml = dish.imagem_url 
+                ? `<img src="${dish.imagem_url}" alt="${dishName}" class="dish-card-image" onerror="this.parentElement.innerHTML='<div class=\\'dish-card-image-placeholder\\'>🍽️</div>'">`
+                : `<div class="dish-card-image-placeholder">🍽️</div>`;
+            
+            // Controles de ordem para Destaques
+            let orderControls = '';
+            if (type === 'destaques') {
+                const isFirst = index === 0;
+                const isLast = index === dishes.length - 1;
+                orderControls = `
+                    <div class="category-order-mobile">
+                        <button class="order-btn-mobile" onclick="window.dishController.moveDestaqueUp(${dish.id})" ${isFirst ? 'disabled' : ''}>▲</button>
+                        <span class="order-number-mobile">${dish.ordem}</span>
+                        <button class="order-btn-mobile" onclick="window.dishController.moveDestaqueDown(${dish.id})" ${isLast ? 'disabled' : ''}>▼</button>
+                    </div>
+                `;
+            }
+            
+            const highlightBtn = type === 'lista' 
+                ? `<button class="dish-card-btn dish-card-btn-highlight" onclick="window.dishController.toggleDestaque(${dish.id}, true)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    ${i18n.t('markAsFeatured')}
+                   </button>`
+                : `<button class="dish-card-btn dish-card-btn-highlight" onclick="window.dishController.toggleDestaque(${dish.id}, false)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    ${i18n.t('removeFeatured')}
+                   </button>`;
+            
+            const deleteBtn = window.currentUserRole !== 'editor' 
+                ? `<button class="dish-card-btn dish-card-btn-delete" onclick="window.app.openDeleteModal('dish', ${dish.id}, '${dishName.replace(/'/g, "\\'")}')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    ${i18n.t('deleteTooltip')}
+                   </button>`
+                : '';
+            
+            card.innerHTML = `
+                <div class="dish-card-header">
+                    <div class="dish-card-info">
+                        <div class="dish-card-name">${dishName}</div>
+                        <span class="dish-card-category">${categoryName}</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        ${imageHtml}
+                        ${orderControls}
+                    </div>
+                </div>
+                <div class="dish-card-details">
+                    <div class="dish-card-detail">
+                        <span class="dish-card-detail-label">${i18n.getCurrentLanguage() === 'pt' ? 'Preço (R$)' : 'Precio (R$)'}</span>
+                        <span class="dish-card-detail-value dish-card-price">R$ ${parseFloat(dish.preco_brl).toFixed(2)}</span>
+                    </div>
+                    <div class="dish-card-detail">
+                        <span class="dish-card-detail-label">${i18n.getCurrentLanguage() === 'pt' ? 'Preço (Bs.)' : 'Precio (Bs.)'}</span>
+                        <span class="dish-card-detail-value dish-card-price">Bs. ${parseFloat(dish.preco_bob).toFixed(2)}</span>
+                    </div>
+                    <div class="dish-card-detail">
+                        <span class="dish-card-detail-label">${i18n.getCurrentLanguage() === 'pt' ? 'Estado' : 'Estado'}</span>
+                        <span class="dish-card-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="dish-card-detail">
+                        <span class="dish-card-detail-label">${i18n.getCurrentLanguage() === 'pt' ? 'Ordem' : 'Orden'}</span>
+                        <span class="dish-card-detail-value">${type === 'destaques' ? dish.ordem : destacadoText}</span>
+                    </div>
+                </div>
+                <div class="dish-card-actions">
+                    ${highlightBtn}
+                    <button class="dish-card-btn dish-card-btn-edit" onclick="window.dishController.editDish(${dish.id})">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                        ${i18n.t('editTooltip')}
+                    </button>
+                    ${deleteBtn}
+                </div>
+            `;
+            
+            cardsContainer.appendChild(card);
+        });
     }
 
     hideDeleteButtonsInList() {
@@ -282,6 +393,9 @@ class DishController {
                 this.loadDishImage(imageCell, dish.imagem_url, dishName);
             }
         });
+
+        // Renderizar cards mobile
+        this.renderMobileCards('destaques', dishes);
 
         // Ocultar botões de deletar se for editor
         if (window.currentUserRole === 'editor') {

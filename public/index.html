@@ -4,58 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menú - La Casa del Chaufa</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Georgia', 'Times New Roman', serif; background: linear-gradient(135deg, #2a1a1a 0%, #3d2520 50%, #2a1a1a 100%); color: #f5f5f5; min-height: 100vh; position: relative; overflow-x: hidden; }
-        body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 20% 50%, rgba(200, 70, 60, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(220, 180, 140, 0.06) 0%, transparent 50%); animation: rotate 60s linear infinite; pointer-events: none; z-index: 0; }
-        @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .decorative-pattern { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.03; background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.05) 35px, rgba(255,255,255,.05) 70px); pointer-events: none; z-index: 1; }
-        .container { position: relative; z-index: 2; max-width: 1400px; margin: 0 auto; }
-        .header { position: sticky; top: 0; background: linear-gradient(135deg, #2a1a1a 0%, #3d2520 100%); border-bottom: 3px solid #c8463c; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 100; padding: 20px; }
-        .header-content { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
-        .logo-section { display: flex; align-items: center; gap: 20px; flex: 1; }
-        .logo-container { width: 180px; }
-        .logo-container img { width: 100%; height: auto; filter: drop-shadow(0 4px 8px rgba(200, 70, 60, 0.3)); }
-        .header-controls { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-        .language-selector { display: flex; gap: 8px; align-items: center; background: rgba(200, 70, 60, 0.1); padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(200, 70, 60, 0.3); }
-        .btn-lang { width: 40px; height: 40px; border: 2px solid transparent; border-radius: 8px; background: transparent; cursor: pointer; font-size: 20px; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
-        .btn-lang:hover { background: rgba(200, 70, 60, 0.2); transform: scale(1.05); }
-        .btn-lang.active { background: rgba(200, 70, 60, 0.3); border-color: #c8463c; transform: scale(1.1); }
-        .btn-pdf { background: linear-gradient(135deg, #c8463c 0%, #d85850 100%); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 0.9em; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 3px 12px rgba(200, 70, 60, 0.4); white-space: nowrap; }
-        .btn-pdf:hover { transform: translateY(-2px); box-shadow: 0 5px 18px rgba(200, 70, 60, 0.6); }
-        .content { padding: 40px 20px; max-width: 1200px; margin: 0 auto; }
-        .category-section { margin-bottom: 60px; background: rgba(42, 26, 26, 0.6); border: 2px solid #c8463c; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
-        .category-section::before { content: ''; position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(200, 70, 60, 0.05) 0%, transparent 70%); pointer-events: none; }
-        .category-header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 2px solid #c8463c; }
-        .category-title { font-size: 2em; color: #dcb48c; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-        .dishes-list { display: flex; flex-direction: column; gap: 5px; }
-        .dish-item { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 0; border-bottom: 1px dotted rgba(212, 175, 55, 0.3); transition: all 0.3s; }
-        .dish-item:hover { padding-left: 10px; background: rgba(200, 70, 60, 0.05); }
-        .dish-item:last-child { border-bottom: none; }
-        .dish-name { font-size: 1.1em; color: #f5f5f5; flex: 1; font-weight: 400; letter-spacing: 0.5px; }
-        .dish-description { font-size: 0.85em; color: #bbb; font-style: italic; margin-top: 5px; display: block; }
-        .dish-prices { display: flex; gap: 20px; align-items: center; white-space: nowrap; margin-left: 20px; }
-        .price-value { font-size: 1.1em; color: #dcb48c; font-weight: 700; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
-        .highlights-section { margin-bottom: 60px; }
-        .highlights-title { font-size: 2.5em; color: #dcb48c; text-align: center; margin-bottom: 40px; text-transform: uppercase; letter-spacing: 3px; text-shadow: 3px 3px 6px rgba(0,0,0,0.7); }
-        .highlights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
-        .highlight-card { background: rgba(42, 26, 26, 0.8); border: 3px solid #c8463c; border-radius: 20px; overflow: hidden; transition: all 0.3s; box-shadow: 0 10px 30px rgba(200, 70, 60, 0.3); }
-        .highlight-card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(200, 70, 60, 0.5); }
-        .highlight-image { width: 100%; height: 220px; object-fit: cover; background: linear-gradient(135deg, #3d2520 0%, #2a1a1a 100%); display: flex; align-items: center; justify-content: center; font-size: 3em; }
-        .highlight-content { padding: 25px; }
-        .highlight-name { font-size: 1.6em; color: #dcb48c; margin-bottom: 12px; font-weight: 700; }
-        .highlight-description { color: #d0d0d0; margin-bottom: 20px; line-height: 1.6; }
-        .highlight-prices { display: flex; justify-content: center; padding-top: 15px; border-top: 2px solid #c8463c; }
-        .highlight-price-value { font-size: 1.5em; color: #dcb48c; font-weight: 700; }
-        .footer { background: #2a1a1a; border-top: 3px solid #c8463c; padding: 30px 20px; text-align: center; margin-top: 60px; }
-        .footer-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 30px; }
-        .footer-item { display: flex; align-items: center; gap: 10px; color: #dcb48c; font-size: 1em; }
-        .loading { text-align: center; padding: 80px 20px; color: #dcb48c; font-size: 1.5em; }
-        .error { background: rgba(200, 70, 60, 0.2); border: 2px solid #c8463c; color: #ff9090; padding: 30px; border-radius: 15px; margin: 30px; text-align: center; font-size: 1.1em; }
-        @media (max-width: 1024px) { .header-content { flex-direction: column; align-items: stretch; } .logo-section { justify-content: center; } .header-controls { justify-content: center; width: 100%; } }
-        @media (max-width: 768px) { .logo-container { width: 140px; } .header-controls { flex-direction: column; gap: 12px; } .btn-pdf { width: 100%; justify-content: center; } .category-title { font-size: 1.5em; } .dish-item { flex-direction: column; align-items: flex-start; gap: 8px; } .dish-prices { margin-left: 0; } .highlights-grid { grid-template-columns: 1fr; } .footer-content { flex-direction: column; align-items: center; } }
-        @media (max-width: 480px) { .logo-container { width: 120px; } .btn-lang { width: 36px; height: 36px; font-size: 18px; } .btn-pdf { font-size: 0.85em; padding: 8px 16px; } .category-title { font-size: 1.3em; } .highlights-title { font-size: 1.8em; } }
-    </style>
+    <link rel="stylesheet" href="/cardapio/css/menu.css">
 </head>
 <body>
     <div class="decorative-pattern"></div>
@@ -64,7 +13,7 @@
             <div class="header-content">
                 <div class="logo-section">
                     <div class="logo-container">
-                        <img src="/logos_imagens_app/logo.png" alt="La Casa del Chaufa">
+                        <img src="/logos_imagens_app/fundo_aba_navegador.png" alt="La Casa del Chaufa">
                     </div>
                 </div>
                 <div class="header-controls">
@@ -84,92 +33,27 @@
         <div class="footer">
             <div class="footer-content">
                 <div class="footer-item">
-                    <span>📞</span>
-                    <a href="https://wa.me/59172622036" target="_blank" style="color: #dcb48c; text-decoration: none;" id="footerPhone">Pedidos: +591 72622036</a>
+                    <a href="https://wa.me/59172622036" target="_blank" id="footerPhone" title="Clique para abrir WhatsApp">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display: inline-block; vertical-align: middle; margin-right: 6px;">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                        </svg>
+                        Pedidos: +591 72622036
+                    </a>
                 </div>
                 <div class="footer-item"><span>🕒</span><span id="footerHours">Lunes a jueves, sábado y domingo: 12:00 a 20:00</span></div>
                 <div class="footer-item"><span>📍</span><span id="footerLocation">Frente a la rotonda itacamba arroyo concepción- quijarro, Bolivia</span></div>
             </div>
+            <a href="/admin" class="admin-link-footer" title="Admin">⚙️</a>
         </div>
+        
+        <!-- Botão Flutuante WhatsApp -->
+        <a href="https://wa.me/59172622036?text=Me%20gustaría%20pedir%3A%20" target="_blank" class="whatsapp-fab" title="Fazer Pedido pelo WhatsApp">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+        </a>
     </div>
-    <script>
-        let currentLang = 'es';
-        let allDishes = [];
-        let categories = [];
-        const translations = {
-            es: { 
-                loading: 'Cargando menú...', 
-                error: 'Error al cargar el menú', 
-                highlights: 'Platos Destacados', 
-                pdfButton: 'Descargar PDF', 
-                footerPhone: 'Pedidos: +591 72622036', 
-                footerHours: 'Lunes a jueves, sábado y domingo: 12:00 a 20:00',
-                footerLocation: 'Frente a la rotonda itacamba arroyo concepción- quijarro, Bolivia'
-            },
-            pt: { 
-                loading: 'Carregando cardápio...', 
-                error: 'Erro ao carregar cardápio', 
-                highlights: 'Pratos em Destaque', 
-                pdfButton: 'Baixar PDF', 
-                footerPhone: 'Pedidos: +591 72622036', 
-                footerHours: 'De segunda a quinta-feira, sábado e domingo: 12:00 às 20:00',
-                footerLocation: 'Frente a la rotonda itacamba arroyo concepción- quijarro, Bolivia'
-            }
-        };
-        async function loadData() {
-            try {
-                const dishesResponse = await fetch('/api/pratos/public');
-                if (!dishesResponse.ok) throw new Error('Failed to load dishes');
-                allDishes = await dishesResponse.json();
-                const categoriesResponse = await fetch('/api/categorias/public');
-                if (!categoriesResponse.ok) throw new Error('Failed to load categories');
-                categories = await categoriesResponse.json();
-                renderMenu();
-            } catch (error) {
-                console.error('Error loading data:', error);
-                document.getElementById('content').innerHTML = `<div class="error">${translations[currentLang].error}<br><small>${error.message}</small></div>`;
-            }
-        }
-        function renderMenu() {
-            const t = translations[currentLang];
-            let html = '';
-            const highlights = allDishes.filter(d => d.destaque && d.ativo);
-            if (highlights.length > 0) {
-                html += `<div class="highlights-section"><h2 class="highlights-title">${t.highlights}</h2><div class="highlights-grid">${highlights.map(dish => `<div class="highlight-card">${dish.imagem_url ? `<img src="${dish.imagem_url}" alt="${currentLang === 'pt' ? dish.nome_pt : dish.nome_es}" class="highlight-image">` : `<div class="highlight-image">🍽️</div>`}<div class="highlight-content"><div class="highlight-name">${currentLang === 'pt' ? dish.nome_pt : dish.nome_es}</div>${(currentLang === 'pt' ? dish.descricao_pt : dish.descricao_es) ? `<div class="highlight-description">${currentLang === 'pt' ? dish.descricao_pt : dish.descricao_es}</div>` : ''}<div class="highlight-prices"><div class="highlight-price-value">${currentLang === 'pt' ? `R$ ${Number(dish.preco_brl).toFixed(2)}` : `Bs. ${Number(dish.preco_bob).toFixed(2)}`}</div></div></div></div>`).join('')}</div></div>`;
-            }
-            categories.forEach(category => {
-                const categoryDishes = allDishes.filter(d => d.categoria_id === category.id && !d.destaque && d.ativo);
-                if (categoryDishes.length > 0) {
-                    const categoryName = currentLang === 'pt' ? category.nome_pt : category.nome_es;
-                    html += `<div class="category-section"><div class="category-header"><h2 class="category-title">${categoryName}</h2></div><div class="dishes-list">${categoryDishes.map(dish => `<div class="dish-item"><div style="flex: 1;"><div class="dish-name">${currentLang === 'pt' ? dish.nome_pt : dish.nome_es}${(currentLang === 'pt' ? dish.descricao_pt : dish.descricao_es) ? `<span class="dish-description">${currentLang === 'pt' ? dish.descricao_pt : dish.descricao_es}</span>` : ''}</div></div><div class="dish-prices"><span class="price-value">${currentLang === 'pt' ? `R$ ${Number(dish.preco_brl).toFixed(2)}` : `Bs. ${Number(dish.preco_bob).toFixed(2)}`}</span></div></div>`).join('')}</div></div>`;
-                }
-            });
-            document.getElementById('content').innerHTML = html;
-        }
-        function updateLanguage() {
-            const t = translations[currentLang];
-            const pdfTextEl = document.getElementById('pdfText');
-            if (pdfTextEl) pdfTextEl.textContent = t.pdfButton;
-            const footerPhoneEl = document.getElementById('footerPhone');
-            if (footerPhoneEl) footerPhoneEl.textContent = t.footerPhone;
-            const footerHoursEl = document.getElementById('footerHours');
-            if (footerHoursEl) footerHoursEl.textContent = t.footerHours;
-            const footerLocationEl = document.getElementById('footerLocation');
-            if (footerLocationEl) footerLocationEl.textContent = t.footerLocation;
-            renderMenu();
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            document.querySelectorAll('.btn-lang').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    currentLang = btn.dataset.lang;
-                    document.querySelectorAll('.btn-lang').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    updateLanguage();
-                });
-            });
-            document.getElementById('downloadPdf')?.addEventListener('click', () => { window.print(); });
-        });
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="/cardapio/js/menu.js"></script>
 </body>
 </html>

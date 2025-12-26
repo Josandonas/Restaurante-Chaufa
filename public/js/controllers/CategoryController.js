@@ -126,10 +126,93 @@ class CategoryController {
         `;
         }).join('');
 
+        // Renderizar cards mobile
+        this.renderMobileCards(sortedCategorias);
+
         // Ocultar botões de deletar se for editor
         if (window.currentUserRole === 'editor') {
             this.hideDeleteButtonsInCategories();
         }
+    }
+
+    renderMobileCards(categorias) {
+        const container = document.getElementById('categoriasMobileCards');
+        if (!container) {
+            const tableContainer = document.querySelector('#categoriesTable')?.closest('.table-container');
+            if (tableContainer) {
+                const cardsContainer = document.createElement('div');
+                cardsContainer.id = 'categoriasMobileCards';
+                cardsContainer.className = 'dishes-mobile-cards';
+                tableContainer.parentNode.insertBefore(cardsContainer, tableContainer.nextSibling);
+            } else {
+                return;
+            }
+        }
+
+        const cardsContainer = document.getElementById('categoriasMobileCards');
+        const lang = i18n.getCurrentLanguage();
+        const activeText = lang === 'pt' ? 'Ativo' : 'Activo';
+        const inactiveText = lang === 'pt' ? 'Inativo' : 'Inactivo';
+        
+        cardsContainer.innerHTML = '';
+
+        categorias.forEach((cat, index) => {
+            const isFirst = index === 0;
+            const isLast = index === categorias.length - 1;
+            const statusClass = cat.ativo ? 'active' : 'inactive';
+            const statusText = cat.ativo ? activeText : inactiveText;
+            
+            const card = document.createElement('div');
+            card.className = 'dish-card-mobile';
+            
+            const deleteBtn = window.currentUserRole !== 'editor' 
+                ? `<button class="dish-card-btn dish-card-btn-delete" onclick="window.app.openDeleteModal('category', ${cat.id}, '${cat.nome_pt.replace(/'/g, "\\'")}')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    ${i18n.t('deleteTooltip')}
+                   </button>`
+                : '';
+            
+            card.innerHTML = `
+                <div class="dish-card-header">
+                    <div class="dish-card-info">
+                        <div class="dish-card-name">${cat.nome_pt}</div>
+                        <span class="dish-card-category">${lang === 'pt' ? 'Ordem' : 'Orden'}: ${cat.ordem}</span>
+                    </div>
+                    <div class="category-order-mobile">
+                        <button class="order-btn-mobile" onclick="window.categoryController.moveCategoryUp(${cat.id})" ${isFirst ? 'disabled' : ''}>▲</button>
+                        <span class="order-number-mobile">${cat.ordem}</span>
+                        <button class="order-btn-mobile" onclick="window.categoryController.moveCategoryDown(${cat.id})" ${isLast ? 'disabled' : ''}>▼</button>
+                    </div>
+                </div>
+                <div class="dish-card-details">
+                    <div class="dish-card-detail">
+                        <span class="dish-card-detail-label">${lang === 'pt' ? 'Nome (PT)' : 'Nombre (PT)'}</span>
+                        <span class="dish-card-detail-value">${cat.nome_pt}</span>
+                    </div>
+                    <div class="dish-card-detail">
+                        <span class="dish-card-detail-label">${lang === 'pt' ? 'Nome (ES)' : 'Nombre (ES)'}</span>
+                        <span class="dish-card-detail-value">${cat.nome_es}</span>
+                    </div>
+                    <div class="dish-card-detail">
+                        <span class="dish-card-detail-label">${lang === 'pt' ? 'Estado' : 'Estado'}</span>
+                        <span class="dish-card-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="dish-card-detail">
+                        <span class="dish-card-detail-label">${lang === 'pt' ? 'Ordem' : 'Orden'}</span>
+                        <span class="dish-card-detail-value">${cat.ordem}</span>
+                    </div>
+                </div>
+                <div class="dish-card-actions">
+                    <button class="dish-card-btn dish-card-btn-edit" onclick="window.categoryController.openEditModal(${cat.id})">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                        ${i18n.t('editTooltip')}
+                    </button>
+                    ${deleteBtn}
+                </div>
+            `;
+            
+            cardsContainer.appendChild(card);
+        });
     }
 
     hideDeleteButtonsInCategories() {
