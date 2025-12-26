@@ -95,6 +95,49 @@
             position: relative;
             z-index: 1;
             animation: slideUp 0.6s ease-out;
+            overflow: hidden;
+        }
+
+        .login-box > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .login-lang-btn {
+            width: 42px;
+            height: 42px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .login-lang-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-color: #E74C3C;
+        }
+
+        .login-lang-btn.active {
+            background: linear-gradient(135deg, #E74C3C 0%, #EC7063 100%);
+            border-color: #E74C3C;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            transform: scale(1.05);
         }
 
         @keyframes slideUp {
@@ -127,17 +170,23 @@
 
         .login-icon {
             width: 90px;
-            height: 90px;
+            height: 96px;
             margin: 0 auto 20px;
-            background: linear-gradient(135deg, #E74C3C 0%, #EC7063 100%);
+            background: white;
             border-radius: 25px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 45px;
-            box-shadow: 0 15px 40px rgba(231, 76, 60, 0.4);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
             animation: pulse 2s ease-in-out infinite;
             position: relative;
+            padding: 8px;
+        }
+
+        .login-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .login-icon::before {
@@ -146,9 +195,9 @@
             width: 100%;
             height: 100%;
             border-radius: 25px;
-            background: linear-gradient(135deg, #E74C3C 0%, #EC7063 100%);
+            background: white;
             filter: blur(20px);
-            opacity: 0.6;
+            opacity: 0.8;
             z-index: -1;
             animation: glow 2s ease-in-out infinite alternate;
         }
@@ -1465,6 +1514,260 @@
             font-weight: 600;
         }
 
+        /* ========================================
+           RESPONSIVIDADE - LOGIN
+        ======================================== */
+        
+        /* Mobile Small (320px - 480px) */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 15px;
+            }
+
+            .login-box {
+                padding: 30px 20px;
+                max-width: 100%;
+                border-radius: 20px;
+            }
+
+            .login-box::before {
+                background-size: 80px 80px;
+            }
+
+            .login-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 35px;
+                border-radius: 18px;
+            }
+
+            .login-box h1 {
+                font-size: 1.5em;
+            }
+
+            .login-subtitle {
+                font-size: 0.85em;
+            }
+
+            .floating-icon {
+                font-size: 25px;
+                width: 45px;
+                height: 45px;
+            }
+
+            .login-language-selector {
+                top: 15px;
+                right: 15px;
+                gap: 6px;
+            }
+
+            .login-lang-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+
+            .login-container::before {
+                width: 300px;
+                height: 300px;
+                top: -150px;
+                right: -150px;
+            }
+
+            .login-container::after {
+                width: 250px;
+                height: 250px;
+                bottom: -125px;
+                left: -125px;
+            }
+        }
+
+        /* Mobile Medium (481px - 768px) */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .login-container {
+                padding: 20px;
+            }
+
+            .login-box {
+                padding: 40px 30px;
+                max-width: 420px;
+            }
+
+            .login-box::before {
+                background-size: 100px 100px;
+            }
+
+            .login-icon {
+                width: 80px;
+                height: 80px;
+                font-size: 40px;
+            }
+
+            .floating-icon {
+                font-size: 30px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .login-container::before {
+                width: 400px;
+                height: 400px;
+                top: -200px;
+                right: -200px;
+            }
+
+            .login-container::after {
+                width: 350px;
+                height: 350px;
+                bottom: -175px;
+                left: -175px;
+            }
+        }
+
+        /* Tablet (769px - 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .login-container {
+                padding: 30px;
+            }
+
+            .login-box {
+                max-width: 460px;
+            }
+
+            .floating-icon {
+                font-size: 35px;
+                width: 55px;
+                height: 55px;
+            }
+        }
+
+        /* Desktop Large (1025px - 1920px) */
+        @media (min-width: 1025px) and (max-width: 1920px) {
+            .login-box {
+                max-width: 480px;
+            }
+
+            .floating-icon {
+                font-size: 40px;
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        /* TV / Ultra Wide (1921px+) */
+        @media (min-width: 1921px) {
+            .login-container {
+                padding: 60px;
+            }
+
+            .login-box {
+                max-width: 600px;
+                padding: 70px 60px;
+                border-radius: 40px;
+            }
+
+            .login-box::before {
+                background-size: 150px 150px;
+            }
+
+            .login-icon {
+                width: 120px;
+                height: 120px;
+                font-size: 60px;
+                border-radius: 30px;
+            }
+
+            .login-box h1 {
+                font-size: 2.5em;
+                margin-bottom: 15px;
+            }
+
+            .login-subtitle {
+                font-size: 1.1em;
+                margin-bottom: 45px;
+            }
+
+            .form-group input {
+                padding: 18px 20px;
+                font-size: 1.1em;
+            }
+
+            .form-group label {
+                font-size: 1.1em;
+                margin-bottom: 8px;
+            }
+
+            .btn-primary {
+                padding: 18px;
+                font-size: 1.1em;
+            }
+
+            .floating-icon {
+                font-size: 50px;
+                width: 80px;
+                height: 80px;
+            }
+
+            .login-language-selector {
+                top: 30px;
+                right: 30px;
+                gap: 12px;
+            }
+
+            .login-lang-btn {
+                width: 52px;
+                height: 52px;
+                font-size: 24px;
+            }
+
+            .login-container::before {
+                width: 700px;
+                height: 700px;
+                top: -350px;
+                right: -350px;
+            }
+
+            .login-container::after {
+                width: 600px;
+                height: 600px;
+                bottom: -300px;
+                left: -300px;
+            }
+        }
+
+        /* Landscape Mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .login-box {
+                padding: 20px 30px;
+                max-width: 90%;
+            }
+
+            .login-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+                margin-bottom: 10px;
+            }
+
+            .login-box h1 {
+                font-size: 1.3em;
+                margin-bottom: 5px;
+            }
+
+            .login-subtitle {
+                font-size: 0.8em;
+                margin-bottom: 15px;
+            }
+
+            .form-group {
+                margin-bottom: 12px;
+            }
+
+            .floating-icon {
+                display: none;
+            }
+        }
+
         @media (max-width: 768px) {
             .admin-header h1 {
                 font-size: 1.3em;
@@ -1520,34 +1823,42 @@
         <div class="floating-icon">🥢</div>
         
         <div class="login-box">
-            <div class="login-icon">🍽️</div>
-            <h1 data-i18n="welcome">Bem-vindo!</h1>
-            <p class="login-subtitle" data-i18n="adminPanel">La Casa del Chaufa - Painel Administrativo</p>
+            <!-- Seletor de Idioma do Login (independente do admin) -->
+            <div class="login-language-selector">
+                <button class="login-lang-btn active" id="loginLangEs" onclick="window.loginI18n.changeLanguage('es')">🇧🇴</button>
+                <button class="login-lang-btn" id="loginLangPt" onclick="window.loginI18n.changeLanguage('pt')">🇧🇷</button>
+            </div>
+            
+            <div class="login-icon">
+                <img src="/logos_imagens_app/logo.png" alt="La Casa del Chaufa">
+            </div>
+            <h1 data-i18n-login="welcome">Bem-vindo!</h1>
+            <p class="login-subtitle" data-i18n-login="adminPanel">La Casa del Chaufa - Painel Administrativo</p>
             
             <div id="loginError"></div>
             
             <form id="loginForm">
                 <div class="form-group">
-                    <label data-i18n="email">Email</label>
+                    <label data-i18n-login="email">Email</label>
                     <input type="email" id="loginEmail" required placeholder="seu@email.com" autocomplete="email">
                 </div>
                 
                 <div class="form-group">
-                    <label data-i18n="password">Senha</label>
+                    <label data-i18n-login="password">Senha</label>
                     <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password">
                 </div>
 
                 <div class="remember-me">
                     <input type="checkbox" id="rememberMe">
-                    <label for="rememberMe" data-i18n="rememberMe">Manter-me conectado por 30 dias</label>
+                    <label for="rememberMe" data-i18n-login="rememberMe">Manter-me conectado por 30 dias</label>
                 </div>
                 
                 <button type="submit" class="btn btn-primary">
-                    <span data-i18n="loginButton">Entrar no Painel</span>
+                    <span data-i18n-login="loginButton">Entrar no Painel</span>
                 </button>
             </form>
 
-            <div class="login-footer" data-i18n="peruvianFood">
+            <div class="login-footer" data-i18n-login="peruvianFood">
                 Comida Peruana Autêntica 🇵🇪
             </div>
         </div>

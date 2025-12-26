@@ -5,6 +5,7 @@ import dishController from './controllers/DishController.js';
 import categoryController from './controllers/CategoryController.js';
 import authService from './services/AuthService.js';
 import i18n from './utils/i18n.js';
+import loginI18n from './utils/loginI18n.js';
 import toast from './utils/toast.js';
 
 class App {
@@ -13,22 +14,26 @@ class App {
     }
 
     async init() {
+        // Expor controllers globalmente PRIMEIRO (para onclick do HTML)
+        window.authController = authController;
+        window.userController = userController;
+        window.dishController = dishController;
+        window.categoryController = categoryController;
+        window.i18n = i18n;
+        window.loginI18n = loginI18n;
+        window.app = this;
+        
         // Inicializar utilitários
         toast.init();
+        
+        // Inicializar sistema de i18n do login (independente do admin)
+        loginI18n.init();
         
         // Configurar callbacks de autenticação
         authController.setCallbacks(
             () => this.onAuthSuccess(),
             () => this.onAuthFailure()
         );
-
-        // Expor controllers globalmente para onclick do HTML
-        window.authController = authController;
-        window.userController = userController;
-        window.dishController = dishController;
-        window.categoryController = categoryController;
-        window.i18n = i18n;
-        window.app = this;
 
         // Configurar listener para fechar menu ao clicar fora
         this.setupClickOutsideListener();
