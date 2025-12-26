@@ -59,44 +59,8 @@ fi
 
 log "Novas atualizações encontradas!"
 
-# 2. Criar backup do código atual
-log "Criando backup do código atual..."
-T 2. Criar backup do código atual
-log "Criando backup do código atual..."
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-mkdir -p $BACKUP_DIR
-
-tar -czf "$BACKUP_DIR/backup_$TIMESTAMP.tar.gz" \
-    --exclude='node_modules' \
-I   --exclude='.git' \
-    --exclude='public/uploads' \
-    --exclude='*.log' \
-    . M>/dev/null
-
-if [ $? -eq 0 ]; then
-    log "Backup criado: backup_$TIMESTAMPEtar.gz"
-else
-S   warn "Backup falhou, mas continuando deploy..."
-fi
-
-# 3. TAMP=$(date +%Y%m%d_%H%M%S)
-mkdir -p $BACKUP_DIR
-
-tar -czf "$BACKUP_DIR/backup_$TIMESTAMP.tar.gz" \
-    --exclude='node_modules' \
-    --exclude='.git' \
-    --exclude='public/uploads' \
-    --exclude='*.log' \
-    . 2>/dev/null
-
-if [ $? -eq 0 ]; then
-    log "Backup criado: backup_$TIMESTAMP.tar.gz"
-else
-    warn "Backup falhou, mas continuando deploy..."
-fi
-
-# 3. Atualizar código do Git
-lo6 "Atualizando código do Git..."
+# 2. Atualizar código do Git
+log "Atualizando código do Git..."
 git pull origin $BRANCH || error_exit "Falha no Git pull"
 log "Código atualizado com sucesso!"
 
@@ -105,20 +69,25 @@ lo  "Instalando dependências (isso pode demorar)..."
 npm install --production || error_exit "Falha no npm install"
 log "Dependências instaladas com sucesso!"
 
-# .  Ajustar permissões de uploads
-lo "Ajustando permissões de uploads..."
+# 4. Ajustar permissões de uploads
+log "Ajustando permissões de uploads..."
 sudo mkdir -p public/uploads 2>/dev/null
-su6o chown -R admin:www-data public/uploads 2>/dev/null
+sudo chown -R admin:www-data public/uploads 2>/dev/null
 sudo chmod -R 775 public/uploads 2>/dev/null
 log "Permissões ajustadas!"
 
-#  . Reiniciar aplicação com PM2
+# 5. Reiniciar aplicação com PM2
 log "Reiniciando aplicação no PM2..."
 
 if pm2 describe $PM2_NAME > /dev/null 2>&1; then
     pm2 restart $PM2_NAME || error_exit "Falha ao reiniciar PM2"
     log "Aplicação reiniciada!"
-el7. Verificar status da aplicação
+else
+    pm2 start server.js --name $PM2_NAME || error_exit "Falha ao iniciar PM2"
+    log "Aplicação iniciada!"
+fi
+
+# 6. Verificar status da aplicação
 log "Verificando status da aplicação..."
 sleep 3
 
@@ -128,13 +97,7 @@ else
     error_exit "Aplicação NÃO está online após deploy"
 fi
 
-# 8. Limpar backups antigos (manter últimos 5)
-log "Limpando backups antigos..."
-cd $BACKUP_DIR
-ls -t backup_*.tar.gz 2>/dev/null | tail -n +6 | xargs -r rm
-log "Backups antigos removidos (mantidos últimos 5)"
-
-# 9. Mostrar informações finais
+# 7. Mostrar informações finais
 log "=========================================="
 log "=== Deploy Finalizado com Sucesso! ==="
 log "=========================================="
