@@ -1,11 +1,12 @@
+# Configuração para La Casa del Chaufa
 server {
     listen 80;
-    server_name seu-dominio.com www.seu-dominio.com;
+    server_name lacasadelcahufa.srestaurante.com  193.181.210.162;
 
     # Tamanho máximo de upload
     client_max_body_size 10M;
 
-    # Proxy para a aplicação Node.js
+    # Proxy para aplicação Node.js (Express serve o index.html automaticamente)
     location / {
         proxy_pass              http://localhost:3000;
         proxy_http_version      1.1;
@@ -23,33 +24,35 @@ server {
         proxy_read_timeout      60s;
     }
 
-    # Servir arquivos estáticos diretamente
+    # Servir arquivos de upload diretamente (otimização)
     location /uploads {
-        alias                   /var/www/cardapio/public/uploads;
+        alias                   /home/admin/Restaurante-Chaufa/public/uploads;
         expires                 30d;
         add_header              Cache-Control "public, immutable";
     }
 
     # Logs
-    access_log                  /var/log/nginx/cardapio_access.log;
-    error_log                   /var/log/nginx/cardapio_error.log;
+    access_log                  /var/log/nginx/chaufa_access.log;
+    error_log                   /var/log/nginx/chaufa_error.log;
 }
 
 # Configuração HTTPS (será adicionada automaticamente pelo Certbot)
+# Descomente após rodar: sudo certbot --nginx -d lacasadelcahufa.srestaurante.com
+#
 # server {
 #     listen 443 ssl http2;
-#     server_name seu-dominio.com www.seu-dominio.com;
+#     server_name lacasadelcahufa.srestaurante.com;
 #
 #     # Certificados SSL
-#     ssl_certificate         /etc/letsencrypt/live/seu-dominio.com/fullchain.pem;
-#     ssl_certificate_key     /etc/letsencrypt/live/seu-dominio.com/privkey.pem;
+#     ssl_certificate         /etc/letsencrypt/live/srestaurante.com/fullchain.pem;
+#     ssl_certificate_key     /etc/letsencrypt/live/srestaurante.com/privkey.pem;
 #     include                 /etc/letsencrypt/options-ssl-nginx.conf;
 #     ssl_dhparam             /etc/letsencrypt/ssl-dhparams.pem;
 #
 #     # Tamanho máximo de upload
 #     client_max_body_size    10M;
 #
-#     # Proxy para a aplicação Node.js
+#     # Proxy para aplicação Node.js
 #     location / {
 #         proxy_pass              http://localhost:3000;
 #         proxy_http_version      1.1;
@@ -60,16 +63,21 @@ server {
 #         proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
 #         proxy_set_header        X-Forwarded-Proto $scheme;
 #         proxy_cache_bypass      $http_upgrade;
+#         
+#         # Timeouts
+#         proxy_connect_timeout   60s;
+#         proxy_send_timeout      60s;
+#         proxy_read_timeout      60s;
 #     }
 #
-#     # Servir arquivos estáticos diretamente
+#     # Servir arquivos de upload diretamente
 #     location /uploads {
-#         alias                   /var/www/cardapio/public/uploads;
+#         alias                   /home/admin/Restaurante-Chaufa/public/uploads;
 #         expires                 30d;
 #         add_header              Cache-Control "public, immutable";
 #     }
 #
 #     # Logs
-#     access_log                  /var/log/nginx/cardapio_access.log;
-#     error_log                   /var/log/nginx/cardapio_error.log;
+#     access_log                  /var/log/nginx/chaufa_access.log;
+#     error_log                   /var/log/nginx/chaufa_error.log;
 # }
