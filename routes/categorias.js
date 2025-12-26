@@ -4,6 +4,19 @@ const { pool } = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
 const { canDelete } = require('../middleware/roleAuth');
 
+// Endpoint público para cardápio
+router.get('/public', async (req, res) => {
+    try {
+        const [categorias] = await pool.query(
+            'SELECT * FROM categorias WHERE ativo = TRUE ORDER BY ordem ASC'
+        );
+        res.json(categorias);
+    } catch (error) {
+        console.error('Erro ao buscar categorias:', error);
+        res.status(500).json({ error: 'Erro ao buscar categorias' });
+    }
+});
+
 // Listar todas as categorias (público)
 router.get('/', async (req, res) => {
     try {
