@@ -145,7 +145,7 @@ class DishController {
         
         // Aplicar paginação
         const paginationData = paginationHelper.paginate(filtered, 'destaques');
-        this.renderDestaquesDishes(paginationData.items);
+        this.renderDestaquesDishes(paginationData.items, filtered);
         
         // Renderizar controles de paginação
         paginationHelper.renderPaginationControls(
@@ -196,20 +196,37 @@ class DishController {
             `;
             tbody.appendChild(row);
         });
+
+        // Ocultar botões de deletar se for editor
+        if (window.currentUserRole === 'editor') {
+            this.hideDeleteButtonsInList();
+        }
+    }
+
+    hideDeleteButtonsInList() {
+        const deleteButtons = document.querySelectorAll('.action-btn-delete');
+        deleteButtons.forEach(btn => {
+            btn.style.display = 'none';
+        });
     }
 
     getImagePlaceholder() {
         return `<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 8px; font-size: 28px;">🍽️</div>`;
     }
 
-    renderDestaquesDishes(dishes) {
+    renderDestaquesDishes(dishes, allDestaques = null) {
         const tbody = document.querySelector('#destaquesTable tbody');
         if (!tbody) return;
         
         tbody.innerHTML = '';
+        
+        // Se não foi passada a lista completa, usar a lista paginada
+        const fullList = allDestaques || dishes;
+        const sortedFullList = [...fullList].sort((a, b) => a.ordem - b.ordem);
+        
         dishes.sort((a, b) => a.ordem - b.ordem);
         
-        dishes.forEach(dish => {
+        dishes.forEach((dish) => {
             const row = document.createElement('tr');
             const dishName = i18n.getCurrentLanguage() === 'pt' ? dish.nome_pt : dish.nome_es;
             const statusText = dish.ativo ? i18n.t('active') : i18n.t('inactive');
@@ -218,17 +235,34 @@ class DishController {
             const removeFeaturedText = i18n.t('removeFeatured');
             const editText = i18n.t('editTooltip');
             const deleteText = i18n.t('deleteTooltip');
+            const moveUpText = 'Mover para cima';
+            const moveDownText = 'Mover para baixo';
+            
+            // Calcular isFirst e isLast baseado na lista completa, não na página
+            const globalIndex = sortedFullList.findIndex(d => d.id === dish.id);
+            const isFirst = globalIndex === 0;
+            const isLast = globalIndex === sortedFullList.length - 1;
             
             row.innerHTML = `
                 <td><div class="dish-image-cell" data-image="${dish.imagem_url || ''}" data-name="${dishName}"></div></td>
                 <td>${dishName}</td>
                 <td>R$ ${parseFloat(dish.preco_brl).toFixed(2)}</td>
                 <td>Bs. ${parseFloat(dish.preco_bob).toFixed(2)}</td>
-                <td>${dish.ordem}</td>
+                <td>
+                    <div class="order-controls">
+                        <button class="order-btn" onclick="window.dishController.moveDestaqueUp(${dish.id})" ${isFirst ? 'disabled' : ''} title="${moveUpText}">
+                            ▲
+                        </button>
+                        <span class="order-number">${dish.ordem}</span>
+                        <button class="order-btn" onclick="window.dishController.moveDestaqueDown(${dish.id})" ${isLast ? 'disabled' : ''} title="${moveDownText}">
+                            ▼
+                        </button>
+                    </div>
+                </td>
                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                 <td>
                     <div class="action-buttons">
-                        <button class="action-btn action-btn-star active" onclick="window.dishController.toggleDestaque(${dish.id}, false)" title="${removeFeaturedText}">
+                        <button class="action-btn action-btn-star-remove" onclick="window.dishController.toggleDestaque(${dish.id}, false)" title="${removeFeaturedText}">
                             ⭐
                         </button>
                         <button class="action-btn action-btn-edit" onclick="window.dishController.editDish(${dish.id})" title="${editText}">
@@ -248,22 +282,53 @@ class DishController {
                 this.loadDishImage(imageCell, dish.imagem_url, dishName);
             }
         });
+
+        // Ocultar botões de deletar se for editor
+        if (window.currentUserRole === 'editor') {
+            this.hideDeleteButtonsInDestaques();
+        }
     }
 
-    loadDishImage(container, imageUrl, dishName) {
-        if (!imageUrl) {
+    hideDeleteButtonsInDestaques() {
+        const deleteButtons = document.querySelectorAll('.action-btn-delete');
+        deleteButtons.forEach(btn => {
+            btn.style.display = 'none';
+        });
+    }
+
+    async loadDishImage(container, imageUrl, dishName) {
+        if (!imageUrl || imageUrl.trim() === '') {
             container.innerHTML = this.getImagePlaceholder();
             return;
         }
 
+        // Normalizar URL - se não tiver protocolo nem caminho, assumir que está em /uploads/pratos/
+        let normalizedUrl = imageUrl;
+        if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://') && !imageUrl.startsWith('/')) {
+            normalizedUrl = `/uploads/pratos/${imageUrl}`;
+        }
+
+        // Verificar se o arquivo existe ANTES de tentar carregar
+        try {
+            const response = await fetch(normalizedUrl, { method: 'HEAD' });
+            if (!response.ok) {
+                container.innerHTML = this.getImagePlaceholder();
+                return;
+            }
+        } catch (error) {
+            container.innerHTML = this.getImagePlaceholder();
+            return;
+        }
+
+        // Arquivo existe, carregar imagem
         const img = new Image();
         img.onload = () => {
-            container.innerHTML = `<img src="${imageUrl}" alt="${dishName}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">`;
+            container.innerHTML = `<img src="${normalizedUrl}" alt="${dishName}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">`;
         };
         img.onerror = () => {
             container.innerHTML = this.getImagePlaceholder();
         };
-        img.src = imageUrl;
+        img.src = normalizedUrl;
     }
 
     switchTab(tab) {
@@ -323,18 +388,19 @@ class DishController {
 
     async openAddDishModal() {
         this.editingDish = null;
+        this.shouldRemoveImage = false;
         const modal = document.getElementById('dishModal');
         const form = document.getElementById('dishForm');
         const title = document.getElementById('dishModalTitle');
-        const destaqueFields = document.getElementById('destaqueFields');
         
         const lang = i18n.getCurrentLanguage();
         if (title) title.textContent = lang === 'pt' ? 'Adicionar Prato' : 'Agregar Plato';
         if (form) form.reset();
-        if (destaqueFields) destaqueFields.style.display = 'block';
         
         const dishId = document.getElementById('dishId');
+        const ordem = document.getElementById('ordem');
         if (dishId) dishId.value = '';
+        if (ordem) ordem.value = '0';
         
         await this.loadCategoriesSelect();
         
@@ -376,6 +442,7 @@ class DishController {
             }
             
             this.editingDish = dish;
+            this.shouldRemoveImage = false;
             
             await this.loadCategoriesSelect();
             
@@ -392,7 +459,6 @@ class DishController {
                 categoriaId: document.getElementById('categoriaId'),
                 ativo: document.getElementById('ativo'),
                 ordem: document.getElementById('ordem'),
-                destaqueFields: document.getElementById('destaqueFields'),
                 imagePreview: document.getElementById('imagePreview'),
                 imageContainer: document.querySelector('.image-preview-container')
             };
@@ -412,22 +478,31 @@ class DishController {
             if (elements.precoBob) elements.precoBob.value = dish.preco_bob;
             if (elements.categoriaId) elements.categoriaId.value = dish.categoria_id || '';
             if (elements.ativo) elements.ativo.checked = dish.ativo;
+            if (elements.ordem) elements.ordem.value = dish.ordem || 0;
             
-            if (dish.destaque) {
-                if (elements.destaqueFields) elements.destaqueFields.style.display = 'block';
-                if (elements.ordem) elements.ordem.value = dish.ordem || 0;
-            } else {
-                if (elements.destaqueFields) elements.destaqueFields.style.display = 'none';
-            }
+            // Configurar preview de imagem
+            const uploadBox = document.getElementById('uploadBox');
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
             
             if (dish.imagem_url) {
-                if (elements.imagePreview) elements.imagePreview.src = dish.imagem_url;
-                if (elements.imageContainer) elements.imageContainer.classList.add('active');
-                const uploadBox = document.getElementById('uploadBox');
-                if (uploadBox) uploadBox.style.display = 'none';
+                // Carregar imagem existente com fallback
+                const img = new Image();
+                img.onload = () => {
+                    if (elements.imagePreview) elements.imagePreview.src = dish.imagem_url;
+                    if (imagePreviewContainer) imagePreviewContainer.classList.add('active');
+                    if (uploadBox) uploadBox.style.display = 'none';
+                };
+                img.onerror = () => {
+                    // Se imagem falhar, mostrar placeholder
+                    if (elements.imagePreview) {
+                        elements.imagePreview.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f0f0f0" width="200" height="200"/%3E%3Ctext fill="%23999" font-family="sans-serif" font-size="14" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ESem imagem%3C/text%3E%3C/svg%3E';
+                    }
+                    if (imagePreviewContainer) imagePreviewContainer.classList.add('active');
+                    if (uploadBox) uploadBox.style.display = 'none';
+                };
+                img.src = dish.imagem_url;
             } else {
-                if (elements.imageContainer) elements.imageContainer.classList.remove('active');
-                const uploadBox = document.getElementById('uploadBox');
+                if (imagePreviewContainer) imagePreviewContainer.classList.remove('active');
                 if (uploadBox) uploadBox.style.display = 'flex';
             }
             
@@ -440,14 +515,25 @@ class DishController {
     }
 
     async deleteDish(id) {
-        if (!confirm(i18n.t('deleteConfirm'))) return;
-        
         loading.show();
         try {
+            // Verificar se o prato deletado era destaque
+            const dish = this.dishes.find(d => d.id == id);
+            const wasDestaque = dish && dish.destaque;
+            
             const success = await dishService.delete(id);
             if (success) {
                 toast.success('Prato excluído com sucesso!');
-                this.loadDishes();
+                await this.loadDishes();
+                
+                // Se era destaque, reorganizar ordens
+                if (wasDestaque) {
+                    await this.normalizeDestaqueOrders();
+                }
+                
+                // Forçar renderização das abas
+                this.filterAndRenderLista();
+                this.filterAndRenderDestaques();
             } else {
                 toast.error('Erro ao excluir prato');
             }
@@ -468,8 +554,16 @@ class DishController {
             
             if (result.success) {
                 toast.success(dishId ? 'Prato atualizado com sucesso!' : 'Prato criado com sucesso!');
+                this.shouldRemoveImage = false;
                 this.closeDishModal();
-                this.loadDishes();
+                await this.loadDishes();
+                
+                // Forçar renderização da aba ativa
+                if (this.currentTab === 'lista') {
+                    this.filterAndRenderLista();
+                } else if (this.currentTab === 'destaques') {
+                    this.filterAndRenderDestaques();
+                }
             } else {
                 toast.error(result.error || 'Erro ao salvar prato');
             }
@@ -485,21 +579,134 @@ class DishController {
         const reader = new FileReader();
         reader.onload = (e) => {
             const preview = document.getElementById('imagePreview');
-            const container = document.querySelector('.image-preview-container');
+            const container = document.getElementById('imagePreviewContainer');
+            const uploadBox = document.getElementById('uploadBox');
+            
             if (preview) preview.src = e.target.result;
             if (container) container.classList.add('active');
+            if (uploadBox) uploadBox.style.display = 'none';
         };
         reader.readAsDataURL(file);
     }
 
     removeImage() {
-        const input = document.getElementById('imageUpload');
+        const input = document.getElementById('imagem');
         const preview = document.getElementById('imagePreview');
-        const container = document.querySelector('.image-preview-container');
+        const container = document.getElementById('imagePreviewContainer');
+        const uploadBox = document.getElementById('uploadBox');
         
         if (input) input.value = '';
         if (preview) preview.src = '';
         if (container) container.classList.remove('active');
+        if (uploadBox) uploadBox.style.display = 'flex';
+        
+        // Marcar que a imagem deve ser removida ao salvar
+        this.shouldRemoveImage = true;
+    }
+
+    async normalizeDestaqueOrders() {
+        try {
+            const destaques = this.dishes.filter(d => d.destaque).sort((a, b) => a.ordem - b.ordem);
+            
+            for (let i = 0; i < destaques.length; i++) {
+                const destaque = destaques[i];
+                const novaOrdem = i + 1;
+                
+                // Só atualizar se a ordem estiver diferente
+                if (destaque.ordem !== novaOrdem) {
+                    const fd = new FormData();
+                    fd.append('nome_pt', destaque.nome_pt);
+                    fd.append('nome_es', destaque.nome_es);
+                    fd.append('descricao_pt', destaque.descricao_pt || '');
+                    fd.append('descricao_es', destaque.descricao_es || '');
+                    fd.append('preco_brl', destaque.preco_brl);
+                    fd.append('preco_bob', destaque.preco_bob);
+                    fd.append('categoria_id', destaque.categoria_id || '');
+                    fd.append('destaque', '1');
+                    fd.append('ordem', novaOrdem);
+                    fd.append('ativo', destaque.ativo ? '1' : '0');
+                    await dishService.update(destaque.id, fd);
+                }
+            }
+            
+            await this.loadDishes();
+        } catch (error) {
+            console.error('Erro ao normalizar ordens:', error);
+        }
+    }
+
+    async moveDestaqueUp(dishId) {
+        const destaques = this.dishes.filter(d => d.destaque).sort((a, b) => a.ordem - b.ordem);
+        const currentIndex = destaques.findIndex(d => d.id == dishId);
+        
+        if (currentIndex <= 0) return;
+        
+        const currentDish = destaques[currentIndex];
+        const previousDish = destaques[currentIndex - 1];
+        
+        await this.swapDestaqueOrder(currentDish.id, previousDish.id);
+    }
+
+    async moveDestaqueDown(dishId) {
+        const destaques = this.dishes.filter(d => d.destaque).sort((a, b) => a.ordem - b.ordem);
+        const currentIndex = destaques.findIndex(d => d.id == dishId);
+        
+        if (currentIndex < 0 || currentIndex >= destaques.length - 1) return;
+        
+        const currentDish = destaques[currentIndex];
+        const nextDish = destaques[currentIndex + 1];
+        
+        await this.swapDestaqueOrder(currentDish.id, nextDish.id);
+    }
+
+    async swapDestaqueOrder(dishId1, dishId2) {
+        loading.show();
+        try {
+            const dish1 = await dishService.getById(dishId1);
+            const dish2 = await dishService.getById(dishId2);
+            
+            if (!dish1 || !dish2) {
+                toast.error('Erro ao trocar ordem');
+                return;
+            }
+            
+            const tempOrdem = dish1.ordem;
+            
+            const formData1 = new FormData();
+            formData1.append('nome_pt', dish1.nome_pt);
+            formData1.append('nome_es', dish1.nome_es);
+            formData1.append('descricao_pt', dish1.descricao_pt || '');
+            formData1.append('descricao_es', dish1.descricao_es || '');
+            formData1.append('preco_brl', dish1.preco_brl);
+            formData1.append('preco_bob', dish1.preco_bob);
+            formData1.append('categoria_id', dish1.categoria_id || '');
+            formData1.append('destaque', '1');
+            formData1.append('ordem', dish2.ordem);
+            formData1.append('ativo', dish1.ativo ? '1' : '0');
+            
+            const formData2 = new FormData();
+            formData2.append('nome_pt', dish2.nome_pt);
+            formData2.append('nome_es', dish2.nome_es);
+            formData2.append('descricao_pt', dish2.descricao_pt || '');
+            formData2.append('descricao_es', dish2.descricao_es || '');
+            formData2.append('preco_brl', dish2.preco_brl);
+            formData2.append('preco_bob', dish2.preco_bob);
+            formData2.append('categoria_id', dish2.categoria_id || '');
+            formData2.append('destaque', '1');
+            formData2.append('ordem', tempOrdem);
+            formData2.append('ativo', dish2.ativo ? '1' : '0');
+            
+            await dishService.update(dishId1, formData1);
+            await dishService.update(dishId2, formData2);
+            
+            await this.loadDishes();
+            this.filterAndRenderDestaques();
+        } catch (error) {
+            console.error('Erro ao trocar ordem:', error);
+            toast.error('Erro ao trocar ordem');
+        } finally {
+            loading.hide();
+        }
     }
 
     async toggleDestaque(dishId, setDestaque) {
@@ -511,6 +718,29 @@ class DishController {
                 return;
             }
 
+            // Se está marcando como destaque, reorganizar todos os destaques
+            if (setDestaque) {
+                // Incrementar ordem de todos os destaques existentes (+1)
+                const destaques = this.dishes.filter(d => d.destaque);
+                for (const destaque of destaques) {
+                    const fd = new FormData();
+                    fd.append('nome_pt', destaque.nome_pt);
+                    fd.append('nome_es', destaque.nome_es);
+                    fd.append('descricao_pt', destaque.descricao_pt || '');
+                    fd.append('descricao_es', destaque.descricao_es || '');
+                    fd.append('preco_brl', destaque.preco_brl);
+                    fd.append('preco_bob', destaque.preco_bob);
+                    fd.append('categoria_id', destaque.categoria_id || '');
+                    fd.append('destaque', '1');
+                    fd.append('ordem', (destaque.ordem || 0) + 1);
+                    fd.append('ativo', destaque.ativo ? '1' : '0');
+                    await dishService.update(destaque.id, fd);
+                }
+            }
+
+            // Novo destaque sempre vai para ordem 1 (topo)
+            const ordem = setDestaque ? 1 : 0;
+
             const formData = new FormData();
             formData.append('nome_pt', dish.nome_pt);
             formData.append('nome_es', dish.nome_es);
@@ -520,7 +750,7 @@ class DishController {
             formData.append('preco_bob', dish.preco_bob);
             formData.append('categoria_id', dish.categoria_id || '');
             formData.append('destaque', setDestaque ? '1' : '0');
-            formData.append('ordem', dish.ordem || 0);
+            formData.append('ordem', ordem);
             formData.append('ativo', dish.ativo ? '1' : '0');
 
             const result = await dishService.update(dishId, formData);
@@ -531,7 +761,14 @@ class DishController {
                     ? (lang === 'pt' ? 'Prato marcado como destaque!' : '¡Plato marcado como destacado!')
                     : (lang === 'pt' ? 'Destaque removido!' : '¡Destacado removido!');
                 toast.success(message);
-                this.loadDishes();
+                await this.loadDishes();
+                
+                // Normalizar ordens sequenciais após mudança
+                await this.normalizeDestaqueOrders();
+                
+                // Forçar renderização das abas
+                this.filterAndRenderLista();
+                this.filterAndRenderDestaques();
             } else {
                 toast.error(result.error || 'Erro ao atualizar prato');
             }

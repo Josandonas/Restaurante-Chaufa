@@ -51,6 +51,13 @@ class UserController {
         if (btn) btn.classList.toggle('active');
     }
 
+    closeUserMenu() {
+        const menu = document.getElementById('userDropdownMenu');
+        const btn = document.getElementById('userProfileBtn');
+        if (menu) menu.classList.remove('active');
+        if (btn) btn.classList.remove('active');
+    }
+
     openPasswordModal() {
         this.toggleUserMenu();
         const modal = document.getElementById('passwordModal');

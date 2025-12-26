@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const { pool } = require('../config/database');
 const { loginValidation, handleValidationErrors } = require('../middleware/validators');
+const { addUserRole } = require('../middleware/roleAuth');
 
 const uploadDir = path.join(__dirname, '../public/uploads/perfil');
 if (!fs.existsSync(uploadDir)) {
@@ -297,10 +298,19 @@ router.get('/me', async (req, res) => {
             });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (jwtError) {
+            console.error('Erro ao verificar JWT:', jwtError.message);
+            return res.status(403).json({ 
+                error: 'Token inválido ou expirado',
+                error_es: 'Token inválido o expirado'
+            });
+        }
 
         const [users] = await pool.query(
-            'SELECT id, email, nome, foto_perfil FROM usuarios WHERE id = ?',
+            'SELECT id, email, nome, foto_perfil, role FROM usuarios WHERE id = ?',
             [decoded.id]
         );
 
@@ -313,10 +323,11 @@ router.get('/me', async (req, res) => {
 
         res.json(users[0]);
     } catch (error) {
-        console.error('Erro ao buscar dados do usuário:', error);
+        console.error('Erro ao buscar dados do usuário:', error.message, error.stack);
         res.status(500).json({ 
             error: 'Erro ao buscar dados',
-            error_es: 'Error al buscar datos'
+            error_es: 'Error al buscar datos',
+            details: error.message
         });
     }
 });

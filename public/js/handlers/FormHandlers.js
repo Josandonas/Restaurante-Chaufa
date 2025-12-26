@@ -67,9 +67,14 @@ class FormHandlers {
                     formData.append('ordem', document.getElementById('ordem').value);
                 }
                 
-                const imageFile = document.getElementById('imageUpload').files[0];
-                if (imageFile) {
-                    formData.append('imagem', imageFile);
+                const imageInput = document.getElementById('imagem');
+                if (imageInput && imageInput.files && imageInput.files[0]) {
+                    formData.append('imagem', imageInput.files[0]);
+                }
+                
+                // Se marcou para remover imagem
+                if (dishController.shouldRemoveImage) {
+                    formData.append('remover_imagem', '1');
                 }
                 
                 await dishController.handleDishSubmit(formData, dishId);
@@ -78,7 +83,7 @@ class FormHandlers {
     }
 
     setupImageUpload() {
-        const input = document.getElementById('imageUpload');
+        const input = document.getElementById('imagem');
         if (input) {
             input.addEventListener('change', (e) => {
                 const file = e.target.files[0];

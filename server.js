@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth');
 const pratosRoutes = require('./routes/pratos');
 const categoriasRoutes = require('./routes/categorias');
 const pdfRoutes = require('./routes/pdf');
+const usuariosRoutes = require('./routes/usuarios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,12 +18,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use('/pratos', express.static(path.join(__dirname, 'public/pratos')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/pratos', pratosRoutes);
 app.use('/api/categorias', categoriasRoutes);
 app.use('/api/pdf', pdfRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 
 app.get('/api/health', (req, res) => {
     res.json({ 

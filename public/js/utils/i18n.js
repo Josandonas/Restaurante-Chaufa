@@ -46,7 +46,10 @@ class I18n {
                 changePhoto: 'Mudar Foto de Perfil',
                 selectPhoto: 'Selecionar Foto',
                 savePhoto: 'Salvar Foto',
-                photoHint: 'Tamanho máximo: 5MB. Formatos: JPG, PNG, GIF, WEBP'
+                photoHint: 'Tamanho máximo: 5MB. Formatos: JPG, PNG, GIF, WEBP',
+                paginationShowing: 'Mostrando',
+                paginationOf: 'de',
+                paginationItems: 'itens'
             },
             es: {
                 adminTitle: '🍽️ Panel Administrativo - La Casa del Chaufa',
@@ -91,7 +94,10 @@ class I18n {
                 changePhoto: 'Cambiar Foto de Perfil',
                 selectPhoto: 'Seleccionar Foto',
                 savePhoto: 'Guardar Foto',
-                photoHint: 'Tamaño máximo: 5MB. Formatos: JPG, PNG, GIF, WEBP'
+                photoHint: 'Tamaño máximo: 5MB. Formatos: JPG, PNG, GIF, WEBP',
+                paginationShowing: 'Mostrando',
+                paginationOf: 'de',
+                paginationItems: 'ítems'
             }
         };
     }

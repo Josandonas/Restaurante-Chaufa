@@ -72,6 +72,8 @@ class CategoryController {
         const inactiveText = lang === 'pt' ? '✗ Inativo' : '✗ Inactivo';
         const editTitle = i18n.t('editTooltip');
         const deleteTitle = i18n.t('deleteTooltip');
+        const moveUpText = 'Mover para cima';
+        const moveDownText = 'Mover para baixo';
 
         if (this.categorias.length === 0) {
             tbody.innerHTML = `
@@ -84,9 +86,25 @@ class CategoryController {
             return;
         }
 
-        tbody.innerHTML = categorias.map(cat => `
+        const sortedCategorias = [...categorias].sort((a, b) => a.ordem - b.ordem);
+
+        tbody.innerHTML = sortedCategorias.map((cat, index) => {
+            const isFirst = index === 0;
+            const isLast = index === sortedCategorias.length - 1;
+            
+            return `
             <tr>
-                <td>${cat.ordem}</td>
+                <td>
+                    <div class="order-controls">
+                        <button class="order-btn" onclick="window.categoryController.moveCategoryUp(${cat.id})" ${isFirst ? 'disabled' : ''} title="${moveUpText}">
+                            ▲
+                        </button>
+                        <span class="order-number">${cat.ordem}</span>
+                        <button class="order-btn" onclick="window.categoryController.moveCategoryDown(${cat.id})" ${isLast ? 'disabled' : ''} title="${moveDownText}">
+                            ▼
+                        </button>
+                    </div>
+                </td>
                 <td>${cat.nome_pt}</td>
                 <td>${cat.nome_es}</td>
                 <td>
@@ -105,7 +123,20 @@ class CategoryController {
                     </div>
                 </td>
             </tr>
-        `).join('');
+        `;
+        }).join('');
+
+        // Ocultar botões de deletar se for editor
+        if (window.currentUserRole === 'editor') {
+            this.hideDeleteButtonsInCategories();
+        }
+    }
+
+    hideDeleteButtonsInCategories() {
+        const deleteButtons = document.querySelectorAll('.action-btn-delete');
+        deleteButtons.forEach(btn => {
+            btn.style.display = 'none';
+        });
     }
 
     openAddModal() {
@@ -193,16 +224,72 @@ class CategoryController {
         }
     }
 
+    async moveCategoryUp(categoryId) {
+        const sorted = [...this.categorias].sort((a, b) => a.ordem - b.ordem);
+        const currentIndex = sorted.findIndex(c => c.id === categoryId);
+        
+        if (currentIndex <= 0) return;
+        
+        const currentCat = sorted[currentIndex];
+        const previousCat = sorted[currentIndex - 1];
+        
+        await this.swapCategoryOrder(currentCat.id, previousCat.id);
+    }
+
+    async moveCategoryDown(categoryId) {
+        const sorted = [...this.categorias].sort((a, b) => a.ordem - b.ordem);
+        const currentIndex = sorted.findIndex(c => c.id === categoryId);
+        
+        if (currentIndex < 0 || currentIndex >= sorted.length - 1) return;
+        
+        const currentCat = sorted[currentIndex];
+        const nextCat = sorted[currentIndex + 1];
+        
+        await this.swapCategoryOrder(currentCat.id, nextCat.id);
+    }
+
+    async swapCategoryOrder(catId1, catId2) {
+        loading.show();
+        try {
+            const cat1 = this.categorias.find(c => c.id === catId1);
+            const cat2 = this.categorias.find(c => c.id === catId2);
+            
+            if (!cat1 || !cat2) {
+                toast.error('Erro ao trocar ordem');
+                return;
+            }
+            
+            const tempOrdem = cat1.ordem;
+            
+            const data1 = {
+                nome_pt: cat1.nome_pt,
+                nome_es: cat1.nome_es,
+                ordem: cat2.ordem,
+                ativo: cat1.ativo
+            };
+            
+            const data2 = {
+                nome_pt: cat2.nome_pt,
+                nome_es: cat2.nome_es,
+                ordem: tempOrdem,
+                ativo: cat2.ativo
+            };
+            
+            await categoryService.update(catId1, data1);
+            await categoryService.update(catId2, data2);
+            
+            await this.loadCategories();
+        } catch (error) {
+            console.error('Erro ao trocar ordem:', error);
+            toast.error('Erro ao trocar ordem');
+        } finally {
+            loading.hide();
+        }
+    }
+
     async deleteCategory(id) {
         const categoria = this.categorias.find(c => c.id === id);
         if (!categoria) return;
-
-        const lang = i18n.getCurrentLanguage();
-        const confirmMsg = lang === 'pt' 
-            ? `Deseja realmente excluir a categoria "${categoria.nome_pt}"?`
-            : `¿Realmente desea eliminar la categoría "${categoria.nome_es}"?`;
-
-        if (!confirm(confirmMsg)) return;
 
         loading.show();
 

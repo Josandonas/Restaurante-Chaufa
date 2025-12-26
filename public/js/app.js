@@ -30,8 +30,25 @@ class App {
         window.i18n = i18n;
         window.app = this;
 
+        // Configurar listener para fechar menu ao clicar fora
+        this.setupClickOutsideListener();
+
         // Iniciar autenticação
         await authController.init();
+    }
+
+    setupClickOutsideListener() {
+        document.addEventListener('click', (event) => {
+            const userMenu = document.getElementById('userDropdownMenu');
+            const userBtn = document.getElementById('userProfileBtn');
+            
+            // Se o menu está aberto e o clique foi fora do menu e do botão
+            if (userMenu && userMenu.classList.contains('active')) {
+                if (!userMenu.contains(event.target) && !userBtn.contains(event.target)) {
+                    userController.closeUserMenu();
+                }
+            }
+        });
     }
 
     async onAuthSuccess() {
@@ -53,6 +70,9 @@ class App {
 
         // Carregar dados do usuário
         await userController.loadProfile();
+        
+        // Verificar role e mostrar/ocultar botão de gerenciar usuários
+        this.checkUserRole();
         
         // Carregar pratos (não bloquear se falhar)
         try {
@@ -115,41 +135,64 @@ class App {
         this.closeLogoutModal();
     }
 
-    // Modal de confirmação de exclusão
-    openDeleteModal(type, id, name) {
-        this.deleteTarget = { type, id, name };
-        const modal = document.getElementById('deleteConfirmModal');
-        const message = document.getElementById('deleteConfirmMessage');
-        const lang = i18n.getCurrentLanguage();
-        
-        if (type === 'dish') {
-            message.textContent = lang === 'pt' 
-                ? `Tem certeza que deseja excluir o prato "${name}"?`
-                : `¿Está seguro que desea eliminar el plato "${name}"?`;
-        } else if (type === 'category') {
-            message.textContent = lang === 'pt'
-                ? `Tem certeza que deseja excluir a categoria "${name}"?`
-                : `¿Está seguro que desea eliminar la categoría "${name}"?`;
+    async checkUserRole() {
+        try {
+            const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+            const response = await fetch('/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const user = await response.json();
+            
+            const manageUsersBtn = document.getElementById('manageUsersBtn');
+            // Mostrar botão para admin e gerente
+            if (manageUsersBtn && (user.role === 'admin' || user.role === 'gerente')) {
+                manageUsersBtn.style.display = 'flex';
+            }
+            
+            if (user.role === 'editor') {
+                this.hideDeleteButtons();
+            }
+            
+            window.currentUserRole = user.role;
+        } catch (error) {
+            console.error('Erro ao verificar role:', error);
         }
+    }
+
+    hideDeleteButtons() {
+        const deleteButtons = document.querySelectorAll('.action-btn-delete');
+        deleteButtons.forEach(btn => {
+            btn.style.display = 'none';
+        });
+    }
+
+    openDeleteModal(type, id, name) {
+        this.deleteType = type;
+        this.deleteId = id;
         
+        const modal = document.getElementById('deleteModal');
+        const itemName = document.getElementById('deleteItemName');
+        
+        if (itemName) itemName.textContent = name;
         if (modal) modal.classList.add('active');
     }
 
     closeDeleteModal() {
-        const modal = document.getElementById('deleteConfirmModal');
+        const modal = document.getElementById('deleteModal');
         if (modal) modal.classList.remove('active');
-        this.deleteTarget = null;
+        this.deleteType = null;
+        this.deleteId = null;
     }
 
     async confirmDelete() {
-        if (!this.deleteTarget) return;
+        if (!this.deleteType || !this.deleteId) return;
         
-        const { type, id } = this.deleteTarget;
-        
-        if (type === 'dish') {
-            await dishController.deleteDish(id);
-        } else if (type === 'category') {
-            await categoryController.deleteCategory(id);
+        if (this.deleteType === 'dish') {
+            await dishController.deleteDish(this.deleteId);
+        } else if (this.deleteType === 'category') {
+            await categoryController.deleteCategory(this.deleteId);
+        } else if (this.deleteType === 'user') {
+            await usersManagementController.deleteUser(this.deleteId);
         }
         
         this.closeDeleteModal();

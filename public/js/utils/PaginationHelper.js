@@ -74,10 +74,12 @@ class PaginationHelper {
         const start = (currentPage - 1) * this.itemsPerPage + 1;
         const end = Math.min(currentPage * this.itemsPerPage, totalItems);
 
+        const i18n = window.i18n || { t: (key) => key };
+        
         let html = `
             <div class="pagination-container">
                 <div class="pagination-info">
-                    Mostrando ${start}-${end} de ${totalItems} itens
+                    ${i18n.t('paginationShowing')} ${start}-${end} ${i18n.t('paginationOf')} ${totalItems} ${i18n.t('paginationItems')}
                 </div>
                 <div class="pagination-controls">
                     <button class="pagination-btn prev" ${!paginationData.hasPrev ? 'disabled' : ''} 

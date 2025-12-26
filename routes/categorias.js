@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
+const { canDelete } = require('../middleware/roleAuth');
 
 // Listar todas as categorias (público)
 router.get('/', async (req, res) => {
@@ -110,7 +111,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 // Deletar categoria (admin)
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authenticateToken, canDelete, async (req, res) => {
     try {
         const { id } = req.params;
 

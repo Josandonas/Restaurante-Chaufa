@@ -9,12 +9,17 @@ CREATE TABLE IF NOT EXISTS usuarios (
     email VARCHAR(255) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL,
     nome VARCHAR(100) NOT NULL,
+    role ENUM('admin', 'gerente', 'editor') DEFAULT 'editor',
+    ativo BOOLEAN DEFAULT TRUE,
     foto_perfil VARCHAR(500),
     remember_token VARCHAR(255),
     token_expira_em TIMESTAMP NULL,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_email (email),
-    INDEX idx_remember_token (remember_token)
+    INDEX idx_remember_token (remember_token),
+    INDEX idx_role (role),
+    INDEX idx_ativo (ativo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabela de categorias

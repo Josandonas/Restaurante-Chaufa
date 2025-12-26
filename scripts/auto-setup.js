@@ -39,12 +39,14 @@ async function autoSetup() {
             );
 
             await connection.query(
-                'INSERT INTO usuarios (email, nome, senha) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE senha = ?',
+                'INSERT INTO usuarios (email, nome, senha, role) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE senha = ?, role = ?',
                 [
                     process.env.ADMIN_EMAIL || 'admin@restaurante.com',
                     'Administrador',
                     hashedPassword,
-                    hashedPassword
+                    'admin',
+                    hashedPassword,
+                    'admin'
                 ]
             );
 
@@ -80,12 +82,14 @@ async function autoSetup() {
                 );
 
                 await connection.query(
-                    'INSERT INTO usuarios (email, nome, senha) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE senha = ?',
+                    'INSERT INTO usuarios (email, nome, senha, role) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE senha = ?, role = ?',
                     [
                         process.env.ADMIN_EMAIL || 'admin@restaurante.com',
                         'Administrador',
                         hashedPassword,
-                        hashedPassword
+                        'admin',
+                        hashedPassword,
+                        'admin'
                     ]
                 );
 

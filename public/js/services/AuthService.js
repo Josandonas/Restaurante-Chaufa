@@ -26,7 +26,7 @@ class AuthService {
     }
 
     async login(email, senha, rememberMe) {
-        console.log('📡 Enviando requisição de login...', { email, rememberMe });
+        // console.log('📡 Enviando requisição de login...', { email, rememberMe });
         
         const response = await this.request('/auth/login', {
             method: 'POST',
@@ -35,12 +35,12 @@ class AuthService {
         const data = await response.json();
 
         if (response.ok) {
-            console.log('✅ Login bem-sucedido no backend');
-            console.log('📦 Dados recebidos:', {
-                token: data.token ? 'SIM' : 'NÃO',
-                rememberToken: data.rememberToken ? 'SIM' : 'NÃO',
-                rememberMe
-            });
+            // console.log('✅ Login bem-sucedido no backend');
+            // console.log('📦 Dados recebidos:', {
+            //     token: data.token ? 'SIM' : 'NÃO',
+            //     rememberToken: data.rememberToken ? 'SIM' : 'NÃO',
+            //     rememberMe
+            // });
             
             // Sempre salvar token
             storage.setToken(data.token, rememberMe);
@@ -50,12 +50,12 @@ class AuthService {
                 if (data.rememberToken) {
                     storage.setRememberToken(data.rememberToken);
                     storage.setUserEmail(email);
-                    console.log('✅ Sessão persistente configurada');
+                    // console.log('✅ Sessão persistente configurada');
                 } else {
-                    console.warn('⚠️ Remember token não foi retornado pelo backend!');
+                    // console.warn('⚠️ Remember token não foi retornado pelo backend!');
                 }
             } else {
-                console.log('ℹ️ Sessão temporária (apenas durante navegação)');
+                // console.log('ℹ️ Sessão temporária (apenas durante navegação)');
             }
             
             return { success: true, data };
@@ -109,14 +109,14 @@ class AuthService {
         this.tokenRefreshInterval = setInterval(async () => {
             const data = await this.verifyRememberToken();
             if (data) {
-                console.log('✅ Token renovado automaticamente');
+                // console.log('✅ Token renovado automaticamente');
             } else {
-                console.warn('⚠️ Falha ao renovar token');
+                // console.warn('⚠️ Falha ao renovar token');
                 this.logout();
             }
         }, 15 * 60 * 1000);
 
-        console.log('🔄 Sistema de renovação automática ativado (15min)');
+        // console.log('🔄 Sistema de renovação automática ativado (15min)');
     }
 
     stopTokenRefresh() {

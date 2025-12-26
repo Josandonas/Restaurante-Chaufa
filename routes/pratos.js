@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
+const { canDelete } = require('../middleware/roleAuth');
 const upload = require('../middleware/upload');
 const { pratoValidation, handleValidationErrors } = require('../middleware/validators');
 const fs = require('fs');
@@ -64,7 +65,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, upload.single('imagem'), pratoValidation, handleValidationErrors, async (req, res) => {
     try {
         const { nome_pt, nome_es, descricao_pt, descricao_es, preco_brl, preco_bob, categoria_id, destaque, ativo, ordem } = req.body;
-        const imagem_url = req.file ? `/uploads/${req.file.filename}` : null;
+        const imagem_url = req.file ? `/uploads/pratos/${req.file.filename}` : null;
 
         const [result] = await pool.query(
             `INSERT INTO pratos (nome_pt, nome_es, descricao_pt, descricao_es, preco_brl, preco_bob, categoria_id, destaque, ativo, imagem_url, ordem)
@@ -88,7 +89,7 @@ router.post('/', authenticateToken, upload.single('imagem'), pratoValidation, ha
 
 router.put('/:id', authenticateToken, upload.single('imagem'), pratoValidation, handleValidationErrors, async (req, res) => {
     try {
-        const { nome_pt, nome_es, descricao_pt, descricao_es, preco_brl, preco_bob, categoria_id, destaque, ativo, ordem } = req.body;
+        const { nome_pt, nome_es, descricao_pt, descricao_es, preco_brl, preco_bob, categoria_id, destaque, ativo, ordem, remover_imagem } = req.body;
         
         const [existing] = await pool.query('SELECT * FROM pratos WHERE id = ?', [req.params.id]);
         if (existing.length === 0) {
@@ -103,14 +104,25 @@ router.put('/:id', authenticateToken, upload.single('imagem'), pratoValidation, 
 
         let imagem_url = existing[0].imagem_url;
         
-        if (req.file) {
+        // Se marcou para remover imagem
+        if (remover_imagem === '1') {
             if (existing[0].imagem_url) {
                 const oldImagePath = path.join(__dirname, '..', 'public', existing[0].imagem_url);
                 if (fs.existsSync(oldImagePath)) {
                     fs.unlinkSync(oldImagePath);
                 }
             }
-            imagem_url = `/uploads/${req.file.filename}`;
+            imagem_url = null;
+        }
+        // Se enviou nova imagem
+        else if (req.file) {
+            if (existing[0].imagem_url) {
+                const oldImagePath = path.join(__dirname, '..', 'public', existing[0].imagem_url);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
+            imagem_url = `/uploads/pratos/${req.file.filename}`;
         }
 
         await pool.query(
@@ -135,7 +147,7 @@ router.put('/:id', authenticateToken, upload.single('imagem'), pratoValidation, 
     }
 });
 
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authenticateToken, canDelete, async (req, res) => {
     try {
         const [existing] = await pool.query('SELECT * FROM pratos WHERE id = ?', [req.params.id]);
         

@@ -8,10 +8,10 @@ class StorageService {
     setToken(token, remember = false) {
         if (remember) {
             localStorage.setItem('admin_token', token);
-            console.log('💾 Token salvo em localStorage (persistente)');
+            // console.log('💾 Token salvo em localStorage (persistente)');
         } else {
             sessionStorage.setItem('admin_token', token);
-            console.log('💾 Token salvo em sessionStorage (sessão)');
+            // console.log('💾 Token salvo em sessionStorage (sessão)');
         }
     }
 
@@ -27,7 +27,7 @@ class StorageService {
 
     setRememberToken(token) {
         localStorage.setItem('remember_token', token);
-        console.log('💾 Remember token salvo em localStorage');
+        // console.log('💾 Remember token salvo em localStorage');
     }
 
     removeRememberToken() {
@@ -41,7 +41,7 @@ class StorageService {
 
     setUserEmail(email) {
         localStorage.setItem('user_email', email);
-        console.log('💾 Email salvo:', email);
+        // console.log('💾 Email salvo:', email);
     }
 
     removeUserEmail() {

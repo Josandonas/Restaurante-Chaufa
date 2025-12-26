@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/admin-modern.css">
+    <link rel="stylesheet" href="/css/order-controls.css">
     <style>
         * {
             margin: 0;
@@ -1588,11 +1589,20 @@
                                 </svg>
                                 <span data-i18n="changePhoto">Mudar Foto de Perfil</span>
                             </button>
-                            <button class="user-menu-item" id="changePasswordBtnMenu" onclick="openPasswordModal()">
+                            <button class="user-menu-item" id="changePasswordBtnMenu" onclick="window.userController.openPasswordModal()">
                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                     <path d="M5 10V7C5 4.79086 6.79086 3 9 3H11C13.2091 3 15 4.79086 15 7V10M6 10H14C15.1046 10 16 10.8954 16 12V16C16 17.1046 15.1046 18 14 18H6C4.89543 18 4 17.1046 4 16V12C4 10.8954 4.89543 10 6 10Z" stroke="currentColor" stroke-width="1.5"/>
                                 </svg>
                                 <span data-i18n="changePassword">Alterar Senha</span>
+                            </button>
+                            <button class="user-menu-item" id="manageUsersBtn" onclick="window.location.href='/users.html'" style="display: none;">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M13 7C13 8.65685 11.6569 10 10 10C8.34315 10 7 8.65685 7 7C7 5.34315 8.34315 4 10 4C11.6569 4 13 5.34315 13 7Z" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M5 17C5 14.2386 7.23858 12 10 12C12.7614 12 15 14.2386 15 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    <circle cx="15" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M17 14C17.5 13.5 18.5 13 19 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                <span>Gerenciar Usuários</span>
                             </button>
                             <div class="user-menu-divider"></div>
                             <button class="user-menu-item user-menu-logout" onclick="window.authController.openLogoutModal()">
@@ -1820,15 +1830,8 @@
                         </div>
                     </div>
 
-                    <!-- Seção: Ordem (para pratos em destaque) -->
-                    <div class="form-section" id="destaqueFields" style="display: none;">
-                        <div class="form-section-title">⭐ Configurações de Destaque</div>
-                        
-                        <div class="form-group-full">
-                            <label>Ordem de Exibição</label>
-                            <input type="number" id="ordem" value="0" placeholder="0">
-                        </div>
-                    </div>
+                    <!-- Campo ordem oculto - gerenciado automaticamente pelos botões ▲▼ -->
+                    <input type="hidden" id="ordem" value="0">
 
                     <!-- Toggle de Disponibilidade -->
                     <div class="toggle-container">
@@ -1859,15 +1862,15 @@
                 <div class="modal-body">
                     <div class="form-group-full">
                         <label>Senha Atual *</label>
-                        <input type="password" id="senhaAtual" required minlength="6" placeholder="Digite sua senha atual">
+                        <input type="password" id="senhaAtual" required minlength="6" placeholder="Digite sua senha atual" autocomplete="current-password">
                     </div>
                     <div class="form-group-full">
                         <label>Nova Senha *</label>
-                        <input type="password" id="novaSenha" required minlength="6" placeholder="Digite a nova senha">
+                        <input type="password" id="novaSenha" required minlength="6" placeholder="Digite a nova senha" autocomplete="new-password">
                     </div>
                     <div class="form-group-full">
                         <label>Confirmar Nova Senha *</label>
-                        <input type="password" id="confirmarSenha" required minlength="6" placeholder="Confirme a nova senha">
+                        <input type="password" id="confirmarSenha" required minlength="6" placeholder="Confirme a nova senha" autocomplete="new-password">
                     </div>
                 </div>
                 <div class="modal-actions">
@@ -1899,10 +1902,8 @@
                         <input type="text" id="categoryNomeEs" required placeholder="Ej: Chaufas">
                     </div>
 
-                    <div class="form-group-full">
-                        <label>Ordem de Exibição</label>
-                        <input type="number" id="categoryOrdem" min="0" value="0" placeholder="0">
-                    </div>
+                    <!-- Campo ordem oculto - gerenciado automaticamente pelos botões ▲▼ -->
+                    <input type="hidden" id="categoryOrdem" value="0">
 
                     <div class="toggle-container">
                         <span class="toggle-icon">📂</span>
