@@ -334,39 +334,50 @@ function adjustCircularLogo() {
     logoImg.style.objectPosition = 'center';
 }
 
-// Auto-hide do botão WhatsApp ao rolar
+// Auto-hide do botão WhatsApp ao rolar (apenas mobile/tablet)
 function setupWhatsAppAutoHide() {
     const whatsappBtn = document.querySelector('.whatsapp-fab');
     if (!whatsappBtn) return;
     
     let scrollTimeout;
-    let lastScrollTop = 0;
     
-    // Iniciar como visível
-    whatsappBtn.classList.add('visible');
-    whatsappBtn.classList.remove('hidden');
+    // Função para verificar se é mobile/tablet
+    const isMobileOrTablet = () => window.innerWidth <= 1024;
     
-    window.addEventListener('scroll', () => {
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    // Aplicar auto-hide apenas em mobile/tablet
+    if (isMobileOrTablet()) {
+        whatsappBtn.classList.add('visible');
         
-        // Esconder ao rolar
-        whatsappBtn.classList.remove('visible');
-        whatsappBtn.classList.add('hidden');
+        window.addEventListener('scroll', () => {
+            // Esconder ao rolar
+            whatsappBtn.classList.remove('visible');
+            whatsappBtn.classList.add('hidden');
+            
+            // Mostrar novamente após parar de rolar (800ms)
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                whatsappBtn.classList.remove('hidden');
+                whatsappBtn.classList.add('visible');
+            }, 800);
+        });
         
-        // Mostrar novamente após parar de rolar (800ms)
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
+        // Mostrar ao passar o mouse mesmo quando escondido
+        whatsappBtn.addEventListener('mouseenter', () => {
             whatsappBtn.classList.remove('hidden');
             whatsappBtn.classList.add('visible');
-        }, 800);
-        
-        lastScrollTop = scrollTop;
-    });
+        });
+    }
     
-    // Mostrar ao passar o mouse mesmo quando escondido
-    whatsappBtn.addEventListener('mouseenter', () => {
-        whatsappBtn.classList.remove('hidden');
-        whatsappBtn.classList.add('visible');
+    // Reajustar ao redimensionar janela
+    window.addEventListener('resize', () => {
+        if (!isMobileOrTablet()) {
+            // Desktop: remover classes de auto-hide
+            whatsappBtn.classList.remove('visible', 'hidden');
+        } else {
+            // Mobile/Tablet: adicionar classe visible
+            whatsappBtn.classList.add('visible');
+            whatsappBtn.classList.remove('hidden');
+        }
     });
 }
 

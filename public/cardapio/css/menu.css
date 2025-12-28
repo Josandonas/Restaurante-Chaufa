@@ -540,7 +540,7 @@ body::before {
     transform: scale(1.1);
 }
 
-/* Botão Flutuante WhatsApp - FAB com UX melhorado */
+/* Botão Flutuante WhatsApp - FAB */
 .whatsapp-fab {
     position: fixed;
     bottom: 20px;
@@ -548,49 +548,66 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 56px;
-    height: 56px;
+    width: 60px;
+    height: 60px;
     background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
     border-radius: 50%;
     color: #fff;
     text-decoration: none;
     box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
     z-index: 999;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    opacity: 0.7;
+    transition: all 0.3s ease;
     cursor: pointer;
 }
 
-/* Mostrar totalmente ao passar o mouse */
+/* Desktop: Hover simples */
 .whatsapp-fab:hover {
-    opacity: 1;
     transform: translateY(-5px) scale(1.1);
     box-shadow: 0 8px 30px rgba(37, 211, 102, 0.6);
 }
 
-/* Auto-hide ao rolar (controlado por JavaScript) */
-.whatsapp-fab.hidden {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(100px);
-}
-
-/* Mostrar ao parar de rolar */
-.whatsapp-fab.visible {
-    opacity: 0.7;
-    pointer-events: auto;
-    transform: translateY(0);
-}
-
 .whatsapp-fab svg {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 
-/* Animação sutil de pulso apenas quando visível */
-.whatsapp-fab.visible:not(:hover) {
-    animation: subtlePulse 3s infinite;
+/* Mobile/Tablet: Animações e auto-hide (max-width: 1024px) */
+@media (max-width: 1024px) {
+    .whatsapp-fab {
+        width: 56px;
+        height: 56px;
+        opacity: 0.7;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .whatsapp-fab:hover {
+        opacity: 1;
+    }
+    
+    /* Auto-hide ao rolar (controlado por JavaScript) */
+    .whatsapp-fab.hidden {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(100px);
+    }
+    
+    /* Mostrar ao parar de rolar */
+    .whatsapp-fab.visible {
+        opacity: 0.7;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+    
+    .whatsapp-fab svg {
+        width: 30px;
+        height: 30px;
+    }
+    
+    /* Animação sutil de pulso apenas quando visível */
+    .whatsapp-fab.visible:not(:hover) {
+        animation: subtlePulse 3s infinite;
+    }
 }
 
 @keyframes subtlePulse {
