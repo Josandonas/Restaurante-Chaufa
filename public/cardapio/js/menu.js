@@ -137,13 +137,15 @@ function renderHighlightCard(dish) {
     const description = currentLang === 'pt' ? dish.descricao_pt : dish.descricao_es;
     const currency = currentLang === 'pt' ? 'R$' : 'Bs.';
     
-    // Se tem variantes de preço, renderizar múltiplas bolhas
+    // Se tem variantes de preço, renderizar múltiplas bolhas empilhadas
     let priceBadgesHtml = '';
     if (dish.precos_variantes && dish.precos_variantes.length > 0) {
         priceBadgesHtml = dish.precos_variantes.map((variante, index) => {
             const priceValue = currentLang === 'pt' ? Number(variante.preco_brl) : Number(variante.preco_bob);
+            // Empilhar verticalmente: primeira no topo (-10px), demais abaixo
+            const topPosition = -10 + (index * 65); // 65px de espaçamento entre bolhas
             return `
-                <div class="highlight-price-badge" style="${index > 0 ? 'top: ' + (10 + index * 55) + 'px;' : ''}">
+                <div class="highlight-price-badge" style="top: ${topPosition}px; right: -15px;">
                     <span class="currency">${currency}</span>
                     <span class="amount">${priceValue.toFixed(0)}</span>
                 </div>
@@ -332,6 +334,42 @@ function adjustCircularLogo() {
     logoImg.style.objectPosition = 'center';
 }
 
+// Auto-hide do botão WhatsApp ao rolar
+function setupWhatsAppAutoHide() {
+    const whatsappBtn = document.querySelector('.whatsapp-fab');
+    if (!whatsappBtn) return;
+    
+    let scrollTimeout;
+    let lastScrollTop = 0;
+    
+    // Iniciar como visível
+    whatsappBtn.classList.add('visible');
+    whatsappBtn.classList.remove('hidden');
+    
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Esconder ao rolar
+        whatsappBtn.classList.remove('visible');
+        whatsappBtn.classList.add('hidden');
+        
+        // Mostrar novamente após parar de rolar (800ms)
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            whatsappBtn.classList.remove('hidden');
+            whatsappBtn.classList.add('visible');
+        }, 800);
+        
+        lastScrollTop = scrollTop;
+    });
+    
+    // Mostrar ao passar o mouse mesmo quando escondido
+    whatsappBtn.addEventListener('mouseenter', () => {
+        whatsappBtn.classList.remove('hidden');
+        whatsappBtn.classList.add('visible');
+    });
+}
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
     // Carregar dados
@@ -339,6 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Ajustar logo circular
     adjustCircularLogo();
+    
+    // Auto-hide do botão WhatsApp
+    setupWhatsAppAutoHide();
     
     // Reajustar em redimensionamento
     window.addEventListener('resize', adjustCircularLogo);
