@@ -1,12 +1,274 @@
 # Configuração para La Casa del Chaufa
+# Zona de rate limiting para APIs
+limit_req_zone $binary_remote_addr zone=api_limit:10m rate=30r/s;
+limit_req_zone $binary_remote_addr zone=auth_limit:10m rate=5r/m;
+limit_req_zone $binary_remote_addr zone=upload_limit:10m rate=10r/m;
+
 server {
     listen 80;
-    server_name lacasadelcahufa.srestaurante.com  193.181.210.162;
+    server_name lacasadelcahufa.srestaurante.com 193.181.210.162;
 
-    # Tamanho máximo de upload
+    # Tamanho máximo de upload (imagens de pratos e fotos de perfil)
     client_max_body_size 10M;
+    client_body_buffer_size 128k;
 
-    # Proxy para aplicação Node.js (Express serve o index.html automaticamente)
+    # Compressão Gzip
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/json application/javascript application/xml+rss application/rss+xml font/truetype font/opentype application/vnd.ms-fontobject image/svg+xml;
+
+    # ==========================================
+    # ROTAS PÚBLICAS (sem autenticação)
+    # ==========================================
+
+    # Cardápio público - Cache agressivo
+    location /api/pratos/public {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+        
+        # Cache para reduzir carga no servidor
+        proxy_cache_valid       200 5m;
+        add_header              Cache-Control "public, max-age=300";
+        
+        limit_req               zone=api_limit burst=20 nodelay;
+    }
+
+    # Timestamp de última atualização - Cache curto
+    location /api/pratos/public/last-update {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        
+        proxy_cache_valid       200 30s;
+        add_header              Cache-Control "public, max-age=30";
+        
+        limit_req               zone=api_limit burst=50 nodelay;
+    }
+
+    # Categorias públicas - Cache médio
+    location /api/categorias/public {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        
+        proxy_cache_valid       200 10m;
+        add_header              Cache-Control "public, max-age=600";
+        
+        limit_req               zone=api_limit burst=20 nodelay;
+    }
+
+    # Geração de PDF - Rate limit mais restritivo
+    location /api/pdf/generate {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        
+        # Timeouts maiores para geração de PDF
+        proxy_connect_timeout   120s;
+        proxy_send_timeout      120s;
+        proxy_read_timeout      120s;
+        
+        limit_req               zone=upload_limit burst=2 nodelay;
+    }
+
+    # PDF Health check e teste
+    location ~ ^/api/pdf/(health|test) {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        
+        limit_req               zone=api_limit burst=5 nodelay;
+    }
+
+    # Health check - Sem rate limit
+    location /api/health {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        access_log              off;
+    }
+
+    # ==========================================
+    # ROTAS DE AUTENTICAÇÃO
+    # ==========================================
+
+    # Login - Rate limit rigoroso contra brute force
+    location /api/auth/login {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        
+        limit_req               zone=auth_limit burst=3 nodelay;
+    }
+
+    # Verificação de token
+    location ~ ^/api/auth/(verify|verify-remember|me) {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        Authorization $http_authorization;
+        
+        limit_req               zone=api_limit burst=30 nodelay;
+    }
+
+    # Mudança de senha
+    location /api/auth/change-password {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        Authorization $http_authorization;
+        
+        limit_req               zone=auth_limit burst=5 nodelay;
+    }
+
+    # Upload de foto de perfil
+    location /api/auth/upload-foto {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        Authorization $http_authorization;
+        
+        client_max_body_size    5M;
+        limit_req               zone=upload_limit burst=3 nodelay;
+    }
+
+    # ==========================================
+    # ROTAS ADMINISTRATIVAS (requerem autenticação)
+    # ==========================================
+
+    # Pratos - CRUD completo
+    location /api/pratos {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        Authorization $http_authorization;
+        
+        # Timeouts padrão
+        proxy_connect_timeout   60s;
+        proxy_send_timeout      60s;
+        proxy_read_timeout      60s;
+        
+        limit_req               zone=api_limit burst=15 nodelay;
+    }
+
+    # Categorias - CRUD completo
+    location /api/categorias {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        Authorization $http_authorization;
+        
+        limit_req               zone=api_limit burst=15 nodelay;
+    }
+
+    # Reordenação de categorias
+    location /api/categorias/reorder {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        Authorization $http_authorization;
+        
+        limit_req               zone=api_limit burst=10 nodelay;
+    }
+
+    # Usuários - Gerenciamento
+    location /api/usuarios {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        Authorization $http_authorization;
+        
+        limit_req               zone=api_limit burst=10 nodelay;
+    }
+
+    # Configurações - Taxa de câmbio
+    location /api/configuracoes {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        Authorization $http_authorization;
+        
+        # Timeout maior para recálculo de preços
+        proxy_connect_timeout   90s;
+        proxy_send_timeout      90s;
+        proxy_read_timeout      90s;
+        
+        limit_req               zone=api_limit burst=5 nodelay;
+    }
+
+    # Recálculo de preços - Timeout ainda maior
+    location /api/configuracoes/cambio/recalcular {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        Authorization $http_authorization;
+        
+        # Timeout muito maior para recálculo de todos os preços
+        proxy_connect_timeout   180s;
+        proxy_send_timeout      180s;
+        proxy_read_timeout      180s;
+        
+        limit_req               zone=api_limit burst=2 nodelay;
+    }
+
+    # ==========================================
+    # ARQUIVOS ESTÁTICOS
+    # ==========================================
+
+    # Uploads (imagens de pratos e fotos de perfil)
+    location /uploads {
+        alias                   /home/admin/Restaurante-Chaufa/public/uploads;
+        expires                 30d;
+        add_header              Cache-Control "public, immutable";
+        add_header              X-Content-Type-Options "nosniff";
+        
+        # Apenas imagens
+        location ~ \.(jpg|jpeg|png|gif|webp|svg)$ {
+            add_header          Cache-Control "public, max-age=2592000";
+        }
+    }
+
+    # Assets estáticos (CSS, JS, fontes)
+    location ~* \.(css|js|woff|woff2|ttf|eot|svg|ico)$ {
+        root                    /home/admin/Restaurante-Chaufa/public;
+        expires                 7d;
+        add_header              Cache-Control "public, max-age=604800";
+        access_log              off;
+    }
+
+    # ==========================================
+    # PÁGINAS HTML
+    # ==========================================
+
+    # Painel administrativo
+    location /admin {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+    }
+
+    # Cardápio público (raiz)
     location / {
         proxy_pass              http://localhost:3000;
         proxy_http_version      1.1;
@@ -18,66 +280,47 @@ server {
         proxy_set_header        X-Forwarded-Proto $scheme;
         proxy_cache_bypass      $http_upgrade;
         
-        # Timeouts
+        # Timeouts padrão
         proxy_connect_timeout   60s;
         proxy_send_timeout      60s;
         proxy_read_timeout      60s;
     }
 
-    # Servir arquivos de upload diretamente (otimização)
-    location /uploads {
-        alias                   /home/admin/Restaurante-Chaufa/public/uploads;
-        expires                 30d;
-        add_header              Cache-Control "public, immutable";
+    # ==========================================
+    # SEGURANÇA
+    # ==========================================
+
+    # Bloquear acesso a arquivos sensíveis
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
     }
 
-    # Logs
+    location ~ \.(env|sql|md|txt|log)$ {
+        deny all;
+        access_log off;
+    }
+
+    # ==========================================
+    # LOGS
+    # ==========================================
+
     access_log                  /var/log/nginx/chaufa_access.log;
-    error_log                   /var/log/nginx/chaufa_error.log;
+    error_log                   /var/log/nginx/chaufa_error.log warn;
 }
 
-# Configuração HTTPS (será adicionada automaticamente pelo Certbot)
-# Descomente após rodar: sudo certbot --nginx -d lacasadelcahufa.srestaurante.com
+# ==========================================
+# CONFIGURAÇÃO HTTPS
+# ==========================================
+# Será configurada automaticamente pelo Certbot
+# Execute: sudo certbot --nginx -d lacasadelcahufa.srestaurante.com
 #
-# server {
-#     listen 443 ssl http2;
-#     server_name lacasadelcahufa.srestaurante.com;
+# Após a configuração SSL, o Certbot adicionará automaticamente:
+# - Redirecionamento HTTP -> HTTPS
+# - Certificados SSL
+# - Headers de segurança HSTS
+# - Configurações SSL otimizadas
 #
-#     # Certificados SSL
-#     ssl_certificate         /etc/letsencrypt/live/srestaurante.com/fullchain.pem;
-#     ssl_certificate_key     /etc/letsencrypt/live/srestaurante.com/privkey.pem;
-#     include                 /etc/letsencrypt/options-ssl-nginx.conf;
-#     ssl_dhparam             /etc/letsencrypt/ssl-dhparams.pem;
-#
-#     # Tamanho máximo de upload
-#     client_max_body_size    10M;
-#
-#     # Proxy para aplicação Node.js
-#     location / {
-#         proxy_pass              http://localhost:3000;
-#         proxy_http_version      1.1;
-#         proxy_set_header        Upgrade $http_upgrade;
-#         proxy_set_header        Connection 'upgrade';
-#         proxy_set_header        Host $host;
-#         proxy_set_header        X-Real-IP $remote_addr;
-#         proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
-#         proxy_set_header        X-Forwarded-Proto $scheme;
-#         proxy_cache_bypass      $http_upgrade;
-#         
-#         # Timeouts
-#         proxy_connect_timeout   60s;
-#         proxy_send_timeout      60s;
-#         proxy_read_timeout      60s;
-#     }
-#
-#     # Servir arquivos de upload diretamente
-#     location /uploads {
-#         alias                   /home/admin/Restaurante-Chaufa/public/uploads;
-#         expires                 30d;
-#         add_header              Cache-Control "public, immutable";
-#     }
-#
-#     # Logs
-#     access_log                  /var/log/nginx/chaufa_access.log;
-#     error_log                   /var/log/nginx/chaufa_error.log;
-# }
+# As mesmas regras de proxy, cache e rate limiting
+# serão aplicadas automaticamente na versão HTTPS

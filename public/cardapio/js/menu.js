@@ -414,8 +414,113 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Gerar PDF do cardápio
-function generatePDF() {
+// Gerar PDF do cardápio usando Puppeteer (backend)
+async function generatePDF() {
+    const pdfBtn = document.getElementById('downloadPdf');
+    const originalText = pdfBtn.innerHTML;
+    
+    try {
+        // Estado 1: Iniciando
+        pdfBtn.disabled = true;
+        pdfBtn.classList.add('loading');
+        pdfBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+                <circle cx="12" cy="12" r="10" opacity="0.25"/>
+                <path d="M12 2a10 10 0 0 1 10 10" opacity="0.75"/>
+            </svg>
+            ${currentLang === 'pt' ? 'Preparando...' : 'Preparando...'}
+        `;
+        
+        await new Promise(resolve => setTimeout(resolve, 400));
+        
+        // Estado 2: Gerando
+        pdfBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+                <circle cx="12" cy="12" r="10" opacity="0.25"/>
+                <path d="M12 2a10 10 0 0 1 10 10" opacity="0.75"/>
+            </svg>
+            ${currentLang === 'pt' ? 'Gerando PDF...' : 'Generando PDF...'}
+        `;
+        
+        // Chamar API do backend que usa Puppeteer
+        const response = await fetch(`/api/pdf/generate?lang=${currentLang}`);
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.details || 'Erro ao gerar PDF');
+        }
+        
+        // Estado 3: Baixando
+        pdfBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            ${currentLang === 'pt' ? 'Baixando...' : 'Descargando...'}
+        `;
+        
+        // Baixar o PDF
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cardapio-la-casa-del-chaufa-${currentLang}-${new Date().toISOString().split('T')[0]}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        // Estado 4: Sucesso
+        pdfBtn.classList.remove('loading');
+        pdfBtn.classList.add('success');
+        pdfBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            ${currentLang === 'pt' ? 'PDF Baixado!' : '¡PDF Descargado!'}
+        `;
+        
+        // Restaurar botão após 3 segundos
+        setTimeout(() => {
+            pdfBtn.classList.remove('success');
+            pdfBtn.innerHTML = originalText;
+            pdfBtn.disabled = false;
+        }, 3000);
+        
+    } catch (error) {
+        console.error('Erro ao gerar PDF:', error);
+        
+        // Estado de erro
+        pdfBtn.classList.remove('loading');
+        pdfBtn.classList.add('error');
+        pdfBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            ${currentLang === 'pt' ? 'Erro!' : '¡Error!'}
+        `;
+        
+        // Mostrar mensagem de erro mais amigável
+        setTimeout(() => {
+            alert(currentLang === 'pt' 
+                ? `Erro ao gerar PDF: ${error.message}\n\nTente novamente em alguns instantes.` 
+                : `Error al generar PDF: ${error.message}\n\nIntente nuevamente en unos momentos.`);
+        }, 500);
+        
+        // Restaurar botão após 3 segundos
+        setTimeout(() => {
+            pdfBtn.classList.remove('error');
+            pdfBtn.innerHTML = originalText;
+            pdfBtn.disabled = false;
+        }, 3000);
+    }
+}
+
+// FUNÇÃO ANTIGA - Mantida como backup (não é mais usada)
+function generatePDF_OLD() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const t = translations[currentLang];
