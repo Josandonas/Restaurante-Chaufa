@@ -53,8 +53,50 @@ function renderMenu() {
     const t = translations[currentLang];
     let html = '';
     
-    // Pratos em destaque
-    const highlights = allDishes.filter(d => d.destaque && d.ativo);
+    // Pratos em destaque com agrupamento de variantes
+    let highlights = allDishes.filter(d => d.destaque && d.ativo);
+    
+    // Criar função para normalizar nome (remover variações e parênteses)
+    const normalizarNome = (nome) => {
+        if (!nome) return '';
+        // Remove tudo entre parênteses, hífens extras, e normaliza espaços
+        return nome
+            .replace(/\([^)]*\)/g, '') // Remove (...)
+            .replace(/\s*-\s*[^-]*$/g, '') // Remove "- Grande", "- Especial", etc
+            .replace(/\s+/g, ' ') // Normaliza espaços
+            .toLowerCase()
+            .trim();
+    };
+    
+    // Agrupar pratos com nome base similar (destaque + lista)
+    highlights = highlights.map(destaque => {
+        const nomeDestaqueNormalizado = normalizarNome(
+            currentLang === 'pt' ? destaque.nome_pt : destaque.nome_es
+        );
+        
+        // Buscar pratos na lista com nome base similar
+        const pratosLista = allDishes.filter(d => {
+            if (d.destaque || !d.ativo) return false;
+            const nomeListaNormalizado = normalizarNome(
+                currentLang === 'pt' ? d.nome_pt : d.nome_es
+            );
+            return nomeListaNormalizado === nomeDestaqueNormalizado;
+        });
+        
+        // Se encontrou pratos duplicados, agrupar preços
+        if (pratosLista.length > 0) {
+            return {
+                ...destaque,
+                precos_variantes: [
+                    { preco_bob: destaque.preco_bob, preco_brl: destaque.preco_brl },
+                    ...pratosLista.map(p => ({ preco_bob: p.preco_bob, preco_brl: p.preco_brl }))
+                ]
+            };
+        }
+        
+        return destaque;
+    });
+    
     if (highlights.length > 0) {
         html += `
             <div class="highlights-section">
@@ -65,11 +107,21 @@ function renderMenu() {
         `;
     }
     
-    // Pratos por categoria
+    // Pratos por categoria (removendo duplicados que já aparecem em destaques)
+    const nomesDestaquesNormalizados = highlights.map(d => {
+        const nome = currentLang === 'pt' ? d.nome_pt : d.nome_es;
+        return normalizarNome(nome);
+    });
+    
     categories.forEach(category => {
-        const categoryDishes = allDishes.filter(d => 
-            d.categoria_id === category.id && !d.destaque && d.ativo
-        );
+        const categoryDishes = allDishes.filter(d => {
+            if (d.categoria_id !== category.id || d.destaque || !d.ativo) return false;
+            
+            // Remover se já aparece nos destaques (usando nome normalizado)
+            const nome = currentLang === 'pt' ? d.nome_pt : d.nome_es;
+            const nomeNormalizado = normalizarNome(nome);
+            return !nomesDestaquesNormalizados.includes(nomeNormalizado);
+        });
         
         if (categoryDishes.length > 0) {
             html += renderCategorySection(category, categoryDishes);
@@ -83,8 +135,30 @@ function renderMenu() {
 function renderHighlightCard(dish) {
     const name = currentLang === 'pt' ? dish.nome_pt : dish.nome_es;
     const description = currentLang === 'pt' ? dish.descricao_pt : dish.descricao_es;
-    const priceValue = currentLang === 'pt' ? Number(dish.preco_brl) : Number(dish.preco_bob);
     const currency = currentLang === 'pt' ? 'R$' : 'Bs.';
+    
+    // Se tem variantes de preço, renderizar múltiplas bolhas
+    let priceBadgesHtml = '';
+    if (dish.precos_variantes && dish.precos_variantes.length > 0) {
+        priceBadgesHtml = dish.precos_variantes.map((variante, index) => {
+            const priceValue = currentLang === 'pt' ? Number(variante.preco_brl) : Number(variante.preco_bob);
+            return `
+                <div class="highlight-price-badge" style="${index > 0 ? 'top: ' + (10 + index * 55) + 'px;' : ''}">
+                    <span class="currency">${currency}</span>
+                    <span class="amount">${priceValue.toFixed(0)}</span>
+                </div>
+            `;
+        }).join('');
+    } else {
+        // Preço único
+        const priceValue = currentLang === 'pt' ? Number(dish.preco_brl) : Number(dish.preco_bob);
+        priceBadgesHtml = `
+            <div class="highlight-price-badge">
+                <span class="currency">${currency}</span>
+                <span class="amount">${priceValue.toFixed(0)}</span>
+            </div>
+        `;
+    }
     
     return `
         <div class="highlight-card">
@@ -93,10 +167,7 @@ function renderHighlightCard(dish) {
                     ? `<img src="${dish.imagem_url}" alt="${name}" class="highlight-image">` 
                     : `<div class="highlight-image">🍽️</div>`
                 }
-                <div class="highlight-price-badge">
-                    <span class="currency">${currency}</span>
-                    <span class="amount">${priceValue.toFixed(0)}</span>
-                </div>
+                ${priceBadgesHtml}
             </div>
             <div class="highlight-name">${name}</div>
             ${description ? `<div class="highlight-description">${description}</div>` : ''}

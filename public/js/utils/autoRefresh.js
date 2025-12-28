@@ -27,8 +27,8 @@ class AutoRefresh {
             // Iniciar verificação periódica
             this.start();
             
-            console.log('🔄 Sistema de atualização automática iniciado (Polling Adaptativo)');
-            console.log(`   ⚡ Ativo: ${this.activeInterval/1000}s | 💤 Inativo: ${this.inactiveInterval/1000}s`);
+            // console.log('🔄 Sistema de atualização automática iniciado (Polling Adaptativo)');
+            // console.log(`   ⚡ Ativo: ${this.activeInterval/1000}s | 💤 Inativo: ${this.inactiveInterval/1000}s`);
         } catch (error) {
             console.error('Erro ao inicializar auto-refresh:', error);
         }
@@ -40,12 +40,12 @@ class AutoRefresh {
             this.isPageVisible = !document.hidden;
             
             if (this.isPageVisible) {
-                console.log('👁️ Página ativa - Polling rápido (15s)');
+                // console.log('👁️ Página ativa - Polling rápido (15s)');
                 this.adjustInterval(this.activeInterval);
                 // Verificar imediatamente ao voltar para a aba
                 this.checkForUpdates();
             } else {
-                console.log('💤 Página inativa - Polling lento (2min)');
+                // console.log('💤 Página inativa - Polling lento (2min)');
                 this.adjustInterval(this.inactiveInterval);
             }
         });

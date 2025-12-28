@@ -95,11 +95,25 @@ class DishController {
     }
 
     filterAndRenderLista() {
+        const lang = i18n.getCurrentLanguage();
         let filtered = this.dishes.filter(d => !d.destaque);
+        
+        // Remover pratos da lista que já aparecem nos destaques com mesmo nome
+        const destaques = this.dishes.filter(d => d.destaque && d.ativo);
+        filtered = filtered.filter(pratoLista => {
+            const nomeLista = lang === 'pt' ? pratoLista.nome_pt : pratoLista.nome_es;
+            
+            // Verificar se existe um destaque com mesmo nome
+            const temDestaqueDuplicado = destaques.some(destaque => {
+                const nomeDestaque = lang === 'pt' ? destaque.nome_pt : destaque.nome_es;
+                return nomeLista.toLowerCase().trim() === nomeDestaque.toLowerCase().trim();
+            });
+            
+            return !temDestaqueDuplicado;
+        });
         
         // Filtrar por busca
         if (this.searchTerm) {
-            const lang = i18n.getCurrentLanguage();
             filtered = filtered.filter(d => {
                 const name = lang === 'pt' ? d.nome_pt : d.nome_es;
                 return name.toLowerCase().includes(this.searchTerm);
@@ -130,9 +144,34 @@ class DishController {
     filterAndRenderDestaques() {
         let filtered = this.dishes.filter(d => d.destaque);
         
+        // Agrupar pratos com mesmo nome (destaque + lista)
+        const lang = i18n.getCurrentLanguage();
+        filtered = filtered.map(destaque => {
+            const nomeDestaque = lang === 'pt' ? destaque.nome_pt : destaque.nome_es;
+            
+            // Buscar pratos na lista com mesmo nome
+            const pratosLista = this.dishes.filter(d => {
+                if (d.destaque || !d.ativo) return false; // Ignorar destaques e inativos
+                const nomeLista = lang === 'pt' ? d.nome_pt : d.nome_es;
+                return nomeLista.toLowerCase().trim() === nomeDestaque.toLowerCase().trim();
+            });
+            
+            // Se encontrou pratos duplicados na lista, agrupar preços
+            if (pratosLista.length > 0) {
+                return {
+                    ...destaque,
+                    precos_variantes: [
+                        { preco_bob: destaque.preco_bob, preco_brl: destaque.preco_brl },
+                        ...pratosLista.map(p => ({ preco_bob: p.preco_bob, preco_brl: p.preco_brl }))
+                    ]
+                };
+            }
+            
+            return destaque;
+        });
+        
         // Filtrar por busca
         if (this.searchTermDestaques && this.searchTermDestaques.length > 0) {
-            const lang = i18n.getCurrentLanguage();
             const searchLower = this.searchTermDestaques.toLowerCase();
             filtered = filtered.filter(d => {
                 const name = lang === 'pt' ? d.nome_pt : d.nome_es;
