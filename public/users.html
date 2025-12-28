@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/admin-modern.css">
+    <link rel="stylesheet" href="admin/css/admin-modern.css">
     <style>
         * {
             margin: 0;
@@ -428,18 +428,210 @@
             border-left: 4px solid #ffc107;
         }
 
-        @media (max-width: 768px) {
-            .users-table-container {
-                overflow-x: auto;
-            }
+        /* Mobile Card View */
+        .users-cards {
+            display: none;
+        }
 
-            .users-table {
-                min-width: 800px;
+        .user-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .user-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .user-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f1f3f5;
+        }
+
+        .user-card-info {
+            flex: 1;
+        }
+
+        .user-card-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .user-card-email {
+            font-size: 14px;
+            color: #6c757d;
+            word-break: break-all;
+        }
+
+        .user-card-id {
+            background: #e9ecef;
+            color: #495057;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .user-card-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .user-card-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .user-card-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-card-value {
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .user-card-actions {
+            display: flex;
+            gap: 8px;
+            padding-top: 16px;
+            border-top: 2px solid #f1f3f5;
+        }
+
+        .user-card-actions .action-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .user-card-actions .action-btn-edit {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .user-card-actions .action-btn-delete {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        @media (max-width: 768px) {
+            .users-container {
+                padding: 20px 16px;
             }
 
             .page-header {
+                margin-bottom: 20px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .page-header > div:last-child {
+                width: 100%;
                 flex-direction: column;
-                align-items: flex-start;
+            }
+
+            .back-btn,
+            .add-user-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .back-btn {
+                order: 2;
+            }
+
+            .add-user-btn {
+                order: 1;
+                margin-bottom: 8px;
+            }
+
+            /* Ocultar tabela em mobile */
+            .users-table-container {
+                display: none;
+            }
+
+            /* Mostrar cards em mobile */
+            .users-cards {
+                display: block;
+            }
+
+            /* Modal ajustes */
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+
+            .modal-header {
+                padding: 20px;
+            }
+
+            .modal-header h2 {
+                font-size: 20px;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .modal-actions {
+                padding: 16px 20px;
+                flex-direction: column-reverse;
+            }
+
+            .modal-actions .btn {
+                width: 100%;
+            }
+
+            /* Toast mobile */
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast {
+                min-width: auto;
+                width: 100%;
+            }
+
+            /* User card mobile específico */
+            .user-card-body {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .users-table-container {
+                display: block;
+            }
+
+            .users-cards {
+                display: none;
             }
         }
     </style>
@@ -481,6 +673,13 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="users-cards" id="usersCards">
+            <div style="text-align: center; padding: 40px; color: #6c757d;">
+                Carregando usuários...
+            </div>
         </div>
     </div>
 

@@ -12,7 +12,7 @@ const translations = {
         pdfButton: 'Descargar PDF', 
         footerPhone: 'Pedidos: +591 72622036', 
         footerHours: 'Lunes a jueves, sábado y domingo: 12:00 a 20:00',
-        footerLocation: 'Frente a la rotonda itacamba arroyo concepción- quijarro, Bolivia'
+        footerLocation: 'Frente a La Rotonda Itacamba Arroyo Concepción- Puerto Quijarro, Bolivia'
     },
     pt: { 
         loading: 'Carregando cardápio...', 
@@ -21,7 +21,7 @@ const translations = {
         pdfButton: 'Baixar PDF', 
         footerPhone: 'Pedidos: +591 72622036', 
         footerHours: 'De segunda a quinta-feira, sábado e domingo: 12:00 às 20:00',
-        footerLocation: 'Frente a la rotonda itacamba arroyo concepción- quijarro, Bolivia'
+        footerLocation: 'Em Frente a Rotatória Itacamba Arroyo Concepción- Puerto Quijarro, Bolivia'
     }
 };
 
@@ -58,9 +58,6 @@ function renderMenu() {
     if (highlights.length > 0) {
         html += `
             <div class="highlights-section">
-                <div class="highlights-header">
-                    <h2 class="highlights-title">${t.highlights}</h2>
-                </div>
                 <div class="highlights-grid">
                     ${highlights.map(dish => renderHighlightCard(dish)).join('')}
                 </div>
@@ -111,33 +108,78 @@ function renderHighlightCard(dish) {
 function renderCategorySection(category, dishes) {
     const categoryName = currentLang === 'pt' ? category.nome_pt : category.nome_es;
     
+    // Agrupar pratos com mesmo nome
+    const groupedDishes = groupDishesByName(dishes);
+    
     return `
         <div class="category-section">
             <div class="category-header">
                 <h2 class="category-title">${categoryName}</h2>
             </div>
             <div class="dishes-list">
-                ${dishes.map(dish => renderDishItem(dish)).join('')}
+                ${groupedDishes.map(dishGroup => renderDishItem(dishGroup)).join('')}
             </div>
         </div>
     `;
+}
+
+// Agrupar pratos com mesmo nome
+function groupDishesByName(dishes) {
+    const grouped = {};
+    
+    dishes.forEach(dish => {
+        const fullName = currentLang === 'pt' ? dish.nome_pt : dish.nome_es;
+        
+        // Normalizar nome removendo sufixos de tamanho/porção
+        const baseName = fullName
+            .replace(/\s*-\s*(Grande|Pequeno|Médio|Medio|grande|pequeno|médio|medio)$/i, '')
+            .replace(/\s*-\s*(Chico|Mediano|chico|mediano)$/i, '')
+            .trim();
+        
+        if (!grouped[baseName]) {
+            grouped[baseName] = {
+                ...dish,
+                nome_pt: baseName,
+                nome_es: baseName,
+                prices: []
+            };
+        }
+        
+        const priceValue = currentLang === 'pt' ? Number(dish.preco_brl) : Number(dish.preco_bob);
+        if (priceValue > 0) {
+            grouped[baseName].prices.push(priceValue);
+        }
+    });
+    
+    // Converter objeto em array e ordenar preços
+    return Object.values(grouped).map(dish => {
+        dish.prices.sort((a, b) => a - b);
+        return dish;
+    });
 }
 
 // Renderizar item de prato
 function renderDishItem(dish) {
     const name = currentLang === 'pt' ? dish.nome_pt : dish.nome_es;
     const description = currentLang === 'pt' ? dish.descricao_pt : dish.descricao_es;
-    const priceValue = currentLang === 'pt' ? Number(dish.preco_brl) : Number(dish.preco_bob);
+    const currency = currentLang === 'pt' ? 'R$' : 'Bs.';
     
-    // Se preço é 0, mostrar descrição ou texto padrão
+    // Se tem múltiplos preços (array prices), mostrar separados por vírgula
     let priceDisplay;
-    if (priceValue === 0 || priceValue === 0.00) {
-        priceDisplay = description || (currentLang === 'pt' ? 'Temos Diversos Tipos' : 'Tenemos Diversos Tipos');
+    if (dish.prices && dish.prices.length > 0) {
+        // Múltiplos preços
+        priceDisplay = dish.prices.map(price => `${currency} ${price.toFixed(2)}`).join(', ');
     } else {
-        priceDisplay = currentLang === 'pt' 
-            ? `R$ ${priceValue.toFixed(2)}` 
-            : `Bs. ${priceValue.toFixed(2)}`;
+        // Preço único
+        const priceValue = currentLang === 'pt' ? Number(dish.preco_brl) : Number(dish.preco_bob);
+        if (priceValue === 0 || priceValue === 0.00) {
+            priceDisplay = description || (currentLang === 'pt' ? 'Temos Diversos Tipos' : 'Tenemos Diversos Tipos');
+        } else {
+            priceDisplay = `${currency} ${priceValue.toFixed(2)}`;
+        }
     }
+    
+    const hasPrice = dish.prices ? dish.prices.length > 0 : (currentLang === 'pt' ? Number(dish.preco_brl) : Number(dish.preco_bob)) > 0;
     
     return `
         <div class="dish-item">
@@ -149,7 +191,7 @@ function renderDishItem(dish) {
             <div class="dish-info">
                 <div class="dish-name">
                     ${name}
-                    ${priceValue > 0 && description ? `<span class="dish-description">${description}</span>` : ''}
+                    ${hasPrice && description ? `<span class="dish-description">${description}</span>` : ''}
                 </div>
             </div>
             <div class="dish-prices">

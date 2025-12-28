@@ -486,10 +486,20 @@ class DishController {
     }
 
     updateContextualButton(tab) {
+        const btn = document.getElementById('contextualAddBtn');
         const textSpan = document.getElementById('contextualAddText');
-        if (!textSpan) return;
+        if (!btn || !textSpan) return;
         
         const lang = i18n.getCurrentLanguage();
+        
+        // Ocultar botão na aba de câmbio
+        if (tab === 'cambio') {
+            btn.style.display = 'none';
+            return;
+        }
+        
+        // Mostrar botão nas outras abas
+        btn.style.display = 'flex';
         
         if (tab === 'categorias') {
             const text = lang === 'pt' ? 'Adicionar Categoria' : 'Agregar Categoría';

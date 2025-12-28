@@ -27,7 +27,16 @@ class ApiService {
 
         try {
             const response = await fetch(this.baseURL + endpoint, config);
-            return response;
+            
+            // Parse JSON response
+            const data = await response.json();
+            
+            // Se não for 2xx, lançar erro
+            if (!response.ok) {
+                throw new Error(data.error || data.message || `HTTP ${response.status}`);
+            }
+            
+            return data;
         } catch (error) {
             console.error('API Request Error:', error);
             throw error;

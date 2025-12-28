@@ -37,6 +37,11 @@ class UsersManagementController {
     }
 
     renderUsers() {
+        this.renderTable();
+        this.renderCards();
+    }
+
+    renderTable() {
         const tbody = document.querySelector('#usersTable tbody');
         if (!tbody) return;
 
@@ -78,6 +83,75 @@ class UsersManagementController {
             `;
 
             tbody.appendChild(row);
+        });
+    }
+
+    renderCards() {
+        const cardsContainer = document.getElementById('usersCards');
+        if (!cardsContainer) return;
+
+        cardsContainer.innerHTML = '';
+
+        this.users.forEach(user => {
+            const statusClass = user.ativo ? 'status-active' : 'status-inactive';
+            const statusText = user.ativo ? 'Ativo' : 'Inativo';
+            
+            let roleText = '';
+            let roleIcon = '';
+            if (user.role === 'admin') {
+                roleText = 'Admin';
+                roleIcon = '👑';
+            } else if (user.role === 'gerente') {
+                roleText = 'Gerente';
+                roleIcon = '⭐';
+            } else {
+                roleText = 'Editor';
+                roleIcon = '✏️';
+            }
+
+            const createdDate = new Date(user.criado_em).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+
+            const card = document.createElement('div');
+            card.className = 'user-card';
+            card.innerHTML = `
+                <div class="user-card-header">
+                    <div class="user-card-info">
+                        <div class="user-card-name">${user.nome}</div>
+                        <div class="user-card-email">${user.email}</div>
+                    </div>
+                    <div class="user-card-id">#${user.id}</div>
+                </div>
+                <div class="user-card-body">
+                    <div class="user-card-field">
+                        <div class="user-card-label">Role</div>
+                        <div class="user-card-value">${roleIcon} ${roleText}</div>
+                    </div>
+                    <div class="user-card-field">
+                        <div class="user-card-label">Status</div>
+                        <div class="user-card-value">
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                    <div class="user-card-field">
+                        <div class="user-card-label">Criado em</div>
+                        <div class="user-card-value">${createdDate}</div>
+                    </div>
+                </div>
+                <div class="user-card-actions">
+                    <button class="action-btn action-btn-edit" onclick="window.usersManagementController.editUser(${user.id})">
+                        ✏️ Editar
+                    </button>
+                    <button class="action-btn action-btn-delete" onclick="window.app.openDeleteModal('user', ${user.id}, '${user.nome.replace(/'/g, "\\'")}')">
+                        🗑️ Deletar
+                    </button>
+                </div>
+            `;
+
+            cardsContainer.appendChild(card);
         });
     }
 

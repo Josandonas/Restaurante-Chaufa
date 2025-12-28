@@ -9,6 +9,7 @@ const pratosRoutes = require('./routes/pratos');
 const categoriasRoutes = require('./routes/categorias');
 const pdfRoutes = require('./routes/pdf');
 const usuariosRoutes = require('./routes/usuarios');
+const configuracoesRoutes = require('./routes/configuracoes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +27,7 @@ app.use('/api/pratos', pratosRoutes);
 app.use('/api/categorias', categoriasRoutes);
 app.use('/api/pdf', pdfRoutes);
 app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/configuracoes', configuracoesRoutes);
 
 app.get('/api/health', (req, res) => {
     res.json({ 

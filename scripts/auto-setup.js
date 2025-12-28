@@ -58,6 +58,14 @@ async function autoSetup() {
                 console.log('✓ Dados iniciais (categorias e pratos) inseridos');
             }
 
+            // Executar procedures
+            const proceduresPath = path.join(__dirname, '..', 'database', 'procedures.sql');
+            if (fs.existsSync(proceduresPath)) {
+                const proceduresSQL = fs.readFileSync(proceduresPath, 'utf8');
+                await connection.query(proceduresSQL);
+                console.log('✓ Procedures de câmbio criadas');
+            }
+
             console.log('✓ Banco de dados criado com sucesso');
             console.log('✓ Usuário administrativo configurado');
             console.log('');

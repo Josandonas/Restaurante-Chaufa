@@ -3,6 +3,7 @@ import authController from './controllers/AuthController.js';
 import userController from './controllers/UserController.js';
 import dishController from './controllers/DishController.js';
 import categoryController from './controllers/CategoryController.js';
+import configController from './controllers/ConfigController.js';
 import authService from './services/AuthService.js';
 import i18n from './utils/i18n.js';
 import loginI18n from './utils/loginI18n.js';
@@ -19,6 +20,7 @@ class App {
         window.userController = userController;
         window.dishController = dishController;
         window.categoryController = categoryController;
+        window.configController = configController;
         window.i18n = i18n;
         window.loginI18n = loginI18n;
         window.app = this;
@@ -84,6 +86,13 @@ class App {
             await dishController.loadDishes();
         } catch (error) {
             console.warn('⚠️ Erro ao carregar pratos:', error);
+        }
+        
+        // Inicializar controller de configurações
+        try {
+            await configController.init();
+        } catch (error) {
+            console.warn('⚠️ Erro ao carregar configurações:', error);
         }
         
         // Iniciar renovação automática de token

@@ -57,3 +57,18 @@ CREATE TABLE IF NOT EXISTS pratos (
     INDEX idx_pratos_categoria (categoria_id),
     CONSTRAINT fk_pratos_categoria FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabela de configurações do sistema
+CREATE TABLE IF NOT EXISTS configuracoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    chave VARCHAR(100) NOT NULL UNIQUE,
+    valor TEXT NOT NULL,
+    descricao VARCHAR(255),
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_chave (chave)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Inserir taxa de câmbio padrão (1 BOB = 0.75 BRL aproximadamente)
+INSERT INTO configuracoes (chave, valor, descricao) VALUES 
+('taxa_cambio_bob_brl', '0.75', 'Taxa de câmbio de Bolivianos (BOB) para Reais (BRL)')
+ON DUPLICATE KEY UPDATE valor = valor;

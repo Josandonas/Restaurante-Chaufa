@@ -16,6 +16,29 @@ body {
     flex-direction: column;
 }
 
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/logos_imagens_app/back_mobile.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.60;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Background para desktop */
+@media (min-width: 769px) {
+    body::after {
+        background-image: url('/logos_imagens_app/back_desktop.png');
+    }
+}
+
 /* Elementos decorativos de fundo */
 body::before {
     content: '';
@@ -25,8 +48,8 @@ body::before {
     width: 200%;
     height: 200%;
     background: 
-        radial-gradient(circle at 20% 50%, rgba(200, 70, 60, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 80% 50%, rgba(220, 180, 140, 0.06) 0%, transparent 50%);
+        radial-gradient(circle at 20% 50%, rgba(70, 150, 180, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(100, 180, 200, 0.06) 0%, transparent 50%);
     animation: rotate 60s linear infinite;
     pointer-events: none;
     z-index: 0;
@@ -66,8 +89,8 @@ body::before {
 .header {
     position: sticky;
     top: 0;
-    background: linear-gradient(135deg, #2a1a1a 0%, #3d2520 100%);
-    border-bottom: 3px solid #c8463c;
+    background: linear-gradient(135deg, #1a3a42 0%, #2d5a65 100%);
+    border-bottom: 3px solid #4a9fb8;
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     z-index: 100;
     padding: 15px 20px;
@@ -93,7 +116,7 @@ body::before {
     height: 100px;
     transition: all 0.3s;
     background: #ffffff;
-    padding: 5px;
+    padding: 0px;
     border-radius: 50%;
     box-shadow: 0 3px 15px rgba(0,0,0,0.3);
     overflow: hidden;
@@ -109,8 +132,8 @@ body::before {
 }
 
 .logo-container img {
-    width: 120%;
-    height: 120%;
+    width: 150% !important;
+    height: 150% !important;
     object-fit: contain;
     display: block;
 }
@@ -152,13 +175,13 @@ body::before {
 }
 
 .btn-lang.active {
-    background: rgba(200, 70, 60, 0.3);
-    border-color: #c8463c;
+    background: rgba(74, 159, 184, 0.3);
+    border-color: #4a9fb8;
     transform: scale(1.1);
 }
 
 .btn-pdf {
-    background: linear-gradient(135deg, #c8463c 0%, #d85850 100%);
+    background: linear-gradient(135deg, #4a9fb8 0%, #5ab5d0 100%);
     color: white;
     border: none;
     padding: 6px 12px;
@@ -190,8 +213,8 @@ body::before {
 /* Seções de categoria */
 .category-section {
     margin-bottom: 50px;
-    background: rgba(42, 26, 26, 0.6);
-    border: 2px solid #c8463c;
+    background: rgba(26, 58, 66, 0.6);
+    border: 2px solid #4a9fb8;
     border-radius: 20px;
     padding: 25px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -216,7 +239,7 @@ body::before {
     gap: 15px;
     margin-bottom: 25px;
     padding-bottom: 12px;
-    border-bottom: 2px solid #c8463c;
+    border-bottom: 2px solid #4a9fb8;
 }
 
 .category-title {
@@ -256,8 +279,8 @@ body::before {
     height: 50px;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid #c8463c;
-    box-shadow: 0 2px 8px rgba(200, 70, 60, 0.3);
+    border: 2px solid #4a9fb8;
+    box-shadow: 0 2px 8px rgba(74, 159, 184, 0.3);
 }
 
 .dish-mini-image img {
@@ -424,8 +447,8 @@ body::before {
 
 /* Rodapé */
 .footer {
-    background: #2a1a1a;
-    border-top: 3px solid #c8463c;
+    background: #1a3a42;
+    border-top: 3px solid #4a9fb8;
     padding: 25px 20px;
     text-align: center;
     margin-top: 50px;
@@ -457,14 +480,14 @@ body::before {
     position: relative;
     padding: 4px 8px;
     border-radius: 6px;
-    background: rgba(200, 70, 60, 0.1);
-    border: 1px solid rgba(200, 70, 60, 0.3);
+    background: rgba(74, 159, 184, 0.1);
+    border: 1px solid rgba(74, 159, 184, 0.3);
 }
 
 .footer-item a:hover {
     color: #fff;
-    background: rgba(200, 70, 60, 0.25);
-    border-color: #c8463c;
+    background: rgba(74, 159, 184, 0.25);
+    border-color: #4a9fb8;
     text-decoration: underline;
     transform: translateY(-2px);
 }
@@ -487,14 +510,14 @@ body::before {
 .admin-link-footer:hover {
     color: rgba(220, 180, 140, 0.9);
     opacity: 1;
-    background: rgba(200, 70, 60, 0.2);
+    background: rgba(74, 159, 184, 0.2);
     transform: scale(1.1);
 }
 
 /* Botão Flutuante WhatsApp - FAB */
 .whatsapp-fab {
     position: fixed;
-    bottom: 20px;
+    bottom:105px;
     right: 20px;
     display: flex;
     align-items: center;
@@ -541,9 +564,9 @@ body::before {
 }
 
 .error {
-    background: rgba(200, 70, 60, 0.2);
-    border: 2px solid #c8463c;
-    color: #ff9090;
+    background: rgba(74, 159, 184, 0.2);
+    border: 2px solid #4a9fb8;
+    color: #90d5ff;
     padding: 25px;
     border-radius: 15px;
     margin: 25px;
@@ -671,6 +694,8 @@ font-size: 1.6em;
     
     .logo-container {
         width: 70px;
+        height: 70px;
+        border-radius: 8px;
     }
     
     .header-controls {
