@@ -1,6 +1,7 @@
 // Controller de Pratos
 import dishService from '../services/DishService.js';
 import categoryService from '../services/CategoryService.js';
+import apiService from '../services/ApiService.js';
 import toast from '../utils/toast.js';
 import loading from '../utils/loading.js';
 import i18n from '../utils/i18n.js';
@@ -174,15 +175,27 @@ class DishController {
             const statusText = dish.ativo ? i18n.t('active') : i18n.t('inactive');
             const statusClass = dish.ativo ? 'status-active' : 'status-inactive';
             
+            // Aplicar opacidade se inativo
+            if (!dish.ativo) {
+                row.style.opacity = '0.5';
+                row.style.backgroundColor = '#f8f9fa';
+            }
+            
             const markFeaturedText = i18n.t('markAsFeatured');
             const editText = i18n.t('editTooltip');
             const deleteText = i18n.t('deleteTooltip');
+            const toggleAvailabilityText = dish.ativo ? 'Marcar como indisponível' : 'Marcar como disponível';
             
             row.innerHTML = `
                 <td>${dishName}</td>
                 <td>R$ ${parseFloat(dish.preco_brl).toFixed(2)}</td>
                 <td>Bs. ${parseFloat(dish.preco_bob).toFixed(2)}</td>
-                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                <td>
+                    <label class="toggle-switch" title="${toggleAvailabilityText}">
+                        <input type="checkbox" ${dish.ativo ? 'checked' : ''} onchange="window.dishController.toggleAvailability(${dish.id}, this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </td>
                 <td>
                     <div class="action-buttons">
                         <button class="action-btn action-btn-star" onclick="window.dishController.toggleDestaque(${dish.id}, true)" title="${markFeaturedText}">
@@ -232,9 +245,16 @@ class DishController {
             const statusText = dish.ativo ? i18n.t('active') : i18n.t('inactive');
             const statusClass = dish.ativo ? 'active' : 'inactive';
             const destacadoText = dish.destaque ? (i18n.getCurrentLanguage() === 'pt' ? 'Sim' : 'Sí') : 'Não';
+            const toggleAvailabilityText = dish.ativo ? 'Marcar como indisponível' : 'Marcar como disponível';
             
             const card = document.createElement('div');
             card.className = 'dish-card-mobile';
+            
+            // Aplicar opacidade se inativo
+            if (!dish.ativo) {
+                card.style.opacity = '0.5';
+                card.style.backgroundColor = '#f8f9fa';
+            }
             
             const imageHtml = dish.imagem_url 
                 ? `<img src="${dish.imagem_url}" alt="${dishName}" class="dish-card-image" onerror="this.parentElement.innerHTML='<div class=\\'dish-card-image-placeholder\\'>🍽️</div>'">`
@@ -292,8 +312,11 @@ class DishController {
                         <span class="dish-card-detail-value dish-card-price">Bs. ${parseFloat(dish.preco_bob).toFixed(2)}</span>
                     </div>
                     <div class="dish-card-detail">
-                        <span class="dish-card-detail-label">${i18n.getCurrentLanguage() === 'pt' ? 'Estado' : 'Estado'}</span>
-                        <span class="dish-card-status ${statusClass}">${statusText}</span>
+                        <span class="dish-card-detail-label">${i18n.getCurrentLanguage() === 'pt' ? 'Disponível' : 'Disponible'}</span>
+                        <label class="toggle-switch" title="${toggleAvailabilityText}" style="margin: 0;">
+                            <input type="checkbox" ${dish.ativo ? 'checked' : ''} onchange="window.dishController.toggleAvailability(${dish.id}, this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
                     </div>
                     <div class="dish-card-detail">
                         <span class="dish-card-detail-label">${i18n.getCurrentLanguage() === 'pt' ? 'Ordem' : 'Orden'}</span>
@@ -343,11 +366,18 @@ class DishController {
             const statusText = dish.ativo ? i18n.t('active') : i18n.t('inactive');
             const statusClass = dish.ativo ? 'status-active' : 'status-inactive';
             
+            // Aplicar opacidade se inativo
+            if (!dish.ativo) {
+                row.style.opacity = '0.5';
+                row.style.backgroundColor = '#f8f9fa';
+            }
+            
             const removeFeaturedText = i18n.t('removeFeatured');
             const editText = i18n.t('editTooltip');
             const deleteText = i18n.t('deleteTooltip');
             const moveUpText = 'Mover para cima';
             const moveDownText = 'Mover para baixo';
+            const toggleAvailabilityText = dish.ativo ? 'Marcar como indisponível' : 'Marcar como disponível';
             
             // Calcular isFirst e isLast baseado na lista completa, não na página
             const globalIndex = sortedFullList.findIndex(d => d.id === dish.id);
@@ -370,7 +400,12 @@ class DishController {
                         </button>
                     </div>
                 </td>
-                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                <td>
+                    <label class="toggle-switch" title="${toggleAvailabilityText}">
+                        <input type="checkbox" ${dish.ativo ? 'checked' : ''} onchange="window.dishController.toggleAvailability(${dish.id}, this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </td>
                 <td>
                     <div class="action-buttons">
                         <button class="action-btn action-btn-star-remove" onclick="window.dishController.toggleDestaque(${dish.id}, false)" title="${removeFeaturedText}">
@@ -527,6 +562,7 @@ class DishController {
         if (ordem) ordem.value = '0';
         
         await this.loadCategoriesSelect();
+        await this.setupPriceCalculation();
         
         if (modal) modal.classList.add('active');
     }
@@ -569,6 +605,7 @@ class DishController {
             this.shouldRemoveImage = false;
             
             await this.loadCategoriesSelect();
+            await this.setupPriceCalculation();
             
             const elements = {
                 title: document.getElementById('dishModalTitle'),
@@ -901,6 +938,209 @@ class DishController {
             toast.error('Erro ao atualizar prato');
         } finally {
             loading.hide();
+        }
+    }
+
+    async toggleAvailability(dishId, isAvailable) {
+        loading.show();
+        try {
+            const dish = await dishService.getById(dishId);
+            if (!dish) {
+                toast.error('Prato não encontrado');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('nome_pt', dish.nome_pt);
+            formData.append('nome_es', dish.nome_es);
+            formData.append('descricao_pt', dish.descricao_pt || '');
+            formData.append('descricao_es', dish.descricao_es || '');
+            formData.append('preco_brl', dish.preco_brl);
+            formData.append('preco_bob', dish.preco_bob);
+            formData.append('categoria_id', dish.categoria_id || '');
+            formData.append('destaque', dish.destaque ? '1' : '0');
+            formData.append('ordem', dish.ordem || 0);
+            formData.append('ativo', isAvailable ? '1' : '0');
+
+            const result = await dishService.update(dishId, formData);
+            
+            if (result.success) {
+                const lang = i18n.getCurrentLanguage();
+                const message = isAvailable 
+                    ? (lang === 'pt' ? 'Prato marcado como disponível!' : '¡Plato marcado como disponible!')
+                    : (lang === 'pt' ? 'Prato marcado como indisponível!' : '¡Plato marcado como no disponible!');
+                toast.success(message);
+                await this.loadDishes();
+                
+                // Forçar renderização das abas
+                this.filterAndRenderLista();
+                this.filterAndRenderDestaques();
+            } else {
+                toast.error(result.error || 'Erro ao atualizar disponibilidade');
+            }
+        } catch (error) {
+            console.error('Error toggling availability:', error);
+            toast.error('Erro ao atualizar disponibilidade');
+        } finally {
+            loading.hide();
+        }
+    }
+
+    async setupPriceCalculation() {
+        try {
+            // Buscar taxa de câmbio atual com autenticação
+            const data = await apiService.request('/configuracoes/cambio', { method: 'GET' });
+            const taxaCambio = parseFloat(data.taxa_cambio) || 0.75;
+            
+            // Atualizar indicador de taxa de câmbio
+            const exchangeRateDisplay = document.getElementById('currentExchangeRate');
+            if (exchangeRateDisplay) {
+                exchangeRateDisplay.textContent = taxaCambio.toFixed(4);
+            }
+            
+            let precoBobInput = document.getElementById('precoBob');
+            const precoBrlInput = document.getElementById('precoBrl');
+            const calculatingIndicator = document.getElementById('calculatingIndicator');
+            
+            if (!precoBobInput || !precoBrlInput) return;
+            
+            let calculationTimeout;
+            
+            // Remover listeners antigos clonando o elemento
+            const newPrecoBobInput = precoBobInput.cloneNode(true);
+            precoBobInput.parentNode.replaceChild(newPrecoBobInput, precoBobInput);
+            precoBobInput = newPrecoBobInput; // Atualizar referência
+            
+            // Função para calcular preço em BRL com animação
+            const calcularPrecoBrl = () => {
+                // Mostrar indicador de cálculo
+                if (calculatingIndicator) {
+                    calculatingIndicator.style.opacity = '1';
+                }
+                
+                // Limpar timeout anterior
+                clearTimeout(calculationTimeout);
+                
+                // Calcular após pequeno delay (debounce)
+                calculationTimeout = setTimeout(() => {
+                    const precoBob = parseFloat(precoBobInput.value) || 0;
+                    const precoBrl = precoBob * taxaCambio;
+                    
+                    // Animar mudança de valor
+                    precoBrlInput.style.transform = 'scale(1.05)';
+                    precoBrlInput.style.transition = 'transform 0.2s ease';
+                    
+                    precoBrlInput.value = precoBrl > 0 ? precoBrl.toFixed(2) : '';
+                    
+                    // Voltar ao tamanho normal
+                    setTimeout(() => {
+                        precoBrlInput.style.transform = 'scale(1)';
+                    }, 200);
+                    
+                    // Esconder indicador de cálculo
+                    if (calculatingIndicator) {
+                        setTimeout(() => {
+                            calculatingIndicator.style.opacity = '0';
+                        }, 300);
+                    }
+                }, 300);
+            };
+            
+            // Adicionar validação e formatação de entrada
+            precoBobInput.addEventListener('input', (e) => {
+                let value = e.target.value;
+                
+                // Remover caracteres inválidos (apenas números, ponto e vírgula)
+                value = value.replace(/[^\d.,]/g, '');
+                
+                // Substituir vírgula por ponto (suporte internacional)
+                value = value.replace(',', '.');
+                
+                // Permitir apenas um ponto decimal
+                const parts = value.split('.');
+                if (parts.length > 2) {
+                    value = parts[0] + '.' + parts.slice(1).join('');
+                }
+                
+                // Limitar a 2 casas decimais
+                if (parts.length === 2 && parts[1].length > 2) {
+                    value = parts[0] + '.' + parts[1].substring(0, 2);
+                }
+                
+                // Limitar valor máximo
+                const numValue = parseFloat(value);
+                if (!isNaN(numValue) && numValue > 99999.99) {
+                    value = '99999.99';
+                }
+                
+                // Prevenir valores negativos
+                if (numValue < 0) {
+                    value = '';
+                }
+                
+                // Atualizar valor se foi modificado
+                if (e.target.value !== value) {
+                    e.target.value = value;
+                }
+                
+                // Calcular preço em BRL
+                calcularPrecoBrl();
+            });
+            
+            // Adicionar efeito de foco
+            precoBobInput.addEventListener('focus', () => {
+                precoBobInput.style.borderColor = '#667eea';
+                precoBobInput.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+            });
+            
+            precoBobInput.addEventListener('blur', (e) => {
+                // Remover estilos de foco
+                precoBobInput.style.borderColor = '';
+                precoBobInput.style.boxShadow = '';
+                
+                // Validação e formatação final
+                let value = e.target.value.trim();
+                
+                if (value === '' || value === '.') {
+                    e.target.value = '';
+                    precoBrlInput.value = '';
+                    return;
+                }
+                
+                // Converter para número
+                let numValue = parseFloat(value);
+                
+                // Validar se é um número válido
+                if (isNaN(numValue) || numValue < 0.01) {
+                    e.target.value = '';
+                    precoBrlInput.value = '';
+                    toast.error('Preço mínimo: 0.01');
+                    return;
+                }
+                
+                // Limitar ao máximo
+                if (numValue > 99999.99) {
+                    numValue = 99999.99;
+                    toast.error('Preço máximo: 99,999.99');
+                }
+                
+                // Formatar com 2 casas decimais
+                e.target.value = numValue.toFixed(2);
+                
+                // Recalcular preço em BRL com valor formatado
+                const precoBrl = numValue * taxaCambio;
+                precoBrlInput.value = precoBrl.toFixed(2);
+            });
+            
+            // Calcular preço inicial se já houver valor
+            if (precoBobInput.value) {
+                const precoBob = parseFloat(precoBobInput.value) || 0;
+                const precoBrl = precoBob * taxaCambio;
+                precoBrlInput.value = precoBrl > 0 ? precoBrl.toFixed(2) : '';
+            }
+        } catch (error) {
+            console.error('Erro ao configurar cálculo de preço:', error);
+            toast.error('Erro ao buscar taxa de câmbio');
         }
     }
 }

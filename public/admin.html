@@ -181,7 +181,7 @@
                                     <th data-i18n="name">Nome</th>
                                     <th data-i18n="priceBrl">Preço (R$)</th>
                                     <th data-i18n="priceBob">Precio (Bs.)</th>
-                                    <th data-i18n="status">Status</th>
+                                    <th>Disponível</th>
                                     <th data-i18n="actions">Ações</th>
                                 </tr>
                             </thead>
@@ -216,7 +216,7 @@
                                     <th data-i18n="priceBrl">Preço (R$)</th>
                                     <th data-i18n="priceBob">Precio (Bs.)</th>
                                     <th data-i18n="order">Ordem</th>
-                                    <th data-i18n="status">Status</th>
+                                    <th>Disponível</th>
                                     <th data-i18n="actions">Ações</th>
                                 </tr>
                             </thead>
@@ -384,14 +384,46 @@
                     <div class="form-section">
                         <div class="form-section-title">💰 Preços</div>
                         
+                        <!-- Indicador de Taxa de Câmbio -->
+                        <div id="exchangeRateIndicator" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);">
+                            <span style="font-size: 1.5rem;">💱</span>
+                            <div style="flex: 1;">
+                                <div style="font-size: 0.75rem; opacity: 0.9; font-weight: 500;">Taxa de Câmbio Atual</div>
+                                <div style="font-size: 1.1rem; font-weight: 600;">1 BOB = <span id="currentExchangeRate">...</span> BRL</div>
+                            </div>
+                        </div>
+                        
                         <div class="form-grid-2">
                             <div class="form-group-full">
-                                <label>Preço em Reais (R$) *</label>
-                                <input type="number" step="0.01" id="precoBrl" required placeholder="0.00">
+                                <label style="display: flex; align-items: center; gap: 8px; font-weight: 600;">
+                                    <span style="font-size: 1.2rem;">🇧🇴</span>
+                                    Precio en Bolivianos (Bs.) *
+                                </label>
+                                <div style="position: relative;">
+                                    <input type="number" step="0.01" id="precoBob" required placeholder="0.00" 
+                                           min="0.01" max="99999.99"
+                                           style="padding-left: 40px; font-size: 1.1rem; font-weight: 500;">
+                                    <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; font-weight: 600; font-size: 1rem;">Bs.</span>
+                                </div>
+                                <small style="color: #6c757d; font-size: 0.75rem; margin-top: 4px; display: block;">
+                                    Valor entre 0.01 e 99,999.99
+                                </small>
                             </div>
                             <div class="form-group-full">
-                                <label>Precio en Bolivianos (Bs.) *</label>
-                                <input type="number" step="0.01" id="precoBob" required placeholder="0.00">
+                                <label style="display: flex; align-items: center; gap: 8px; font-weight: 600;">
+                                    <span style="font-size: 1.2rem;">🇧🇷</span>
+                                    Preço em Reais (R$)
+                                    <span style="font-size: 0.75rem; color: #6c757d; font-weight: 400; background: #e9ecef; padding: 2px 8px; border-radius: 12px;">Auto</span>
+                                </label>
+                                <div style="position: relative;">
+                                    <input type="number" step="0.01" id="precoBrl" readonly placeholder="0.00" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); cursor: not-allowed; padding-left: 40px; font-size: 1.1rem; font-weight: 500; border: 2px dashed #dee2e6;" tabindex="-1">
+                                    <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; font-weight: 600; font-size: 1rem;">R$</span>
+                                    <span id="calculatingIndicator" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #667eea; font-size: 0.85rem; font-weight: 600; opacity: 0; transition: opacity 0.3s;">⚡ Calculando...</span>
+                                </div>
+                                <small style="color: #6c757d; font-size: 0.8rem; margin-top: 6px; display: flex; align-items: center; gap: 4px;">
+                                    <span>💡</span>
+                                    <span>Calculado automaticamente com base na taxa de câmbio</span>
+                                </small>
                             </div>
                         </div>
                     </div>

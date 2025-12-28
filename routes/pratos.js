@@ -23,6 +23,23 @@ router.get('/public', async (req, res) => {
     }
 });
 
+// Endpoint para verificar última atualização dos pratos
+router.get('/public/last-update', async (req, res) => {
+    try {
+        const [result] = await pool.query(
+            'SELECT MAX(atualizado_em) as last_update FROM pratos'
+        );
+        res.json({ 
+            lastUpdate: result[0].last_update || new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('Erro ao buscar última atualização:', error);
+        res.status(500).json({ 
+            error: 'Erro ao buscar última atualização'
+        });
+    }
+});
+
 router.get('/', authenticateToken, async (req, res) => {
     try {
         const [pratos] = await pool.query(
@@ -128,7 +145,8 @@ router.put('/:id', authenticateToken, upload.single('imagem'), pratoValidation, 
         await pool.query(
             `UPDATE pratos 
              SET nome_pt = ?, nome_es = ?, descricao_pt = ?, descricao_es = ?, 
-                 preco_brl = ?, preco_bob = ?, categoria_id = ?, destaque = ?, ativo = ?, imagem_url = ?, ordem = ?
+                 preco_brl = ?, preco_bob = ?, categoria_id = ?, destaque = ?, ativo = ?, imagem_url = ?, ordem = ?,
+                 atualizado_em = CURRENT_TIMESTAMP
              WHERE id = ?`,
             [nome_pt, nome_es, descricao_pt || null, descricao_es || null, preco_brl, preco_bob, categoria_id || null, destaque === '1' || destaque === true, ativo !== undefined ? ativo : true, imagem_url, ordem || 0, req.params.id]
         );

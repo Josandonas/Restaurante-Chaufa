@@ -54,8 +54,12 @@ class FormHandlers {
                 formData.append('nome_es', document.getElementById('nomeEs').value);
                 formData.append('descricao_pt', document.getElementById('descricaoPt').value);
                 formData.append('descricao_es', document.getElementById('descricaoEs').value);
-                formData.append('preco_brl', document.getElementById('precoBrl').value);
-                formData.append('preco_bob', document.getElementById('precoBob').value);
+                
+                // Garantir que precoBrl tenha valor (mesmo sendo readonly)
+                const precoBrl = document.getElementById('precoBrl').value;
+                const precoBob = document.getElementById('precoBob').value;
+                formData.append('preco_brl', precoBrl || '0');
+                formData.append('preco_bob', precoBob);
                 formData.append('ativo', document.getElementById('ativo').checked ? 1 : 0);
                 
                 const categoriaId = document.getElementById('categoriaId').value;
