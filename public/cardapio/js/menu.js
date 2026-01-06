@@ -142,10 +142,10 @@ function renderHighlightCard(dish) {
     if (dish.precos_variantes && dish.precos_variantes.length > 0) {
         priceBadgesHtml = dish.precos_variantes.map((variante, index) => {
             const priceValue = currentLang === 'pt' ? Number(variante.preco_brl) : Number(variante.preco_bob);
-            // Empilhar verticalmente: primeira no topo (-10px), demais abaixo
-            const topPosition = -10 + (index * 65); // 65px de espaçamento entre bolhas
+            // Empilhar verticalmente: primeira no topo (-6px), demais abaixo
+            const topPosition = -6 + (index * 50); // 50px de espaçamento entre bolhas
             return `
-                <div class="highlight-price-badge" style="top: ${topPosition}px; right: -15px;">
+                <div class="highlight-price-badge" style="top: ${topPosition}px; right: -5px;">
                     <span class="currency">${currency}</span>
                     <span class="amount">${priceValue.toFixed(0)}</span>
                 </div>

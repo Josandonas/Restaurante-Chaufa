@@ -5,12 +5,19 @@
     box-sizing: border-box;
 }
 
+html {
+    width: 100%;
+    overflow-x: hidden;
+}
+
 body {
     font-family: 'Georgia', 'Times New Roman', serif;
     background: linear-gradient(135deg, #2a1a1a 0%, #3d2520 50%, #2a1a1a 100%);
     color: #f5f5f5;
     min-height: 100vh;
     position: relative;
+    width: 100%;
+    max-width: 100vw;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
@@ -82,7 +89,9 @@ body::before {
     position: relative;
     z-index: 2;
     max-width: 1400px;
+    width: 100%;
     margin: 0 auto;
+    overflow-x: hidden;
 }
 
 /* ==================== HEADER ==================== */
@@ -94,6 +103,10 @@ body::before {
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     z-index: 100;
     padding: 15px 20px;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 .header-content {
@@ -102,6 +115,7 @@ body::before {
     justify-content: space-between;
     gap: 15px;
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
 }
 
@@ -303,12 +317,15 @@ body::before {
 .content {
     padding: 30px 20px;
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 /* Seções de categoria */
 .category-section {
-    margin-bottom: 50px;
+    margin-bottom: 30px;
     background: rgba(26, 58, 66, 0.6);
     border: 2px solid #4a9fb8;
     border-radius: 20px;
@@ -316,6 +333,8 @@ body::before {
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     position: relative;
     overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .category-section::before {
@@ -422,13 +441,16 @@ body::before {
 
 /* ==================== SEÇÃO HERO - PRATOS EM DESTAQUE ==================== */
 .highlights-section {
-    margin-bottom: 50px;
-    padding: 40px 20px;
+    margin-bottom: 20px;
+    padding: 30px 10px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .highlights-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .highlights-title {
@@ -440,40 +462,53 @@ body::before {
     margin-bottom: 10px;
 }
 
-/* Grid orgânico de pratos - Layout mais livre */
+.highlights-category-title {
+    font-size: 1.8em;
+    color: #dcb48c;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+    margin: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(220, 180, 140, 0.3);
+}
+
+/* Grid responsivo - 2 colunas fixas em mobile, adaptável em desktop */
 .highlights-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    width: 100%;
     max-width: 100%;
     margin: 0 auto;
-    padding: 20px;
-    justify-content: center;
-    align-items: flex-start;
+    padding: 0;
+    justify-items: center;
+    align-items: start;
 }
 
 .highlight-card {
     position: relative;
     text-align: center;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    flex: 0 1 auto;
-    width: 180px;
+    width: 100%;
+    max-width: 140px;
 }
 
-/* Variações de tamanho para layout orgânico */
+/* Variações orgânicas sutis - Mantém visual interessante */
+.highlight-card:nth-child(odd) {
+    margin-top: clamp(8px, 2vw, 15px);
+}
+
+.highlight-card:nth-child(even) {
+    margin-top: clamp(-6px, -1vw, -8px);
+}
+
 .highlight-card:nth-child(3n+1) {
-    width: 200px;
-    margin-top: 20px;
-}
-
-.highlight-card:nth-child(4n+2) {
-    width: 170px;
-    margin-top: -10px;
+    margin-top: clamp(10px, 2.5vw, 20px);
 }
 
 .highlight-card:nth-child(5n+3) {
-    width: 190px;
-    margin-top: 30px;
+    margin-top: clamp(12px, 3vw, 25px);
 }
 
 .highlight-card:hover {
@@ -486,7 +521,7 @@ body::before {
     position: relative;
     width: 100%;
     aspect-ratio: 1;
-    margin: 0 auto 15px;
+    margin: 0 auto 10px;
 }
 
 .highlight-image {
@@ -510,15 +545,15 @@ body::before {
     transform: scale(1.02);
 }
 
-/* Badge de preço - Empilhadas no canto superior direito FORA do card */
+/* Badge de preço - Posicionado dentro dos limites do card */
 .highlight-price-badge {
     position: absolute;
-    top: -10px;
-    right: -15px;
+    top: -6px;
+    right: -5px;
     background: linear-gradient(135deg, #c8463c 0%, #d85850 100%);
     color: #fff;
-    width: 60px;
-    height: 60px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     display: flex;
     flex-direction: column;
@@ -526,7 +561,7 @@ body::before {
     justify-content: center;
     font-weight: 700;
     box-shadow: 0 4px 15px rgba(200, 70, 60, 0.6);
-    border: 3px solid #fff;
+    border: 2px solid #fff;
     z-index: 3;
     transition: all 0.3s;
 }
@@ -865,35 +900,40 @@ font-size: 1.6em;
 /* Mobile (até 768px) */
 @media (max-width: 768px) {
     .header {
-        padding: 8px 10px;
+        padding: 8px 8px;
+    }
+    
+    .header-content {
+        gap: 8px;
     }
     
     .logo-container {
-        width: 70px;
-        height: 70px;
+        width: 60px;
+        height: 60px;
         border-radius: 8px;
     }
     
     .header-controls {
         flex-direction: row;
-        gap: 6px;
+        gap: 5px;
     }
     
     .language-selector {
-        padding: 3px 5px;
-        gap: 3px;
+        padding: 3px 4px;
+        gap: 2px;
     }
     
     .btn-lang {
-        width: 28px;
-        height: 28px;
-        font-size: 13px;
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
     }
     
     .btn-pdf {
-        font-size: 0.65em;
-        padding: 5px 8px;
+        font-size: 0.6em;
+        padding: 6px 8px;
         gap: 3px;
+        letter-spacing: 0.5px;
     }
     
     .content {
@@ -913,10 +953,15 @@ font-size: 1.6em;
         font-size: 1em;
     }
     
-    /* Hero mobile */
+    /* Hero mobile - Apenas regras gerais, específicas vão nas media queries abaixo */
     .highlights-section {
-        padding: 20px 10px;
+        padding: 20px 10px 10px 10px;
+        margin-bottom: 0;
         border-radius: 12px;
+    }
+    
+    .category-section {
+        margin-bottom: 10px;
     }
     
     .highlights-header {
@@ -934,62 +979,6 @@ font-size: 1.6em;
     
     .highlights-subtitle {
         font-size: 0.8em;
-    }
-    
-    .highlights-grid {
-        gap: 15px;
-        padding: 10px;
-        justify-content: center;
-    }
-    
-    .highlight-card {
-        width: 160px;
-    }
-    
-    /* Manter variações orgânicas no mobile */
-    .highlight-card:nth-child(3n+1) {
-        width: 170px;
-        margin-top: 15px;
-    }
-    
-    .highlight-card:nth-child(4n+2) {
-        width: 150px;
-        margin-top: -8px;
-    }
-    
-    .highlight-card:nth-child(5n+3) {
-        width: 165px;
-        margin-top: 20px;
-    }
-    
-    .highlight-price-badge {
-        width: 50px;
-        height: 50px;
-        top: -8px;
-        right: -12px;
-        border-width: 2px;
-    }
-    
-    .highlight-price-badge .currency {
-        font-size: 0.65em;
-    }
-    
-    .highlight-price-badge .amount {
-        font-size: 1.2em;
-    }
-    
-    .highlight-price-badge .currency {
-        font-size: 0.6em;
-    }
-    
-    .highlight-price-badge .amount {
-        font-size: 1.1em;
-    }
-    
-    .highlight-name {
-        font-size: 0.9em;
-        min-height: auto;
-        margin-bottom: 4px;
     }
     
     .highlight-description {
@@ -1029,81 +1018,111 @@ font-size: 1.6em;
     }
 }
 
-/* Mobile pequeno (até 480px) */
-@media (max-width: 480px) {
-    .header {
-        padding: 8px 10px;
-    }
-    
-    .logo-container {
-        width: 85px;
-    }
-    
-    .btn-lang {
-        width: 30px;
-        height: 30px;
-        font-size: 14px;
-    }
-    
-    .btn-pdf {
-        font-size: 0.65em;
-        padding: 5px 8px;
-    }
-    
-    .category-title {
-        font-size: 1.2em;
-        letter-spacing: 1px;
-    }
-    
-    /* Hero mobile pequeno */
+/* ==================== MEDIA QUERIES RESPONSIVAS MODERNAS ==================== */
+
+/* Mobile pequeno (280px - 359px) - Galaxy Fold, dispositivos compactos */
+@media (max-width: 359px) {
     .highlights-section {
-        padding: 20px 8px;
-    }
-    
-    .highlights-logo {
-        max-width: 120px;
-    }
-    
-    .highlights-tagline {
-        font-size: 1em;
-    }
-    
-    .highlights-subtitle {
-        font-size: 0.75em;
+        padding: 15px 8px 8px 8px;
+        margin-bottom: 0;
     }
     
     .highlights-grid {
-        gap: 12px;
-        padding: 8px;
-        justify-content: center;
+        gap: 8px;
     }
     
     .highlight-card {
-        width: 155px;
+        max-width: 130px;
     }
     
-    /* Manter variações sutis em telas pequenas */
-    .highlight-card:nth-child(3n+1) {
-        width: 165px;
-        margin-top: 10px;
-    }
-    
-    .highlight-card:nth-child(4n+2) {
-        width: 145px;
-        margin-top: -5px;
-    }
-    
-    .highlight-card:nth-child(5n+3) {
-        width: 160px;
-        margin-top: 12px;
+    .highlight-image-wrapper {
+        margin-bottom: 8px;
     }
     
     .highlight-price-badge {
-        width: 48px;
-        height: 48px;
-        top: -6px;
+        width: 40px;
+        height: 40px;
+        top: -5px;
+        right: -4px;
+    }
+    
+    .highlight-price-badge .currency {
+        font-size: 0.48em;
+    }
+    
+    .highlight-price-badge .amount {
+        font-size: 0.85em;
+    }
+    
+    .highlight-name {
+        font-size: 0.8em;
+        min-height: 2.2em;
+        line-height: 1.1;
+    }
+}
+
+/* Mobile padrão (360px - 479px) - Samsung Galaxy, iPhone SE, maioria dos Android */
+@media (min-width: 360px) and (max-width: 479px) {
+    .highlights-section {
+        padding: 20px 10px 10px 10px;
+        margin-bottom: 0;
+    }
+    
+    .highlights-grid {
+        gap: 10px;
+    }
+    
+    .highlight-card {
+        max-width: 140px;
+    }
+    
+    .highlight-image-wrapper {
+        margin-bottom: 8px;
+    }
+    
+    .highlight-price-badge {
+        width: 44px;
+        height: 44px;
+        top: -5px;
+        right: -5px;
+    }
+    
+    .highlight-price-badge .currency {
+        font-size: 0.52em;
+    }
+    
+    .highlight-price-badge .amount {
+        font-size: 0.95em;
+    }
+    
+    .highlight-name {
+        font-size: 0.9em;
+        min-height: 2.4em;
+        line-height: 1.15;
+    }
+}
+
+/* Mobile grande (480px - 767px) - iPhone Plus, Android grandes */
+@media (min-width: 480px) and (max-width: 767px) {
+    .highlights-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        padding: 16px 12px;
+    }
+    
+    .highlight-card {
+        max-width: 200px;
+    }
+    
+    .highlight-image-wrapper {
+        margin-bottom: 10px;
+    }
+    
+    .highlight-price-badge {
+        width: 52px;
+        height: 52px;
+        top: -8px;
         right: -10px;
-        border-width: 2px;
     }
     
     .highlight-price-badge .currency {
@@ -1111,32 +1130,30 @@ font-size: 1.6em;
     }
     
     .highlight-price-badge .amount {
-        font-size: 1.1em;
-    }
-    
-    .highlight-name {
-        font-size: 1em;
-    }
-    
-    .highlights-footer {
-        margin-top: 15px;
-        padding-top: 12px;
-    }
-    
-    .highlights-footer-text {
-        font-size: 1em;
-    }
-    
-    .highlights-footer-text strong {
         font-size: 1.15em;
     }
     
-    .highlights-title {
-        font-size: 1.4em;
-        letter-spacing: 2px;
-    }
-    
     .highlight-name {
-        font-size: 1.3em;
+        font-size: 1em;
+        min-height: 2.5em;
+        line-height: 1.2;
     }
 }
+
+/* Tablet e Desktop - 3+ colunas */
+@media (min-width: 768px) {
+    .highlights-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .highlight-card {
+        max-width: 220px;
+    }
+    
+    .highlight-image-wrapper {
+        margin-bottom: 15px;
+    }
+}
+
