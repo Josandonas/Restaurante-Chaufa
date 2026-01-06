@@ -23,6 +23,7 @@ router.get('/generate', async (req, res) => {
         try {
             browser = await puppeteer.launch({
                 headless: 'new',
+                executablePath: '/usr/bin/chromium-browser',
                 args: [
                     '--no-sandbox',
                     '--disable-setuid-sandbox',
@@ -202,6 +203,7 @@ router.get('/test', async (req, res) => {
         
         browser = await puppeteer.launch({
             headless: 'new',
+            executablePath: '/usr/bin/chromium-browser',
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
         

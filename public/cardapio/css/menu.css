@@ -98,8 +98,10 @@ body::before {
 .header {
     position: sticky;
     top: 0;
-    background: linear-gradient(135deg, #1a3a42 0%, #2d5a65 100%);
-    border-bottom: 3px solid #4a9fb8;
+    background: linear-gradient(135deg, rgba(26, 58, 66, 0.65) 0%, rgba(45, 90, 101, 0.65) 100%);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    border-bottom: 3px solid rgba(74, 159, 184, 0.6);
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     z-index: 100;
     padding: 15px 20px;
@@ -126,12 +128,12 @@ body::before {
 }
 
 .logo-container {
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 56px;
     transition: all 0.3s;
     background: #ffffff;
-    padding: 0px;
-    border-radius: 50%;
+    padding: 5px;
+    border-radius: 12px;
     box-shadow: 0 3px 15px rgba(0,0,0,0.3);
     overflow: hidden;
     display: flex;
@@ -146,8 +148,8 @@ body::before {
 }
 
 .logo-container img {
-    width: 150% !important;
-    height: 150% !important;
+    width: 136px !important;
+    height: 86px !important;
     object-fit: contain;
     display: block;
 }
@@ -778,7 +780,8 @@ body::before {
     }
     
     .logo-container {
-        width: 120px;
+        width: 124px;
+        height: 58px;
     }
     
     .btn-pdf {
@@ -808,7 +811,8 @@ body::before {
     }
     
     .logo-container {
-        width: 110px;
+        width: 120px;
+        height: 56px;
     }
     
     .header-controls {
@@ -908,9 +912,10 @@ font-size: 1.6em;
     }
     
     .logo-container {
-        width: 60px;
-        height: 60px;
-        border-radius: 8px;
+        width: 110px;
+        height: 51px;
+        border-radius: 10px;
+        padding: 4px;
     }
     
     .header-controls {

@@ -33,6 +33,9 @@ class ConfigController {
         const inputCambio = document.getElementById('taxa-cambio');
         if (inputCambio) {
             inputCambio.addEventListener('input', (e) => {
+                // Substituir vírgula por ponto (para teclados mobile que mostram vírgula)
+                e.target.value = e.target.value.replace(/,/g, '.');
+                
                 // Permitir apenas números e ponto decimal
                 e.target.value = e.target.value.replace(/[^0-9.]/g, '');
                 
