@@ -621,6 +621,15 @@ class DishController {
         if (dishId) dishId.value = '';
         if (ordem) ordem.value = '0';
         
+        // Limpar preview de imagem
+        const imagePreview = document.getElementById('imagePreview');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const uploadBox = document.getElementById('uploadBox');
+        
+        if (imagePreview) imagePreview.src = '';
+        if (imagePreviewContainer) imagePreviewContainer.classList.remove('active');
+        if (uploadBox) uploadBox.style.display = 'flex';
+        
         await this.loadCategoriesSelect();
         await this.setupPriceCalculation();
         
