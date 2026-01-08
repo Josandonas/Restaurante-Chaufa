@@ -6,11 +6,19 @@
 # IMPORTANTE: Copie este arquivo para fora do repositório
 # antes de usar em produção e ajuste as configurações.
 # ============================================================
+# 
+# Nova estrutura com Vite:
+# - Executa 'npm run build' para gerar bundles em /dist
+# - Nginx serve assets estáticos de /dist/assets/
+# - Node.js serve HTMLs e API
+# ============================================================
 
 # Configurações (AJUSTE CONFORME SEU SERVIDOR)
 PROJECT_PATH="/home/admin/Restaurante-Chaufa"
 PM2_NAME="restaurante-chaufa"
 BACKUP_DIR="/home/admin/backups"
+BRANCH="main"
+LOG_FILE="$BACKUP_DIR/deploy.log"
 
 # Cores para output
 RED='\033[0;31m'
@@ -64,19 +72,42 @@ log "Atualizando código do Git..."
 git pull origin $BRANCH || error_exit "Falha no Git pull"
 log "Código atualizado com sucesso!"
 
-# 4. Instalar/Atualizar dependências
-lo  "Instalando dependências (isso pode demorar)..."
+# 3. Instalar/Atualizar dependências
+log "Instalando dependências (isso pode demorar)..."
 npm install --production || error_exit "Falha no npm install"
 log "Dependências instaladas com sucesso!"
 
-# 4. Ajustar permissões de uploads
-log "Ajustando permissões de uploads..."
-sudo mkdir -p public/uploads 2>/dev/null
+# 4. Build do Vite (gerar bundles para produção)
+log "Executando build do Vite..."
+log "Gerando bundles otimizados em /dist..."
+npm run build || error_exit "Falha no build do Vite"
+log "Build concluído com sucesso!"
+log "Bundles gerados em: $PROJECT_PATH/dist/assets/"
+
+# 5. Ajustar permissões
+log "Ajustando permissões de arquivos..."
+
+# Criar e ajustar permissões de uploads (imagens de pratos e perfil)
+sudo mkdir -p public/uploads/pratos 2>/dev/null
+sudo mkdir -p public/uploads/perfil 2>/dev/null
 sudo chown -R admin:www-data public/uploads 2>/dev/null
 sudo chmod -R 775 public/uploads 2>/dev/null
-log "Permissões ajustadas!"
 
-# 5. Reiniciar aplicação com PM2
+# Ajustar permissões da pasta dist (bundles do Vite)
+# Nginx precisa ler estes arquivos
+sudo chown -R admin:www-data dist 2>/dev/null
+sudo chmod -R 755 dist 2>/dev/null
+
+# Ajustar permissões de logos e imagens fixas
+sudo chown -R admin:www-data public/logos_imagens_app 2>/dev/null
+sudo chmod -R 755 public/logos_imagens_app 2>/dev/null
+
+log "Permissões ajustadas!"
+log "  - public/uploads: 775 (admin:www-data)"
+log "  - dist: 755 (admin:www-data)"
+log "  - public/logos_imagens_app: 755 (admin:www-data)"
+
+# 6. Reiniciar aplicação com PM2
 log "Reiniciando aplicação no PM2..."
 
 if pm2 describe $PM2_NAME > /dev/null 2>&1; then
@@ -87,7 +118,7 @@ else
     log "Aplicação iniciada!"
 fi
 
-# 6. Verificar status da aplicação
+# 7. Verificar status da aplicação
 log "Verificando status da aplicação..."
 sleep 3
 
@@ -97,7 +128,7 @@ else
     error_exit "Aplicação NÃO está online após deploy"
 fi
 
-# 7. Mostrar informações finais
+# 8. Mostrar informações finais
 log "=========================================="
 log "=== Deploy Finalizado com Sucesso! ==="
 log "=========================================="

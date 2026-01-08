@@ -5,7 +5,6 @@ limit_req_zone $binary_remote_addr zone=auth_limit:10m rate=5r/m;
 limit_req_zone $binary_remote_addr zone=upload_limit:10m rate=10r/m;
 
 server {
-    listen 80;
     server_name lacasadelcahufa.srestaurante.com 193.181.210.162;
 
     # Tamanho máximo de upload (imagens de pratos e fotos de perfil)
@@ -236,6 +235,7 @@ server {
     # ==========================================
 
     # Uploads (imagens de pratos e fotos de perfil)
+    # Servidos diretamente do /public/uploads
     location /uploads {
         alias                   /home/admin/Restaurante-Chaufa/public/uploads;
         expires                 30d;
@@ -248,17 +248,38 @@ server {
         }
     }
 
-    # Assets estáticos (CSS, JS, fontes)
-    location ~* \.(css|js|woff|woff2|ttf|eot|svg|ico)$ {
-        root                    /home/admin/Restaurante-Chaufa/public;
-        expires                 7d;
-        add_header              Cache-Control "public, max-age=604800";
+    # Logos e imagens fixas da aplicação
+    location /logos_imagens_app {
+        alias                   /home/admin/Restaurante-Chaufa/public/logos_imagens_app;
+        expires                 30d;
+        add_header              Cache-Control "public, max-age=2592000";
         access_log              off;
     }
 
+    # Assets do Vite (JS bundles com hash)
+    # Cache agressivo pois os hashes mudam quando o conteúdo muda
+    location /assets/ {
+        alias                   /home/admin/Restaurante-Chaufa/dist/assets/;
+        expires                 1y;
+        add_header              Cache-Control "public, max-age=31536000, immutable";
+        access_log              off;
+        
+        # Gzip já está habilitado globalmente
+        # Adicionar headers de segurança
+        add_header              X-Content-Type-Options "nosniff";
+    }
+
+    # Manifest do Vite (para mapeamento de bundles)
+    location /.vite/manifest.json {
+        alias                   /home/admin/Restaurante-Chaufa/dist/.vite/manifest.json;
+        expires                 1h;
+        add_header              Cache-Control "public, max-age=3600";
+    }
+
     # ==========================================
-    # PÁGINAS HTML
+    # PÁGINAS HTML (Servidas pelo Node.js)
     # ==========================================
+    # O Node.js serve os HTMLs e injeta os bundles corretos do Vite
 
     # Painel administrativo
     location /admin {
@@ -266,6 +287,24 @@ server {
         proxy_http_version      1.1;
         proxy_set_header        Host $host;
         proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+        
+        # Sem cache para HTML
+        add_header              Cache-Control "no-cache, no-store, must-revalidate";
+    }
+
+    # Página de login
+    location /login {
+        proxy_pass              http://localhost:3000;
+        proxy_http_version      1.1;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+        
+        # Sem cache para HTML
+        add_header              Cache-Control "no-cache, no-store, must-revalidate";
     }
 
     # Cardápio público (raiz)
@@ -279,6 +318,9 @@ server {
         proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header        X-Forwarded-Proto $scheme;
         proxy_cache_bypass      $http_upgrade;
+        
+        # Sem cache para HTML
+        add_header              Cache-Control "no-cache, no-store, must-revalidate";
         
         # Timeouts padrão
         proxy_connect_timeout   60s;
@@ -308,6 +350,13 @@ server {
 
     access_log                  /var/log/nginx/chaufa_access.log;
     error_log                   /var/log/nginx/chaufa_error.log warn;
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/lacasadelcahufa.srestaurante.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/lacasadelcahufa.srestaurante.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
 }
 
 # ==========================================
@@ -324,3 +373,17 @@ server {
 #
 # As mesmas regras de proxy, cache e rate limiting
 # serão aplicadas automaticamente na versão HTTPS
+
+
+server {
+    if ($host = lacasadelcahufa.srestaurante.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    server_name lacasadelcahufa.srestaurante.com 193.181.210.162;
+    return 404; # managed by Certbot
+
+
+}
