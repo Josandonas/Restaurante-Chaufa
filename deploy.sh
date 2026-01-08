@@ -60,16 +60,16 @@ LOCAL=$(git rev-parse HEAD)
 REMOTE=$(git rev-parse @{u})
 
 if [ "$LOCAL" = "$REMOTE" ]; then
-    log "Nenhuma atualização disponível. Deploy cancelado."
-    exit 0
+    warn "Nenhuma atualização disponível no Git."
+    log "Continuando com build e restart mesmo assim..."
+else
+    log "Novas atualizações encontradas!"
+    
+    # 2. Atualizar código do Git
+    log "Atualizando código do Git..."
+    git pull origin $BRANCH || error_exit "Falha no Git pull"
+    log "Código atualizado com sucesso!"
 fi
-
-log "Novas atualizações encontradas!"
-
-# 2. Atualizar código do Git
-log "Atualizando código do Git..."
-git pull origin $BRANCH || error_exit "Falha no Git pull"
-log "Código atualizado com sucesso!"
 
 # 3. Instalar/Atualizar dependências
 log "Instalando dependências (isso pode demorar)..."
