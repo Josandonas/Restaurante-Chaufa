@@ -28,11 +28,12 @@ const sessionConfig = {
     cookie: {
         maxAge: 86400000, // 24 hours
         httpOnly: true,
-        // Detecta automaticamente: false para HTTP (dev), true para HTTPS (prod)
-        // Ambientes funcionam identicamente para seu protocolo
-        secure: process.env.USE_HTTPS === 'true',
+        // Em produção com Nginx reverse proxy, secure deve ser 'auto'
+        // Isso permite que Express detecte HTTPS via X-Forwarded-Proto header
+        secure: process.env.NODE_ENV === 'production' ? 'auto' : false,
         sameSite: 'lax'
-    }
+    },
+    proxy: process.env.NODE_ENV === 'production' // Trust proxy headers in production
 };
 
 module.exports = { sessionConfig, sessionStore };

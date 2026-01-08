@@ -20,6 +20,12 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy - CRITICAL for production with Nginx reverse proxy
+// Allows Express to read X-Forwarded-* headers
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+}
+
 // Helper function to inject Vite bundles into HTML
 function sendHtmlWithBundles(res, filePath) {
     const manifest = viteManifest.loadManifest();
