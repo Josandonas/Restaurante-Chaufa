@@ -414,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Gerar PDF do cardápio usando Puppeteer (backend)
+// Gerar PDF do cardápio usando Puppeteer (backend) + FileSaver.js
 async function generatePDF() {
     const pdfBtn = document.getElementById('downloadPdf');
     const originalText = pdfBtn.innerHTML;
@@ -460,16 +460,25 @@ async function generatePDF() {
             ${currentLang === 'pt' ? 'Baixando...' : 'Descargando...'}
         `;
         
-        // Baixar o PDF
+        // Converter resposta para Blob
         const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `cardapio-la-casa-del-chaufa-${currentLang}-${new Date().toISOString().split('T')[0]}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        const filename = `cardapio-la-casa-del-chaufa-${currentLang}-${new Date().toISOString().split('T')[0]}.pdf`;
+        
+        // Usar FileSaver.js para compatibilidade universal (Chrome, Firefox, Safari iOS)
+        // Fallback para navegadores sem FileSaver.js
+        if (typeof saveAs === 'function') {
+            saveAs(blob, filename);
+        } else {
+            // Fallback tradicional
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
         
         // Estado 4: Sucesso
         pdfBtn.classList.remove('loading');

@@ -237,9 +237,16 @@ router.get('/generate', async (req, res) => {
 
         const filename = `cardapio-la-casa-del-chaufa-${lang}-${new Date().toISOString().split('T')[0]}.pdf`;
         
+        // Headers otimizados para compatibilidade universal (Chrome, Firefox, Safari iOS)
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-        res.send(pdf);
+        res.setHeader('Content-Length', pdf.length);
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        
+        // Enviar buffer diretamente
+        res.end(pdf, 'binary');
 
     } catch (error) {
         console.error('❌ Erro ao gerar PDF:', error);
