@@ -464,9 +464,21 @@ async function generatePDF() {
         const blob = await response.blob();
         const filename = `cardapio-la-casa-del-chaufa-${currentLang}-${new Date().toISOString().split('T')[0]}.pdf`;
         
-        // Usar FileSaver.js para compatibilidade universal (Chrome, Firefox, Safari iOS)
-        // Fallback para navegadores sem FileSaver.js
-        if (typeof saveAs === 'function') {
+        // Detectar Safari iOS (tem problemas com saveAs e blob URLs)
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        
+        if (isIOS || (isSafari && isIOS)) {
+            // Safari iOS: abrir em nova aba (permite download/compartilhar nativamente)
+            const url = window.URL.createObjectURL(blob);
+            const newWindow = window.open(url, '_blank');
+            
+            // Cleanup após abrir
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+            }, 100);
+        } else if (typeof saveAs === 'function') {
+            // Desktop e Android: usar FileSaver.js
             saveAs(blob, filename);
         } else {
             // Fallback tradicional

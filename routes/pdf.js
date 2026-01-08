@@ -104,20 +104,9 @@ router.get('/generate', async (req, res) => {
         
         // Aguardar carregamento completo do conteúdo
         // console.log('⏳ Aguardando renderização completa...');
-        await page.waitForSelector('.content', { timeout: 10000 });
+        await page.waitForSelector('.content', { timeout: 15000 });
         
-        // Aguardar imagens carregarem
-        await page.evaluate(() => {
-            return Promise.all(
-                Array.from(document.images)
-                    .filter(img => !img.complete)
-                    .map(img => new Promise(resolve => {
-                        img.onload = img.onerror = resolve;
-                    }))
-            );
-        });
-        
-        // Selecionar idioma correto
+        // Selecionar idioma correto ANTES de aguardar imagens
         // console.log(`🌍 Selecionando idioma ${lang}...`);
         await page.evaluate((language) => {
             const langBtn = document.querySelector(`[data-lang="${language}"]`);
@@ -127,10 +116,30 @@ router.get('/generate', async (req, res) => {
         }, lang);
         
         // Aguardar renderização após mudança de idioma
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(3000);
         
         // Aguardar que os pratos sejam renderizados
-        await page.waitForSelector('.highlight-card, .category-section', { timeout: 10000 });
+        await page.waitForSelector('.highlight-card, .category-section', { timeout: 15000 });
+        
+        // Aguardar TODAS as imagens carregarem completamente (crítico para qualidade)
+        await page.evaluate(() => {
+            return Promise.all(
+                Array.from(document.images).map(img => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise((resolve) => {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                        // Forçar reload se imagem não carregar
+                        if (!img.src) {
+                            resolve();
+                        }
+                    });
+                })
+            );
+        });
+        
+        // Aguardar extra para garantir renderização completa das imagens
+        await page.waitForTimeout(2000);
         
         // Remover elementos que não devem aparecer no PDF
         // console.log('🧹 Removendo elementos desnecessários...');
