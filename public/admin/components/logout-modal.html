@@ -1,0 +1,21 @@
+<!-- Modal de Logout -->
+<div class="modal" id="logoutModal">
+    <div class="logout-modal-content">
+        <div class="logout-modal-header">
+            <div class="logout-icon">👋</div>
+            <h2 data-i18n="confirmLogout">Confirmar Saída</h2>
+        </div>
+        <div class="logout-modal-body">
+            <p class="logout-message" data-i18n="logoutMessage">Tem certeza que deseja sair?</p>
+            <p class="logout-submessage" data-i18n="logoutSubmessage">Você precisará fazer login novamente para acessar o painel</p>
+        </div>
+        <div class="logout-modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="window.authController.closeLogoutModal()" data-i18n="cancelButton">
+                ❌ Cancelar
+            </button>
+            <button type="button" class="btn btn-danger" onclick="window.authController.confirmLogout()" data-i18n="logoutButton">
+                🚪 Sair
+            </button>
+        </div>
+    </div>
+</div>

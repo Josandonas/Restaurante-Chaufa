@@ -45,11 +45,8 @@ class LoginI18n {
     }
 
     updateAllTexts() {
-        // Atualiza apenas elementos dentro da tela de login
-        const loginContainer = document.getElementById('loginContainer');
-        if (!loginContainer) return;
-
-        loginContainer.querySelectorAll('[data-i18n-login]').forEach(element => {
+        // Atualiza todos os elementos com data-i18n-login
+        document.querySelectorAll('[data-i18n-login]').forEach(element => {
             const key = element.getAttribute('data-i18n-login');
             const translation = this.t(key);
             

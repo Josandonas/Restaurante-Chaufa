@@ -1,0 +1,21 @@
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal" id="deleteModal">
+    <div class="logout-modal-content">
+        <div class="logout-modal-header">
+            <div class="logout-icon">⚠️</div>
+            <h2 data-i18n="confirmDelete">Confirmar Exclusão</h2>
+        </div>
+        <div class="logout-modal-body">
+            <p class="logout-message">Tem certeza que deseja excluir: <strong id="deleteItemName"></strong>?</p>
+            <p class="logout-submessage" data-i18n="deleteWarning">Esta ação não pode ser desfeita</p>
+        </div>
+        <div class="logout-modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="window.app.closeDeleteModal()" data-i18n="cancelButton">
+                ❌ Cancelar
+            </button>
+            <button type="button" class="btn btn-danger" onclick="window.app.confirmDelete()" data-i18n="confirmButton">
+                🗑️ Excluir
+            </button>
+        </div>
+    </div>
+</div>

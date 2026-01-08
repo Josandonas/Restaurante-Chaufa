@@ -15,6 +15,7 @@ class CategoryService {
 
         const config = {
             ...options,
+            credentials: 'include',
             headers: {
                 ...defaultHeaders,
                 ...options.headers
@@ -33,7 +34,10 @@ class CategoryService {
     }
 
     async getActive() {
-        const response = await fetch(this.baseURL, { method: 'GET' });
+        const response = await fetch(this.baseURL, { 
+            method: 'GET',
+            credentials: 'include'
+        });
         if (response.ok) {
             return await response.json();
         }

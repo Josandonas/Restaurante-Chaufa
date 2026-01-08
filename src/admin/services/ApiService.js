@@ -69,6 +69,7 @@ class ApiService {
         const token = storage.getToken();
         return fetch(this.baseURL + endpoint, {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${token}`
             },

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
-const { authenticateToken } = require('../middleware/auth');
+const { requireAuth } = require('../middleware/sessionAuth');
 const { canDelete } = require('../middleware/roleAuth');
 
 // Endpoint público para cardápio
@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
 });
 
 // Listar todas as categorias incluindo inativas (admin)
-router.get('/all', authenticateToken, async (req, res) => {
+router.get('/all', requireAuth, async (req, res) => {
     try {
         const [categorias] = await pool.query(
             'SELECT * FROM categorias ORDER BY ordem ASC'
@@ -63,7 +63,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Criar nova categoria (admin)
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
     try {
         const { nome_pt, nome_es, ordem, ativo } = req.body;
 
@@ -91,7 +91,7 @@ router.post('/', authenticateToken, async (req, res) => {
 });
 
 // Atualizar categoria (admin)
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', requireAuth, async (req, res) => {
     try {
         const { nome_pt, nome_es, ordem, ativo } = req.body;
         const { id } = req.params;
@@ -124,7 +124,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 // Deletar categoria (admin)
-router.delete('/:id', authenticateToken, canDelete, async (req, res) => {
+router.delete('/:id', requireAuth, canDelete, async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -150,7 +150,7 @@ router.delete('/:id', authenticateToken, canDelete, async (req, res) => {
 });
 
 // Reordenar categorias (admin)
-router.post('/reorder', authenticateToken, async (req, res) => {
+router.post('/reorder', requireAuth, async (req, res) => {
     try {
         const { categorias } = req.body;
 

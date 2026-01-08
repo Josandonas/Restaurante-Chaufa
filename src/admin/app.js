@@ -4,10 +4,14 @@ import userController from './controllers/UserController.js';
 import dishController from './controllers/DishController.js';
 import categoryController from './controllers/CategoryController.js';
 import configController from './controllers/ConfigController.js';
+import usersManagementController from './controllers/UsersManagementController.js';
 import authService from './services/AuthService.js';
 import i18n from './utils/i18n.js';
 import loginI18n from './utils/loginI18n.js';
 import toast from './utils/toast.js';
+import formHandlers from './handlers/FormHandlers.js';
+import clickHandlers from './handlers/ClickHandlers.js';
+import tabHandlers from './handlers/TabHandlers.js';
 
 class App {
     constructor() {
@@ -22,14 +26,10 @@ class App {
         window.categoryController = categoryController;
         window.configController = configController;
         window.i18n = i18n;
-        window.loginI18n = loginI18n;
         window.app = this;
         
         // Inicializar utilitários
         toast.init();
-        
-        // Inicializar sistema de i18n do login (independente do admin)
-        loginI18n.init();
         
         // Configurar callbacks de autenticação
         authController.setCallbacks(
@@ -60,26 +60,17 @@ class App {
 
     async onAuthSuccess() {
         this.isAuthenticated = true;
-        await this.showAdmin();
-    }
-
-    onAuthFailure() {
-        this.isAuthenticated = false;
-        this.showLogin();
-    }
-
-    async showAdmin() {
-        const loginContainer = document.getElementById('loginContainer');
-        const adminContainer = document.getElementById('adminContainer');
         
-        if (loginContainer) loginContainer.style.display = 'none';
-        if (adminContainer) adminContainer.style.display = 'block';
-
         // Carregar dados do usuário
         await userController.loadProfile();
         
         // Verificar role e mostrar/ocultar botão de gerenciar usuários
         this.checkUserRole();
+        
+        // Inicializar handlers
+        tabHandlers.init();
+        formHandlers.init();
+        clickHandlers.init();
         
         // Carregar pratos (não bloquear se falhar)
         try {
@@ -104,13 +95,23 @@ class App {
         // Atualizar botões de idioma
         this.updateLanguageButtons();
     }
+    
+    waitForModals() {
+        return new Promise((resolve) => {
+            if (document.getElementById('dishForm')) {
+                // Modals já carregados
+                resolve();
+            } else {
+                // Aguardar evento de modals carregados
+                window.addEventListener('modalsLoaded', () => resolve(), { once: true });
+            }
+        });
+    }
 
-    showLogin() {
-        const loginContainer = document.getElementById('loginContainer');
-        const adminContainer = document.getElementById('adminContainer');
-        
-        if (loginContainer) loginContainer.style.display = 'flex';
-        if (adminContainer) adminContainer.style.display = 'none';
+    onAuthFailure() {
+        // Se não autenticado, servidor já redirecionou para /login
+        // Não precisa fazer nada aqui
+        this.isAuthenticated = false;
     }
 
     updateLanguageButtons() {

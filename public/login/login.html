@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Restaurante Chaufa</title>
+    <link rel="icon" type="image/png" href="/logos_imagens_app/logo.png">
+    <link rel="shortcut icon" type="image/png" href="/logos_imagens_app/logo.png">
+    <link rel="apple-touch-icon" href="/logos_imagens_app/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/login/css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <!-- Ícones Flutuantes Decorativos -->
+        <div class="floating-icon">🍜</div>
+        <div class="floating-icon">🥘</div>
+        <div class="floating-icon">🍲</div>
+        <div class="floating-icon">🥟</div>
+        <div class="floating-icon">🍱</div>
+        <div class="floating-icon">🥢</div>
+        
+        <div class="login-box">
+            <!-- Seletor de Idioma do Login -->
+            <div class="login-language-selector">
+                <button class="login-lang-btn active" id="loginLangEs" onclick="window.loginI18n.changeLanguage('es')">🇧🇴</button>
+                <button class="login-lang-btn" id="loginLangPt" onclick="window.loginI18n.changeLanguage('pt')">🇧🇷</button>
+            </div>
+            
+            <div class="login-icon">
+                <img src="/logos_imagens_app/logo.png" alt="La Casa del Chaufa">
+            </div>
+            <h1 data-i18n-login="welcome">Bem-vindo!</h1>
+            <p class="login-subtitle" data-i18n-login="adminPanel">La Casa del Chaufa - Painel Administrativo</p>
+            
+            <div id="loginError"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label data-i18n-login="email">Email</label>
+                    <input type="email" id="loginEmail" required placeholder="seu@email.com" autocomplete="email">
+                </div>
+                
+                <div class="form-group">
+                    <label data-i18n-login="password">Senha</label>
+                    <div style="position: relative;">
+                        <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password" style="padding-right: 45px;">
+                        <button type="button" id="toggleLoginPassword" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; color: #666; transition: color 0.3s;" aria-label="Mostrar senha">
+                            <svg id="eyeIconLogin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="remember-me">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe" data-i18n-login="rememberMe">Manter-me conectado por 30 dias</label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <span data-i18n-login="loginButton">Entrar no Painel</span>
+                </button>
+                
+                <a href="/" class="btn-back-to-menu">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span data-i18n-login="backToMenu">Voltar ao Cardápio</span>
+                </a>
+            </form>
+
+            <div class="login-footer" data-i18n-login="peruvianFood">
+                Comida Peruana Autêntica 🇵🇪
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Login Bundle (Vite) -->
+    <!-- VITE_BUNDLE:login -->
+    
+    <!-- Toggle Password Visibility -->
+    <script>
+        document.getElementById('toggleLoginPassword')?.addEventListener('click', function() {
+            const input = document.getElementById('loginPassword');
+            const svg = document.getElementById('eyeIconLogin');
+            
+            if (input) {
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                
+                if (isPassword) {
+                    svg.innerHTML = `
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    `;
+                    this.setAttribute('aria-label', 'Ocultar senha');
+                } else {
+                    svg.innerHTML = `
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    `;
+                    this.setAttribute('aria-label', 'Mostrar senha');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

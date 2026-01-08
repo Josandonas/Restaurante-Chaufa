@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Usuários - Restaurante Chaufa</title>
+    <link rel="icon" type="image/png" href="/logos_imagens_app/logo.png">
+    <link rel="shortcut icon" type="image/png" href="/logos_imagens_app/logo.png">
+    <link rel="apple-touch-icon" href="/logos_imagens_app/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/admin/css/admin-modern.css">
+    <link rel="stylesheet" href="/admin/css/users.css">
+</head>
+<body>
+    <div class="users-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">👥 Gerenciar Usuários</h1>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <a href="/admin" class="back-btn">
+                    ← Voltar ao Painel
+                </a>
+                <button class="add-user-btn" onclick="window.usersManagementController.openAddUserModal()">
+                    ➕ Adicionar Usuário
+                </button>
+            </div>
+        </div>
+
+        <div class="users-table-container">
+            <table class="users-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Criado em</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #6c757d;">
+                            Carregando usuários...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="users-cards" id="usersCards">
+            <div style="text-align: center; padding: 40px; color: #6c757d;">
+                Carregando usuários...
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Adicionar/Editar Usuário -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="userModalTitle">Adicionar Usuário</h2>
+                <button class="modal-close" onclick="window.usersManagementController.closeUserModal()">×</button>
+            </div>
+            <form id="userForm">
+                <div class="modal-body">
+                    <input type="hidden" id="userId" name="userId">
+                    
+                    <div class="form-group">
+                        <label for="userNome">Nome *</label>
+                        <input type="text" id="userNome" name="nome" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="userEmail">Email *</label>
+                        <input type="email" id="userEmail" name="email" required>
+                    </div>
+
+                    <div class="form-group" id="senhaField">
+                        <label for="userSenha">Senha *</label>
+                        <input type="password" id="userSenha" name="senha" minlength="6">
+                        <small style="color: #6c757d; font-size: 13px;">Mínimo 6 caracteres. Deixe em branco para manter a senha atual ao editar.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="userRole">Role *</label>
+                        <select id="userRole" name="role" required>
+                            <option value="editor">✏️ Editor - Sem permissão para deletar</option>
+                            <option value="gerente">⭐ Gerente - Pode deletar itens</option>
+                            <option value="admin">👑 Admin - Acesso total</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="userAtivo" name="ativo" value="1" checked>
+                            <label for="userAtivo" style="margin: 0;">Usuário Ativo</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="window.usersManagementController.closeUserModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        💾 Salvar Usuário
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                <h2>⚠️ Confirmar Exclusão</h2>
+                <button class="modal-close" onclick="window.app.closeDeleteModal()">×</button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 40px 30px;">
+                <p style="font-size: 16px; color: #495057; margin-bottom: 10px;">
+                    Tem certeza que deseja deletar o usuário:
+                </p>
+                <p style="font-size: 18px; font-weight: 700; color: #2c3e50;" id="deleteItemName"></p>
+                <p style="font-size: 14px; color: #dc3545; margin-top: 20px;">
+                    ⚠️ Esta ação não pode ser desfeita!
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="window.app.closeDeleteModal()">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);" onclick="window.app.confirmDelete()">
+                    🗑️ Deletar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script>
+        // Toast Manager
+        const toast = {
+            show(message, type = 'info', duration = 3000) {
+                const container = document.getElementById('toastContainer');
+                const icons = {
+                    success: '✅',
+                    error: '❌',
+                    warning: '⚠️',
+                    info: 'ℹ️'
+                };
+
+                const toastEl = document.createElement('div');
+                toastEl.className = `toast ${type}`;
+                toastEl.innerHTML = `
+                    <span style="font-size: 20px;">${icons[type]}</span>
+                    <span style="flex: 1;">${message}</span>
+                `;
+
+                container.appendChild(toastEl);
+
+                setTimeout(() => {
+                    toastEl.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => toastEl.remove(), 300);
+                }, duration);
+            },
+            success(message) { this.show(message, 'success'); },
+            error(message) { this.show(message, 'error'); },
+            warning(message) { this.show(message, 'warning'); },
+            info(message) { this.show(message, 'info'); }
+        };
+
+        // Loading Manager
+        const loading = {
+            show() {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) overlay.classList.add('active');
+            },
+            hide() {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) overlay.classList.remove('active');
+            }
+        };
+    </script>
+    
+    <!-- Admin Bundle (Vite) - Inclui UserService e UsersManagementController -->
+    <!-- VITE_BUNDLE:admin -->
+    
+    <script>
+        // App simples para modal de delete
+        window.app = {
+            deleteType: null,
+            deleteId: null,
+
+            openDeleteModal(type, id, name) {
+                this.deleteType = type;
+                this.deleteId = id;
+                
+                const modal = document.getElementById('deleteModal');
+                const itemName = document.getElementById('deleteItemName');
+                
+                if (itemName) itemName.textContent = name;
+                if (modal) modal.classList.add('active');
+            },
+
+            closeDeleteModal() {
+                const modal = document.getElementById('deleteModal');
+                if (modal) modal.classList.remove('active');
+                this.deleteType = null;
+                this.deleteId = null;
+            },
+
+            async confirmDelete() {
+                if (!this.deleteType || !this.deleteId) return;
+                
+                if (this.deleteType === 'user') {
+                    await window.usersManagementController.deleteUser(this.deleteId);
+                }
+                
+                this.closeDeleteModal();
+            }
+        };
+
+        // Handler do formulário
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            await window.usersManagementController.handleUserSubmit(formData);
+        });
+
+        // Inicializar controller quando página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (window.usersManagementController) {
+                    window.usersManagementController.init();
+                }
+            }, 100);
+        });
+
+        // Fechar modal ao clicar fora
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

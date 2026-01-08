@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
-const { authenticateToken } = require('../middleware/auth');
+const { requireAuth } = require('../middleware/sessionAuth');
 
 // Obter taxa de câmbio atual
-router.get('/cambio', authenticateToken, async (req, res) => {
+router.get('/cambio', requireAuth, async (req, res) => {
     try {
         // Tentar buscar taxa existente
         let [rows] = await pool.query(
@@ -42,7 +42,7 @@ router.get('/cambio', authenticateToken, async (req, res) => {
 });
 
 // Atualizar taxa de câmbio e recalcular preços
-router.post('/cambio', authenticateToken, async (req, res) => {
+router.post('/cambio', requireAuth, async (req, res) => {
     try {
         const { taxa_cambio, recalcular_precos } = req.body;
 
@@ -90,7 +90,7 @@ router.post('/cambio', authenticateToken, async (req, res) => {
 });
 
 // Recalcular todos os preços BRL com a taxa atual
-router.post('/cambio/recalcular', authenticateToken, async (req, res) => {
+router.post('/cambio/recalcular', requireAuth, async (req, res) => {
     try {
         const [result] = await pool.query('CALL atualizar_precos_brl()');
 

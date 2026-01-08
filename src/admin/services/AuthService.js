@@ -16,6 +16,7 @@ class AuthService {
 
         const config = {
             ...options,
+            credentials: 'include', // CRITICAL: enviar cookie de sessão
             headers: {
                 ...defaultHeaders,
                 ...options.headers
@@ -93,9 +94,28 @@ class AuthService {
         return null;
     }
 
-    logout() {
+    async logout() {
         this.stopTokenRefresh();
+        
+        // Destruir sessão no servidor
+        try {
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include', // CRITICAL: enviar cookie
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${storage.getToken()}`
+                }
+            });
+        } catch (error) {
+            console.error('Erro ao fazer logout no servidor:', error);
+        }
+        
+        // Limpar dados locais
         storage.clearAll();
+        
+        // Redirecionar para login (força reload completo)
+        window.location.replace('/login');
     }
 
     startTokenRefresh() {
@@ -155,6 +175,7 @@ class AuthService {
         const token = storage.getToken();
         const response = await fetch(this.baseURL + '/auth/upload-foto', {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${token}`
             },

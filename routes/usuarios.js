@@ -2,15 +2,34 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const { pool } = require('../config/database');
-const { authenticateToken } = require('../middleware/auth');
-const { isAdminOrGerente } = require('../middleware/roleAuth');
+const { requireAuth } = require('../middleware/sessionAuth');
 
-// Middleware para verificar se é admin
+// Middleware para verificar se é admin ou gerente (usando sessão)
+const isAdminOrGerente = async (req, res, next) => {
+    try {
+        if (!req.session || !req.session.user) {
+            return res.status(401).json({ error: 'Não autenticado' });
+        }
+        
+        const userRole = req.session.user.role;
+        if (userRole !== 'admin' && userRole !== 'gerente') {
+            return res.status(403).json({ error: 'Acesso negado. Apenas administradores e gerentes.' });
+        }
+        next();
+    } catch (error) {
+        console.error('Erro ao verificar permissão:', error);
+        res.status(500).json({ error: 'Erro ao verificar permissão' });
+    }
+};
+
+// Middleware para verificar se é admin (usando sessão)
 const isAdmin = async (req, res, next) => {
     try {
-        const userId = req.user.id || req.user.userId;
-        const [users] = await pool.query('SELECT role FROM usuarios WHERE id = ?', [userId]);
-        if (users.length === 0 || users[0].role !== 'admin') {
+        if (!req.session || !req.session.user) {
+            return res.status(401).json({ error: 'Não autenticado' });
+        }
+        
+        if (req.session.user.role !== 'admin') {
             return res.status(403).json({ error: 'Acesso negado. Apenas administradores.' });
         }
         next();
@@ -21,9 +40,9 @@ const isAdmin = async (req, res, next) => {
 };
 
 // Listar usuários (admin vê todos, gerente não vê admins)
-router.get('/', authenticateToken, isAdminOrGerente, async (req, res) => {
+router.get('/', requireAuth, isAdminOrGerente, async (req, res) => {
     try {
-        const userId = req.user.id || req.user.userId;
+        const userId = req.session.user.id;
         const [currentUser] = await pool.query('SELECT role FROM usuarios WHERE id = ?', [userId]);
         
         let query = 'SELECT id, email, nome, role, ativo, foto_perfil, criado_em, atualizado_em FROM usuarios';
@@ -44,7 +63,7 @@ router.get('/', authenticateToken, isAdminOrGerente, async (req, res) => {
 });
 
 // Buscar usuário por ID (admin e gerente)
-router.get('/:id', authenticateToken, isAdminOrGerente, async (req, res) => {
+router.get('/:id', requireAuth, isAdminOrGerente, async (req, res) => {
     try {
         const [usuarios] = await pool.query(
             'SELECT id, email, nome, role, ativo, foto_perfil, criado_em, atualizado_em FROM usuarios WHERE id = ?',
@@ -63,10 +82,10 @@ router.get('/:id', authenticateToken, isAdminOrGerente, async (req, res) => {
 });
 
 // Criar novo usuário (admin e gerente)
-router.post('/', authenticateToken, isAdminOrGerente, async (req, res) => {
+router.post('/', requireAuth, isAdminOrGerente, async (req, res) => {
     try {
         const { email, senha, nome, role } = req.body;
-        const userId = req.user.id || req.user.userId;
+        const userId = req.session.user.id;
         const [currentUser] = await pool.query('SELECT role FROM usuarios WHERE id = ?', [userId]);
         
         // Validações
@@ -110,7 +129,7 @@ router.post('/', authenticateToken, isAdminOrGerente, async (req, res) => {
 });
 
 // Atualizar usuário (admin e gerente)
-router.put('/:id', authenticateToken, isAdminOrGerente, async (req, res) => {
+router.put('/:id', requireAuth, isAdminOrGerente, async (req, res) => {
     try {
         const { email, senha, nome, role, ativo } = req.body;
         const targetUserId = req.params.id;
@@ -201,12 +220,12 @@ router.put('/:id', authenticateToken, isAdminOrGerente, async (req, res) => {
 });
 
 // Deletar usuário (apenas admin)
-router.delete('/:id', authenticateToken, isAdmin, async (req, res) => {
+router.delete('/:id', requireAuth, isAdmin, async (req, res) => {
     try {
         const userId = req.params.id;
         
         // Não permitir que admin delete a si mesmo
-        const currentUserId = req.user.id || req.user.userId;
+        const currentUserId = req.session.user.id;
         if (currentUserId == userId) {
             return res.status(400).json({ error: 'Você não pode deletar sua própria conta' });
         }

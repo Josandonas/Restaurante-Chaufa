@@ -7,11 +7,6 @@ import categoryController from '../controllers/CategoryController.js';
 class FormHandlers {
     init() {
         this.setupLoginForm();
-        this.setupPasswordForm();
-        this.setupDishForm();
-        this.setupImageUpload();
-        this.setupPhotoInput();
-        this.setupCategoryForm();
     }
 
     setupLoginForm() {
@@ -49,7 +44,12 @@ class FormHandlers {
                 const formData = new FormData();
                 const dishId = document.getElementById('dishId').value;
                 
-                formData.append('tipo', document.getElementById('dishTipo').value);
+                const dishTipo = document.getElementById('dishTipo').value;
+                formData.append('tipo', dishTipo);
+                
+                // IMPORTANTE: Backend espera campo 'destaque' (boolean), não 'tipo'
+                formData.append('destaque', dishTipo === 'destaque' ? '1' : '0');
+                
                 formData.append('nome_pt', document.getElementById('nomePt').value);
                 formData.append('nome_es', document.getElementById('nomeEs').value);
                 formData.append('descricao_pt', document.getElementById('descricaoPt').value);
@@ -67,7 +67,7 @@ class FormHandlers {
                     formData.append('categoria_id', categoriaId);
                 }
                 
-                if (document.getElementById('dishTipo').value === 'destaque') {
+                if (dishTipo === 'destaque') {
                     formData.append('ordem', document.getElementById('ordem').value);
                 }
                 
@@ -93,18 +93,6 @@ class FormHandlers {
                 const file = e.target.files[0];
                 if (file) {
                     dishController.handleImagePreview(file);
-                }
-            });
-        }
-    }
-
-    setupPhotoInput() {
-        const input = document.getElementById('photoInput');
-        if (input) {
-            input.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    userController.previewPhoto(file);
                 }
             });
         }

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Restaurante Chaufa</title>
+    <link rel="icon" type="image/png" href="/logos_imagens_app/logo.png">
+    <link rel="shortcut icon" type="image/png" href="/logos_imagens_app/logo.png">
+    <link rel="apple-touch-icon" href="/logos_imagens_app/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/admin/css/admin-modern.css">
+    <link rel="stylesheet" href="/admin/css/admin-styles.css">
+    <link rel="stylesheet" href="/admin/css/order-controls.css">
+    <link rel="stylesheet" href="/admin/css/search-pagination.css">
+</head>
+<body>
+    <div class="admin-container" id="adminContainer">
+        <div class="admin-header">
+            <div class="admin-header-content">
+                <h1 data-i18n="adminTitle">🍽️ Painel Administrativo - La Casa del Chaufa</h1>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <div class="language-selector">
+                        <button class="language-btn active" id="langPt" onclick="window.app.changeLanguage('pt')">🇧🇷 PT</button>
+                        <button class="language-btn" id="langEs" onclick="window.app.changeLanguage('es')">🇪🇸 ES</button>
+                    </div>
+                    
+                    <!-- Bolha de Perfil do Usuário -->
+                    <div class="user-profile-container">
+                        <button class="user-profile-btn" id="userProfileBtn" onclick="window.userController.toggleUserMenu()">
+                            <img id="userAvatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23e0e0e0' width='100' height='100'/%3E%3Ccircle cx='50' cy='35' r='15' fill='%23999'/%3E%3Cpath d='M 30 70 Q 50 55 70 70' fill='%23999'/%3E%3C/svg%3E" alt="Avatar" class="user-avatar">
+                            <span id="userEmailDisplay" class="user-email">usuario@email.com</span>
+                            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="user-menu-header">
+                                <img id="userAvatarMenu" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23e0e0e0' width='100' height='100'/%3E%3Ccircle cx='50' cy='35' r='15' fill='%23999'/%3E%3Cpath d='M 30 70 Q 50 55 70 70' fill='%23999'/%3E%3C/svg%3E" alt="Avatar" class="user-avatar-large">
+                                <div class="user-info">
+                                    <span id="userNameMenu" class="user-name">Nome do Usuário</span>
+                                    <span id="userEmailMenu" class="user-email-small">usuario@email.com</span>
+                                </div>
+                            </div>
+                            <div class="user-menu-divider"></div>
+                            <button class="user-menu-item" onclick="window.userController.openUploadPhotoModal()">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span data-i18n="changePhoto">Mudar Foto de Perfil</span>
+                            </button>
+                            <button class="user-menu-item" id="changePasswordBtnMenu" onclick="window.userController.openPasswordModal()">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M5 10V7C5 4.79086 6.79086 3 9 3H11C13.2091 3 15 4.79086 15 7V10M6 10H14C15.1046 10 16 10.8954 16 12V16C16 17.1046 15.1046 18 14 18H6C4.89543 18 4 17.1046 4 16V12C4 10.8954 4.89543 10 6 10Z" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                                <span data-i18n="changePassword">Alterar Senha</span>
+                            </button>
+                            <button class="user-menu-item" id="manageUsersBtn" onclick="window.location.href='/users'" style="display: none;">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M13 7C13 8.65685 11.6569 10 10 10C8.34315 10 7 8.65685 7 7C7 5.34315 8.34315 4 10 4C11.6569 4 13 5.34315 13 7Z" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M5 17C5 14.2386 7.23858 12 10 12C12.7614 12 15 14.2386 15 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    <circle cx="15" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M17 14C17.5 13.5 18.5 13 19 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                <span>Gerenciar Usuários</span>
+                            </button>
+                            <div class="user-menu-divider"></div>
+                            <button class="user-menu-item user-menu-logout" onclick="window.authController.openLogoutModal()">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M13 3H16C17.1046 3 18 3.89543 18 5V15C18 16.1046 17.1046 17 16 17H13M8 7L4 11M4 11L8 15M4 11H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                <span data-i18n="logout">Sair</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-nav-wrapper">
+            <div class="admin-nav-container">
+                <div class="admin-nav">
+                    <div class="admin-nav-content">
+                        <button class="tab-btn active" data-tab="lista" data-i18n="tabList">📋 Pratos em Lista</button>
+                        <button class="tab-btn" data-tab="destaques" data-i18n="tabFeatured">⭐ Pratos em Destaque</button>
+                        <button class="tab-btn" data-tab="categorias" data-i18n="tabCategories">📂 Categorias</button>
+                        <button class="tab-btn" data-tab="cambio" data-i18n="exchangeRate">💱 Câmbio Real</button>
+                    </div>
+                </div>
+                <button class="btn-add-dish" id="contextualAddBtn">
+                    <span id="contextualAddText">➕ Adicionar Prato</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="admin-content">
+            <div class="tab-content active" id="tab-lista">
+                <div class="card">
+                    <h2 class="card-title" data-i18n="tabList">Pratos em Lista</h2>
+                    
+                    <!-- Barra de Busca e Filtros -->
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <input type="text" id="searchLista" placeholder="Buscar pratos..." class="search-input">
+                            <span class="search-icon">🔍</span>
+                        </div>
+                        <select id="filterCategoriaLista" class="filter-select">
+                            <option value="">Todas as categorias</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table id="listaTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="name">Nome</th>
+                                    <th data-i18n="priceBrl">Preço (R$)</th>
+                                    <th data-i18n="priceBob">Precio (Bs.)</th>
+                                    <th>Disponível</th>
+                                    <th data-i18n="actions">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div id="paginationLista"></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-destaques">
+                <div class="card">
+                    <h2 class="card-title" data-i18n="tabFeatured">Pratos em Destaque</h2>
+                    
+                    <!-- Barra de Busca e Filtros -->
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <input type="text" id="searchDestaques" placeholder="Buscar pratos..." class="search-input">
+                            <span class="search-icon">🔍</span>
+                        </div>
+                        <select id="filterCategoriaDestaques" class="filter-select">
+                            <option value="">Todas as categorias</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table id="destaquesTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="image">Imagem</th>
+                                    <th data-i18n="name">Nome</th>
+                                    <th data-i18n="priceBrl">Preço (R$)</th>
+                                    <th data-i18n="priceBob">Precio (Bs.)</th>
+                                    <th data-i18n="order">Ordem</th>
+                                    <th>Disponível</th>
+                                    <th data-i18n="actions">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div id="paginationDestaques"></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-categorias">
+                <div class="card">
+                    <h2 class="card-title" data-i18n="tabCategories">📂 Categorias</h2>
+                    
+                    <!-- Barra de Busca -->
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <input type="text" id="searchCategories" placeholder="Buscar categorias..." class="search-input">
+                            <span class="search-icon">🔍</span>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table id="categoriesTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="order">Ordem</th>
+                                    <th data-i18n="namePt">Nome (PT)</th>
+                                    <th data-i18n="nameEs">Nome (ES)</th>
+                                    <th data-i18n="status">Status</th>
+                                    <th data-i18n="actions">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoriesTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="paginationCategorias"></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-cambio">
+                <div class="card">
+                    <h2 class="card-title"><span data-i18n="exchangeRate">Câmbio Real</span></h2>
+                    
+                    <div style="max-width: 600px; margin: 0 auto;">
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                            <p style="color: #666; margin-bottom: 15px; line-height: 1.6;" data-i18n="exchangeDescription">
+                                Configure a taxa de câmbio de <strong>Bolivianos (BOB)</strong> para <strong>Reais (BRL)</strong>. 
+                                Esta taxa será usada para calcular automaticamente os preços em reais baseados nos preços em bolivianos.
+                            </p>
+                            <p style="color: #666; font-size: 0.9em; line-height: 1.6;" data-i18n="exchangeExample">
+                                <strong>Exemplo:</strong> Se a taxa é 1.75, um prato de Bs. 125.00 custará R$ 71.43 (125 ÷ 1.75)
+                            </p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="taxa-cambio" style="font-size: 1.1em; margin-bottom: 10px; display: block;">
+                                <span data-i18n="newRate">Nova Taxa</span> (1 BOB = ? BRL)
+                            </label>
+                            <input 
+                                type="text" 
+                                id="taxa-cambio" 
+                                placeholder="0.750000"
+                                style="font-size: 1.2em; text-align: center; font-weight: 600;"
+                                inputmode="decimal"
+                            >
+                            <small style="display: block; margin-top: 8px; color: #666;" data-i18n="exchangeInputHint">
+                                Máximo 6 casas decimais. Use ponto (.) como separador decimal.
+                            </small>
+                        </div>
+
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #1976d2; font-weight: 600;" data-i18n="lastRegisteredValue">
+                                        Último Valor Registrado:
+                                    </span>
+                                    <span id="ultimo-valor-cambio" style="color: #1976d2; font-weight: 700; font-size: 1.1em;">
+                                        Carregando...
+                                    </span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #1976d2; font-weight: 600;">
+                                        <span data-i18n="lastUpdate">Última Atualização</span>:
+                                    </span>
+                                    <span id="ultima-atualizacao-cambio" style="color: #1976d2;">
+                                        Carregando...
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 30px;">
+                            <button 
+                                type="button" 
+                                id="btn-recalcular-precos" 
+                                class="btn btn-primary" 
+                                style="width: 100%; padding: 16px; font-size: 1.1em; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);"
+                            >
+                                🔄 <span data-i18n="recalculatePrices">Recalcular Preços</span>
+                            </button>
+                        </div>
+
+                        <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+                            <p style="color: #856404; margin: 0; line-height: 1.6;" data-i18n="exchangeWarning">
+                                <strong>⚠️ Atenção:</strong> Ao recalcular, a nova taxa será salva e todos os valores em BRL serão 
+                                substituídos pelo cálculo: <code style="background: #fff; padding: 2px 6px; border-radius: 4px;">Preço BOB ÷ Taxa de Câmbio</code>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals Components Container -->
+    <div id="modals-container"></div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Container de Notificações Toast -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Load Modal Components -->
+    <script>
+        // Carregar components de modals
+        async function loadComponents() {
+            const components = [
+                '/admin/components/dish-modal.html',
+                '/admin/components/category-modal.html',
+                '/admin/components/password-modal.html',
+                '/admin/components/delete-modal.html',
+                '/admin/components/recalcular-modal.html',
+                '/admin/components/logout-modal.html',
+                '/admin/components/photo-modal.html'
+            ];
+
+            const container = document.getElementById('modals-container');
+            
+            for (const componentPath of components) {
+                try {
+                    const response = await fetch(componentPath);
+                    const html = await response.text();
+                    container.innerHTML += html;
+                } catch (error) {
+                    console.error(`Erro ao carregar ${componentPath}:`, error);
+                }
+            }
+            
+            // Disparar evento quando modals estiverem carregados
+            window.dispatchEvent(new CustomEvent('modalsLoaded'));
+            
+            // Anexar listener de submit do form de pratos
+            const dishForm = document.getElementById('dishForm');
+            if (dishForm) {
+                dishForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const formData = new FormData();
+                    const dishId = document.getElementById('dishId').value;
+                    const dishTipo = document.getElementById('dishTipo').value;
+                    
+                    formData.append('destaque', dishTipo === 'destaque' ? '1' : '0');
+                    formData.append('nome_pt', document.getElementById('nomePt').value);
+                    formData.append('nome_es', document.getElementById('nomeEs').value);
+                    formData.append('descricao_pt', document.getElementById('descricaoPt').value);
+                    formData.append('descricao_es', document.getElementById('descricaoEs').value);
+                    formData.append('preco_brl', document.getElementById('precoBrl').value || '0');
+                    formData.append('preco_bob', document.getElementById('precoBob').value);
+                    formData.append('ativo', document.getElementById('ativo').checked ? 1 : 0);
+                    
+                    const categoriaId = document.getElementById('categoriaId').value;
+                    if (categoriaId) formData.append('categoria_id', categoriaId);
+                    
+                    if (dishTipo === 'destaque') {
+                        formData.append('ordem', document.getElementById('ordem').value);
+                    }
+                    
+                    const imageInput = document.getElementById('imagem');
+                    if (imageInput?.files?.[0]) {
+                        formData.append('imagem', imageInput.files[0]);
+                    }
+                    
+                    if (window.dishController?.shouldRemoveImage) {
+                        formData.append('remover_imagem', '1');
+                    }
+                    
+                    await window.dishController.handleDishSubmit(formData, dishId);
+                });
+            }
+            
+            // Anexar listener de upload de imagem
+            const imagemInput = document.getElementById('imagem');
+            if (imagemInput) {
+                imagemInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file && window.dishController) {
+                        window.dishController.handleImagePreview(file);
+                    }
+                });
+            }
+            
+            // Anexar listener de submit do form de categorias
+            const categoryForm = document.getElementById('categoryForm');
+            if (categoryForm) {
+                categoryForm.addEventListener('submit', (e) => {
+                    if (window.categoryController) {
+                        window.categoryController.handleCategorySubmit(e);
+                    }
+                });
+            }
+            
+            // Anexar listener de upload de foto de perfil
+            const photoInput = document.getElementById('photoInput');
+            if (photoInput) {
+                photoInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file && window.userController) {
+                        window.userController.previewPhoto(file);
+                    }
+                });
+            }
+            
+            // Inicializar toggles de senha após modals carregarem
+            if (typeof initPasswordToggles === 'function') {
+                initPasswordToggles();
+            }
+            
+            // Anexar listener de submit do form de senha
+            const passwordForm = document.getElementById('passwordForm');
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const senhaAtual = document.getElementById('senhaAtual').value;
+                    const novaSenha = document.getElementById('novaSenha').value;
+                    const confirmarSenha = document.getElementById('confirmarSenha').value;
+                    if (window.userController) {
+                        await window.userController.handlePasswordChange(senhaAtual, novaSenha, confirmarSenha);
+                    }
+                });
+            }
+        }
+
+        // Carregar components antes de inicializar a aplicação
+        (async () => {
+            await loadComponents();
+        })();
+    </script>
+
+    <!-- Admin Bundle (Vite) - Carrega e inicializa tudo automaticamente -->
+    <!-- VITE_BUNDLE:admin -->
+    
+    <!-- Password Toggle Utility -->
+    <script>
+        // Inicializar toggles de visibilidade de senha
+        function initPasswordToggles() {
+            document.querySelectorAll('.toggle-password').forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    const svg = this.querySelector('svg');
+                    
+                    if (input) {
+                        const isPassword = input.type === 'password';
+                        input.type = isPassword ? 'text' : 'password';
+                        
+                        if (isPassword) {
+                            svg.innerHTML = `
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            `;
+                            this.setAttribute('aria-label', 'Ocultar senha');
+                        } else {
+                            svg.innerHTML = `
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            `;
+                            this.setAttribute('aria-label', 'Mostrar senha');
+                        }
+                    }
+                });
+            });
+        }
+
+        // Função global para atualizar label do toggle
+    window.updateToggleLabel = function() {
+            const checkbox = document.getElementById('ativo');
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPasswordToggles);
+        } else {
+            initPasswordToggles();
+        }
+    }
+    </script>
+</body>
+</html>

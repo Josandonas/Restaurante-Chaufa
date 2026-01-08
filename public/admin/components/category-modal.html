@@ -1,0 +1,41 @@
+<!-- Modal de Categoria -->
+<div class="modal" id="categoryModal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2 id="categoryModalTitle">Adicionar Categoria</h2>
+            <button class="modal-close" onclick="window.categoryController.closeCategoryModal()">×</button>
+        </div>
+        <form id="categoryForm">
+            <div class="modal-body">
+                <input type="hidden" id="categoryId">
+                
+                <div class="form-group-full">
+                    <label>Nome em Português *</label>
+                    <input type="text" id="categoryNomePt" required placeholder="Ex: Chaufas (Arroz Chaufa)">
+                </div>
+
+                <div class="form-group-full">
+                    <label>Nome em Espanhol *</label>
+                    <input type="text" id="categoryNomeEs" required placeholder="Ej: Chaufas">
+                </div>
+
+                <!-- Campo ordem oculto - gerenciado automaticamente pelos botões ▲▼ -->
+                <input type="hidden" id="categoryOrdem" value="0">
+
+                <div class="toggle-container">
+                    <span class="toggle-icon">📂</span>
+                    <span class="toggle-label">Categoria Ativa</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="categoryAtivo" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="window.categoryController.closeCategoryModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">💾 Salvar Categoria</button>
+            </div>
+        </form>
+    </div>
+</div>

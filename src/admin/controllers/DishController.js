@@ -9,12 +9,12 @@ import paginationHelper from '../utils/PaginationHelper.js';
 
 class DishController {
     constructor() {
-        this.currentTab = 'lista';
+        // Restaurar aba salva ou usar 'lista' como padrão
+        this.currentTab = localStorage.getItem('admin_current_tab') || 'lista';
         this.editingDish = null;
         this.dishes = [];
         this.searchTerm = '';
         this.selectedCategory = '';
-        this.contextualButtonSetup = false;
     }
 
     async loadDishes() {
@@ -26,6 +26,9 @@ class DishController {
             await this.loadCategoryFilters();
             this.setupSearchListeners();
             this.setupContextualButton();
+            
+            // Restaurar aba ativa após carregar dados
+            this.restoreActiveTab();
         } catch (error) {
             console.error('Error loading dishes:', error);
         }
@@ -98,19 +101,8 @@ class DishController {
         const lang = i18n.getCurrentLanguage();
         let filtered = this.dishes.filter(d => !d.destaque);
         
-        // Remover pratos da lista que já aparecem nos destaques com mesmo nome
-        const destaques = this.dishes.filter(d => d.destaque && d.ativo);
-        filtered = filtered.filter(pratoLista => {
-            const nomeLista = lang === 'pt' ? pratoLista.nome_pt : pratoLista.nome_es;
-            
-            // Verificar se existe um destaque com mesmo nome
-            const temDestaqueDuplicado = destaques.some(destaque => {
-                const nomeDestaque = lang === 'pt' ? destaque.nome_pt : destaque.nome_es;
-                return nomeLista.toLowerCase().trim() === nomeDestaque.toLowerCase().trim();
-            });
-            
-            return !temDestaqueDuplicado;
-        });
+        // NO ADMIN: Mostrar TODOS os pratos não-destaque, mesmo com nomes duplicados
+        // A lógica de agrupamento por nome só deve acontecer no cardápio público
         
         // Filtrar por busca
         if (this.searchTerm) {
@@ -522,6 +514,9 @@ class DishController {
     switchTab(tab) {
         this.currentTab = tab;
         
+        // Salvar aba atual no localStorage
+        localStorage.setItem('admin_current_tab', tab);
+        
         // Remove active de todos os botões e conteúdos
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -557,6 +552,32 @@ class DishController {
         });
         
         this.contextualButtonSetup = true;
+    }
+
+    restoreActiveTab() {
+        // Restaurar aba salva após carregar dados
+        const savedTab = localStorage.getItem('admin_current_tab') || 'lista';
+        if (savedTab !== this.currentTab) {
+            this.currentTab = savedTab;
+        }
+        
+        // Aplicar classes active corretas
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        const tabBtn = document.querySelector(`.tab-btn[data-tab="${this.currentTab}"]`);
+        const tabContent = document.getElementById(`tab-${this.currentTab}`);
+        
+        if (tabBtn) tabBtn.classList.add('active');
+        if (tabContent) tabContent.classList.add('active');
+        
+        // Atualizar botão contextual
+        this.updateContextualButton(this.currentTab);
+        
+        // Carregar dados da aba se necessário
+        if (this.currentTab === 'categorias') {
+            window.categoryController.loadCategories();
+        }
     }
 
     updateContextualButton(tab) {
@@ -670,6 +691,7 @@ class DishController {
             }
             
             if (elements.dishId) elements.dishId.value = dish.id;
+            if (elements.dishTipo) elements.dishTipo.value = dish.destaque ? 'destaque' : 'lista';
             if (elements.nomePt) elements.nomePt.value = dish.nome_pt;
             if (elements.nomeEs) elements.nomeEs.value = dish.nome_es;
             if (elements.descricaoPt) elements.descricaoPt.value = dish.descricao_pt || '';
@@ -1063,7 +1085,7 @@ class DishController {
                 // Calcular após pequeno delay (debounce)
                 calculationTimeout = setTimeout(() => {
                     const precoBob = parseFloat(precoBobInput.value) || 0;
-                    const precoBrl = precoBob * taxaCambio;
+                    const precoBrl = precoBob / taxaCambio;
                     
                     // Animar mudança de valor
                     precoBrlInput.style.transform = 'scale(1.05)';
@@ -1167,14 +1189,14 @@ class DishController {
                 e.target.value = numValue.toFixed(2);
                 
                 // Recalcular preço em BRL com valor formatado
-                const precoBrl = numValue * taxaCambio;
+                const precoBrl = numValue / taxaCambio;
                 precoBrlInput.value = precoBrl.toFixed(2);
             });
             
             // Calcular preço inicial se já houver valor
             if (precoBobInput.value) {
                 const precoBob = parseFloat(precoBobInput.value) || 0;
-                const precoBrl = precoBob * taxaCambio;
+                const precoBrl = precoBob / taxaCambio;
                 precoBrlInput.value = precoBrl > 0 ? precoBrl.toFixed(2) : '';
             }
         } catch (error) {

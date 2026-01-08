@@ -1,0 +1,21 @@
+<!-- Modal de Confirmação de Recálculo -->
+<div class="modal" id="recalcularConfirmModal" onclick="if(event.target === this) window.configController.closeRecalcularModal()">
+    <div class="logout-modal-content">
+        <div class="logout-modal-header">
+            <div class="logout-icon">🔄</div>
+            <h2>Confirmar Recálculo de Preços</h2>
+        </div>
+        <div class="logout-modal-body">
+            <p class="logout-message">Tem certeza que deseja recalcular todos os preços em BRL baseado na taxa atual?</p>
+            <p class="logout-submessage">Esta ação atualizará todos os pratos do cardápio.</p>
+        </div>
+        <div class="logout-modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="window.configController.closeRecalcularModal()">
+                ❌ Cancelar
+            </button>
+            <button type="button" class="btn btn-primary" onclick="window.configController.confirmarRecalcular()">
+                🔄 Recalcular
+            </button>
+        </div>
+    </div>
+</div>

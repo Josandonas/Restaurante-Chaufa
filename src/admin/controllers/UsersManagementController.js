@@ -6,27 +6,22 @@ class UsersManagementController {
     }
 
     async init() {
-        await this.loadCurrentUserRole();
-        await this.loadUsers();
-    }
-
-    async loadCurrentUserRole() {
-        try {
-            const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
-            const response = await fetch('/api/auth/me', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const user = await response.json();
-            this.currentUserRole = user.role;
-        } catch (error) {
-            console.error('Erro ao carregar role do usuário:', error);
+        // Usar dados injetados pelo servidor (sem API)
+        if (window.__INITIAL_DATA__) {
+            this.currentUserRole = window.__INITIAL_DATA__.currentUser.role;
+            this.users = window.__INITIAL_DATA__.usuarios;
+            this.renderUsers();
+        } else {
+            console.error('Dados iniciais não encontrados');
         }
     }
 
     async loadUsers() {
+        // Recarregar usuários (apenas quando necessário, ex: após criar/editar)
         loading.show();
         try {
-            this.users = await userService.getAll();
+            const response = await fetch('/api/usuarios', { credentials: 'include' });
+            this.users = await response.json();
             this.renderUsers();
         } catch (error) {
             console.error('Error loading users:', error);
@@ -194,38 +189,44 @@ class UsersManagementController {
         }
     }
 
-    async editUser(id) {
+    editUser(userId) {
         try {
-            const user = await userService.getById(id);
+            // Buscar usuário nos dados locais (sem API)
+            const user = this.users.find(u => u.id === userId);
+            
             if (!user) {
                 toast.error('Usuário não encontrado');
                 return;
             }
-
+            
             this.editingUser = user;
+            
             const modal = document.getElementById('userModal');
-            const form = document.getElementById('userForm');
-            const title = document.getElementById('userModalTitle');
-
-            if (title) title.textContent = 'Editar Usuário';
-
+            const modalTitle = document.getElementById('userModalTitle');
+            
+            if (modalTitle) {
+                modalTitle.textContent = 'Editar Usuário';
+            }
+            
             document.getElementById('userId').value = user.id;
             document.getElementById('userNome').value = user.nome;
             document.getElementById('userEmail').value = user.email;
             document.getElementById('userRole').value = user.role;
             document.getElementById('userAtivo').checked = user.ativo;
-
+            
             const senhaField = document.getElementById('senhaField');
-            if (senhaField) senhaField.style.display = 'none';
-
-            // Ajustar opções de role baseado no usuário atual
+            if (senhaField) {
+                senhaField.style.display = 'none';
+            }
+            
             this.updateRoleOptions();
-
-            if (modal) modal.classList.add('active');
+            
+            if (modal) {
+                modal.classList.add('active');
+            }
         } catch (error) {
             console.error('Erro ao carregar usuário:', error);
             toast.error('Erro ao carregar dados do usuário');
-            toast.error('Erro ao carregar usuário');
         }
     }
 
@@ -254,20 +255,29 @@ class UsersManagementController {
                 userData.senha = formData.get('senha');
             }
 
-            const result = userId 
-                ? await userService.update(userId, userData)
-                : await userService.create(userData);
+            // Usar rotas POST em vez de API
+            const url = userId ? `/users/edit/${userId}` : '/users/create';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(userData)
+            });
 
-            if (result.success) {
-                toast.success(userId ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!');
-                this.closeUserModal();
-                await this.loadUsers();
-            } else {
-                toast.error(result.error || 'Erro ao salvar usuário');
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Erro ao salvar usuário');
             }
+
+            toast.success(userId ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!');
+            this.closeUserModal();
+            
+            // Recarregar página para atualizar lista
+            window.location.reload();
         } catch (error) {
             console.error('Error saving user:', error);
-            toast.error('Erro ao salvar usuário');
+            toast.error(error.message || 'Erro ao salvar usuário');
         } finally {
             loading.hide();
         }
@@ -276,16 +286,24 @@ class UsersManagementController {
     async deleteUser(id) {
         loading.show();
         try {
-            const result = await userService.delete(id);
-            if (result.success) {
-                toast.success('Usuário deletado com sucesso!');
-                await this.loadUsers();
-            } else {
-                toast.error(result.error || 'Erro ao deletar usuário');
+            const response = await fetch(`/users/delete/${id}`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Erro ao deletar usuário');
             }
+            
+            toast.success('Usuário deletado com sucesso');
+            
+            // Recarregar página para atualizar lista
+            window.location.reload();
         } catch (error) {
             console.error('Error deleting user:', error);
-            toast.error('Erro ao deletar usuário');
+            toast.error(error.message || 'Erro ao deletar usuário');
         } finally {
             loading.hide();
         }
@@ -293,4 +311,10 @@ class UsersManagementController {
 }
 
 const usersManagementController = new UsersManagementController();
-window.usersManagementController = usersManagementController;
+
+// Expor globalmente para uso em users.html
+if (typeof window !== 'undefined') {
+    window.usersManagementController = usersManagementController;
+}
+
+export default usersManagementController;

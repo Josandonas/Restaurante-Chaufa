@@ -15,6 +15,7 @@ class DishService {
 
         const config = {
             ...options,
+            credentials: 'include',
             headers: {
                 ...defaultHeaders,
                 ...options.headers
@@ -41,12 +42,9 @@ class DishService {
     }
 
     async create(formData) {
-        const token = storage.getToken();
         const response = await fetch(this.baseURL, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
+            credentials: 'include',
             body: formData
         });
         return {
@@ -57,12 +55,9 @@ class DishService {
     }
 
     async update(id, formData) {
-        const token = storage.getToken();
         const response = await fetch(this.baseURL + `/${id}`, {
             method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
+            credentials: 'include',
             body: formData
         });
         

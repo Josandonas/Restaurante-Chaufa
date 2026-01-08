@@ -1,6 +1,41 @@
 const express = require('express');
 const router = express.Router();
 const puppeteer = require('puppeteer');
+const fs = require('fs');
+
+/**
+ * Detecta o caminho do Chrome/Chromium baseado no ambiente
+ */
+function getChromePath() {
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
+    // Caminhos possíveis em ordem de prioridade
+    const possiblePaths = isDevelopment 
+        ? [
+            '/usr/bin/google-chrome-stable',  // Desenvolvimento (Arch/Manjaro)
+            '/usr/bin/google-chrome',
+            '/usr/bin/chromium-browser',
+            '/usr/bin/chromium'
+        ]
+        : [
+            '/usr/bin/chromium-browser',      // Produção (Ubuntu/Debian)
+            '/usr/bin/chromium',
+            '/usr/bin/google-chrome-stable',
+            '/usr/bin/google-chrome'
+        ];
+    
+    // Encontrar primeiro caminho que existe
+    for (const path of possiblePaths) {
+        if (fs.existsSync(path)) {
+            console.log(`✅ Chrome encontrado: ${path}`);
+            return path;
+        }
+    }
+    
+    // Se nenhum encontrado, retornar null (Puppeteer usará bundled Chromium)
+    console.log('⚠️ Chrome não encontrado, usando Chromium bundled do Puppeteer');
+    return null;
+}
 
 /**
  * Gera PDF do cardápio fazendo screenshot da página real
@@ -21,16 +56,23 @@ router.get('/generate', async (req, res) => {
         // Iniciar Puppeteer
         // console.log('🚀 Iniciando Puppeteer...');
         try {
-            browser = await puppeteer.launch({
+            const chromePath = getChromePath();
+            const launchOptions = {
                 headless: 'new',
-                executablePath: '/usr/bin/chromium-browser',
                 args: [
                     '--no-sandbox',
                     '--disable-setuid-sandbox',
                     '--disable-dev-shm-usage',
                     '--disable-web-security'
                 ]
-            });
+            };
+            
+            // Adicionar executablePath apenas se encontrado
+            if (chromePath) {
+                launchOptions.executablePath = chromePath;
+            }
+            
+            browser = await puppeteer.launch(launchOptions);
             // console.log('✅ Puppeteer iniciado');
         } catch (launchError) {
             console.error('❌ Erro ao iniciar Puppeteer:', launchError);
@@ -135,20 +177,58 @@ router.get('/generate', async (req, res) => {
         
         // console.log('📸 Gerando PDF...');
         
+        // Preparar data e hora de geração
+        const now = new Date();
+        const dateTimeStr = lang === 'pt' 
+            ? now.toLocaleString('pt-BR', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                timeZone: 'America/La_Paz'
+              })
+            : now.toLocaleString('es-BO', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                timeZone: 'America/La_Paz'
+              });
+        
+        const generatedText = lang === 'pt' ? 'Gerado em' : 'Generado el';
+        const pageText = lang === 'pt' ? 'Página' : 'Página';
+        const ofText = lang === 'pt' ? 'de' : 'de';
+        
         // Gerar PDF com a página completa
         const pdf = await page.pdf({
             format: 'A4',
-            printBackground: true, // Incluir backgrounds e cores
+            printBackground: true,
             margin: {
-                top: '8mm',
-                right: '8mm',
-                bottom: '8mm',
-                left: '8mm'
+                top: '15mm',
+                right: '10mm',
+                bottom: '20mm',
+                left: '10mm'
             },
-            displayHeaderFooter: false,
+            displayHeaderFooter: true,
+            headerTemplate: '<div></div>', // Header vazio
+            footerTemplate: `
+                <div style="width: 100%; font-size: 9px; padding: 5px 10px; color: #666; border-top: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="flex: 1; text-align: left;">
+                        ${generatedText}: ${dateTimeStr}
+                    </span>
+                    <span style="flex: 1; text-align: center; font-weight: 600;">
+                        La Casa del Chaufa
+                    </span>
+                    <span style="flex: 1; text-align: right;">
+                        ${pageText} <span class="pageNumber"></span> ${ofText} <span class="totalPages"></span>
+                    </span>
+                </div>
+            `,
             preferCSSPageSize: false,
-            scale: 0.75, // Escala menor para caber mais conteúdo
-            omitBackground: false // Garantir que backgrounds sejam incluídos
+            scale: 0.75,
+            omitBackground: false
         });
 
         await browser.close();

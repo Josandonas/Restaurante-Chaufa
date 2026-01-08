@@ -7,6 +7,7 @@ class UserService {
         try {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
             const response = await fetch(this.baseUrl, {
+                credentials: 'include',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -27,6 +28,7 @@ class UserService {
         try {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
             const response = await fetch(`${this.baseUrl}/${id}`, {
+                credentials: 'include',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -48,6 +50,7 @@ class UserService {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
             const response = await fetch(this.baseUrl, {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -73,6 +76,7 @@ class UserService {
             const token = localStorage.getItem('token');
             const response = await fetch(`${this.baseUrl}/${id}`, {
                 method: 'PUT',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -98,6 +102,7 @@ class UserService {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
             const response = await fetch(`${this.baseUrl}/${id}`, {
                 method: 'DELETE',
+                credentials: 'include',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

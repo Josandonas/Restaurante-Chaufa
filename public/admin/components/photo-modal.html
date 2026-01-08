@@ -1,0 +1,30 @@
+<!-- Modal de Upload de Foto -->
+<div class="modal" id="uploadPhotoModal">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h2 data-i18n="changePhoto">Mudar Foto de Perfil</h2>
+            <button class="modal-close" onclick="window.userController.closeUploadPhotoModal()">×</button>
+        </div>
+        <div class="modal-body" style="text-align: center; padding: 30px;">
+            <div style="margin-bottom: 20px;">
+                <img id="photoPreview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23e0e0e0' width='100' height='100'/%3E%3Ccircle cx='50' cy='35' r='15' fill='%23999'/%3E%3Cpath d='M 30 70 Q 50 55 70 70' fill='%23999'/%3E%3C/svg%3E" alt="Preview" 
+                     style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #E74C3C; margin: 0 auto;">
+            </div>
+            <input type="file" id="photoInput" accept="image/*" style="display: none;">
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('photoInput').click()">
+                📷 <span data-i18n="selectPhoto">Selecionar Foto</span>
+            </button>
+            <p style="margin-top: 15px; color: #666; font-size: 0.9em;">
+                <span data-i18n="photoHint">Tamanho máximo: 5MB. Formatos: JPG, PNG, GIF, WEBP</span>
+            </p>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="window.userController.closeUploadPhotoModal()">
+                <span data-i18n="cancelButton">Cancelar</span>
+            </button>
+            <button type="button" class="btn btn-success" onclick="window.userController.handlePhotoUpload()" id="uploadPhotoBtn">
+                ✅ <span data-i18n="savePhoto">Salvar Foto</span>
+            </button>
+        </div>
+    </div>
+</div>

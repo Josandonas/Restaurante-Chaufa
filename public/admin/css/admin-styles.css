@@ -788,7 +788,7 @@
         }
 
         .admin-container {
-            display: none;
+            display: block; /* Admin e login agora são páginas separadas */
         }
 
         .admin-header {

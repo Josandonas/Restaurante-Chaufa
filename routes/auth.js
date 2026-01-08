@@ -67,6 +67,26 @@ router.post('/login', loginValidation, handleValidationErrors, async (req, res) 
             });
         }
 
+        // Create session (Laravel-style)
+        req.session.user = {
+            id: user.id,
+            email: user.email,
+            nome: user.nome,
+            foto_perfil: user.foto_perfil,
+            role: user.role
+        };
+
+        req.session.save((err) => {
+            if (err) {
+                console.error('Erro ao criar sessão:', err);
+                res.status(500).json({ 
+                    error: 'Erro ao criar sessão',
+                    error_es: 'Error al crear sesión'
+                });
+            }
+        });
+
+        // Also generate JWT token for API requests (backward compatibility)
         const token = jwt.sign(
             { id: user.id, email: user.email },
             process.env.JWT_SECRET,
@@ -84,6 +104,9 @@ router.post('/login', loginValidation, handleValidationErrors, async (req, res) 
                 'UPDATE usuarios SET remember_token = ?, token_expira_em = ? WHERE id = ?',
                 [rememberToken, expiresAt, user.id]
             );
+            
+            // Extend session expiry for remember me
+            req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
         }
 
         res.json({
@@ -329,6 +352,36 @@ router.get('/me', async (req, res) => {
             error_es: 'Error al buscar datos',
             details: error.message
         });
+    }
+});
+
+// Logout endpoint - destroy session
+router.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Erro ao destruir sessão:', err);
+            return res.status(500).json({ 
+                error: 'Erro ao fazer logout',
+                error_es: 'Error al cerrar sesión'
+            });
+        }
+        res.clearCookie('chaufa_session');
+        res.json({ 
+            message: 'Logout realizado com sucesso',
+            message_es: 'Logout realizado con éxito'
+        });
+    });
+});
+
+// Check session endpoint
+router.get('/session', (req, res) => {
+    if (req.session && req.session.user) {
+        res.json({ 
+            authenticated: true,
+            user: req.session.user
+        });
+    } else {
+        res.json({ authenticated: false });
     }
 });
 

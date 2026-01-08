@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
-const { authenticateToken } = require('../middleware/auth');
+const { requireAuth } = require('../middleware/sessionAuth');
 const { canDelete } = require('../middleware/roleAuth');
 const upload = require('../middleware/upload');
 const { pratoValidation, handleValidationErrors } = require('../middleware/validators');
@@ -40,7 +40,7 @@ router.get('/public/last-update', async (req, res) => {
     }
 });
 
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
     try {
         const [pratos] = await pool.query(
             'SELECT * FROM pratos ORDER BY destaque DESC, ordem ASC, nome_pt ASC'
@@ -55,7 +55,7 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', requireAuth, async (req, res) => {
     try {
         const [pratos] = await pool.query(
             'SELECT * FROM pratos WHERE id = ?',
@@ -79,7 +79,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
     }
 });
 
-router.post('/', authenticateToken, upload.single('imagem'), pratoValidation, handleValidationErrors, async (req, res) => {
+router.post('/', requireAuth, upload.single('imagem'), pratoValidation, handleValidationErrors, async (req, res) => {
     try {
         const { nome_pt, nome_es, descricao_pt, descricao_es, preco_brl, preco_bob, categoria_id, destaque, ativo, ordem } = req.body;
         const imagem_url = req.file ? `/uploads/pratos/${req.file.filename}` : null;
@@ -104,7 +104,7 @@ router.post('/', authenticateToken, upload.single('imagem'), pratoValidation, ha
     }
 });
 
-router.put('/:id', authenticateToken, upload.single('imagem'), pratoValidation, handleValidationErrors, async (req, res) => {
+router.put('/:id', requireAuth, upload.single('imagem'), pratoValidation, handleValidationErrors, async (req, res) => {
     try {
         const { nome_pt, nome_es, descricao_pt, descricao_es, preco_brl, preco_bob, categoria_id, destaque, ativo, ordem, remover_imagem } = req.body;
         
@@ -165,7 +165,7 @@ router.put('/:id', authenticateToken, upload.single('imagem'), pratoValidation, 
     }
 });
 
-router.delete('/:id', authenticateToken, canDelete, async (req, res) => {
+router.delete('/:id', requireAuth, canDelete, async (req, res) => {
     try {
         const [existing] = await pool.query('SELECT * FROM pratos WHERE id = ?', [req.params.id]);
         
