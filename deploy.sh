@@ -16,9 +16,8 @@
 # Configurações (AJUSTE CONFORME SEU SERVIDOR)
 PROJECT_PATH="/home/admin/Restaurante-Chaufa"
 PM2_NAME="restaurante-chaufa"
-BACKUP_DIR="/home/admin/backups"
 BRANCH="main"
-LOG_FILE="$BACKUP_DIR/deploy.log"
+LOG_FILE="$PROJECT_PATH/deploy.log"
 
 # Cores para output
 RED='\033[0;31m'
