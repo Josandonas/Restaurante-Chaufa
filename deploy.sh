@@ -73,8 +73,9 @@ log "Código atualizado com sucesso!"
 
 # 3. Instalar/Atualizar dependências
 log "Instalando dependências (isso pode demorar)..."
-npm install --production || error_exit "Falha no npm install"
+npm install || error_exit "Falha no npm install"
 log "Dependências instaladas com sucesso!"
+log "  - Incluindo devDependencies (vite, terser, etc.)"
 
 # 4. Build do Vite (gerar bundles para produção)
 log "Executando build do Vite..."
