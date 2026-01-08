@@ -1074,6 +1074,7 @@ font-size: 1.6em;
     }
     
     .highlights-grid {
+        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
     }
     
