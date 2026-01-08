@@ -433,63 +433,77 @@ async function generatePDF() {
         
         await new Promise(resolve => setTimeout(resolve, 400));
         
-        // Estado 2: Gerando
-        pdfBtn.innerHTML = `
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
-                <circle cx="12" cy="12" r="10" opacity="0.25"/>
-                <path d="M12 2a10 10 0 0 1 10 10" opacity="0.75"/>
-            </svg>
-            ${currentLang === 'pt' ? 'Gerando PDF...' : 'Generando PDF...'}
-        `;
-        
-        // Chamar API do backend que usa Puppeteer
-        const response = await fetch(`/api/pdf/generate?lang=${currentLang}`);
-        
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.details || 'Erro ao gerar PDF');
-        }
-        
-        // Estado 3: Baixando
-        pdfBtn.innerHTML = `
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            ${currentLang === 'pt' ? 'Baixando...' : 'Descargando...'}
-        `;
-        
-        // Converter resposta para Blob
-        const blob = await response.blob();
-        const filename = `cardapio-la-casa-del-chaufa-${currentLang}-${new Date().toISOString().split('T')[0]}.pdf`;
-        
-        // Detectar Safari iOS (tem problemas com saveAs e blob URLs)
+        // Detectar Safari iOS ANTES de fazer requisição (evita gerar PDF duas vezes)
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
         
         if (isIOS || (isSafari && isIOS)) {
-            // Safari iOS: abrir em nova aba (permite download/compartilhar nativamente)
-            const url = window.URL.createObjectURL(blob);
-            const newWindow = window.open(url, '_blank');
+            // Safari iOS: abrir URL direto do servidor (única solução confiável)
+            // Blob URLs não funcionam no Safari iOS - ele precisa de URL real do servidor
+            pdfBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+                    <circle cx="12" cy="12" r="10" opacity="0.25"/>
+                    <path d="M12 2a10 10 0 0 1 10 10" opacity="0.75"/>
+                </svg>
+                ${currentLang === 'pt' ? 'Gerando PDF...' : 'Generando PDF...'}
+            `;
             
-            // Cleanup após abrir
-            setTimeout(() => {
-                window.URL.revokeObjectURL(url);
-            }, 100);
-        } else if (typeof saveAs === 'function') {
-            // Desktop e Android: usar FileSaver.js
-            saveAs(blob, filename);
+            // Aguardar um pouco para mostrar loading
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Abrir URL direto do servidor em nova aba
+            // Safari iOS mostrará opções nativas de download/compartilhar
+            const pdfUrl = `/api/pdf/generate?lang=${currentLang}`;
+            const newWindow = window.open(pdfUrl, '_blank');
+            
+            if (!newWindow) {
+                throw new Error('Pop-up bloqueado. Por favor, permita pop-ups para este site.');
+            }
         } else {
-            // Fallback tradicional
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+            // Desktop e Android: baixar via blob
+            pdfBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+                    <circle cx="12" cy="12" r="10" opacity="0.25"/>
+                    <path d="M12 2a10 10 0 0 1 10 10" opacity="0.75"/>
+                </svg>
+                ${currentLang === 'pt' ? 'Gerando PDF...' : 'Generando PDF...'}
+            `;
+            
+            // Chamar API do backend que usa Puppeteer
+            const response = await fetch(`/api/pdf/generate?lang=${currentLang}`);
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.details || 'Erro ao gerar PDF');
+            }
+            
+            pdfBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                ${currentLang === 'pt' ? 'Baixando...' : 'Descargando...'}
+            `;
+            
+            // Converter resposta para Blob
+            const blob = await response.blob();
+            const filename = `cardapio-la-casa-del-chaufa-${currentLang}-${new Date().toISOString().split('T')[0]}.pdf`;
+            
+            if (typeof saveAs === 'function') {
+                // Desktop e Android: usar FileSaver.js
+                saveAs(blob, filename);
+            } else {
+                // Fallback tradicional
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }
         }
         
         // Estado 4: Sucesso
