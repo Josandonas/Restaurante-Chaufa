@@ -9,19 +9,13 @@ const translations = {
         loading: 'Cargando menú...', 
         error: 'Error al cargar el menú', 
         highlights: 'Platos Destacados', 
-        pdfButton: 'Descargar PDF', 
-        footerPhone: 'Pedidos: +591 72622036', 
-        footerHours: 'Lunes a jueves, sábado y domingo: 12:00 a 20:00',
-        footerLocation: 'Frente a La Rotonda Itacamba Arroyo Concepción- Puerto Quijarro, Bolivia'
+        pdfButton: 'Descargar PDF'
     },
     pt: { 
         loading: 'Carregando cardápio...', 
         error: 'Erro ao carregar cardápio', 
         highlights: 'Pratos em Destaque', 
-        pdfButton: 'Baixar PDF', 
-        footerPhone: 'Pedidos: +591 72622036', 
-        footerHours: 'De segunda a quinta-feira, sábado e domingo: 12:00 às 20:00',
-        footerLocation: 'Em Frente a Rotatória Itacamba Arroyo Concepción- Puerto Quijarro, Bolivia'
+        pdfButton: 'Baixar PDF'
     }
 };
 
@@ -278,17 +272,14 @@ function renderDishItem(dish) {
 function updateLanguage() {
     const t = translations[currentLang];
     
+    // Atualizar PDF button
     const pdfTextEl = document.getElementById('pdfText');
     if (pdfTextEl) pdfTextEl.textContent = t.pdfButton;
     
-    const footerPhoneEl = document.getElementById('footerPhone');
-    if (footerPhoneEl) footerPhoneEl.textContent = t.footerPhone;
-    
-    const footerHoursEl = document.getElementById('footerHours');
-    if (footerHoursEl) footerHoursEl.textContent = t.footerHours;
-    
-    const footerLocationEl = document.getElementById('footerLocation');
-    if (footerLocationEl) footerLocationEl.textContent = t.footerLocation;
+    // Atualizar footer usando módulo separado
+    if (window.footerModule) {
+        window.footerModule.updateFooterLanguage(currentLang);
+    }
     
     renderMenu();
 }
@@ -411,6 +402,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const pdfBtn = document.getElementById('downloadPdf');
     if (pdfBtn) {
         pdfBtn.addEventListener('click', generatePDF);
+    }
+    
+    // Inicializar footer usando módulo separado
+    if (window.footerModule) {
+        window.footerModule.initFooter(currentLang);
     }
 });
 

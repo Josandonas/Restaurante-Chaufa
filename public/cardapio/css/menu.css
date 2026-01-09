@@ -604,74 +604,7 @@ body::before {
 }
 
 
-/* Rodapé */
-.footer {
-    background: #1a3a42;
-    border-top: 3px solid #4a9fb8;
-    padding: 25px 20px;
-    text-align: center;
-    margin-top: 50px;
-    position: relative;
-}
-
-.footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 25px;
-}
-
-.footer-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #dcb48c;
-    font-size: 0.95em;
-}
-
-.footer-item a {
-    color: #dcb48c;
-    text-decoration: none;
-    transition: all 0.3s;
-    cursor: pointer;
-    position: relative;
-    padding: 4px 8px;
-    border-radius: 6px;
-    background: rgba(74, 159, 184, 0.1);
-    border: 1px solid rgba(74, 159, 184, 0.3);
-}
-
-.footer-item a:hover {
-    color: #fff;
-    background: rgba(74, 159, 184, 0.25);
-    border-color: #4a9fb8;
-    text-decoration: underline;
-    transform: translateY(-2px);
-}
-
-/* Botão Admin Discreto no Footer */
-.admin-link-footer {
-    position: absolute;
-    bottom: 8px;
-    right: 15px;
-    font-size: 0.85em;
-    color: rgba(150, 150, 150, 0.4);
-    text-decoration: none;
-    transition: all 0.3s;
-    opacity: 0.5;
-    padding: 4px 8px;
-    border-radius: 4px;
-    background: rgba(42, 26, 26, 0.3);
-}
-
-.admin-link-footer:hover {
-    color: rgba(220, 180, 140, 0.9);
-    opacity: 1;
-    background: rgba(74, 159, 184, 0.2);
-    transform: scale(1.1);
-}
+/* Footer styles moved to /public/cardapio/css/footer.css */
 
 /* Botão Flutuante WhatsApp - FAB */
 .whatsapp-fab {
@@ -1007,6 +940,21 @@ font-size: 1.6em;
     
     .footer-item {
         font-size: 0.9em;
+        text-align: center;
+    }
+    
+    .footer-hours {
+        align-items: center;
+    }
+    
+    .hours-wrapper {
+        align-items: center;
+        text-align: center;
+    }
+    
+    .status-badge {
+        font-size: 0.8em;
+        padding: 3px 8px;
     }
     
     /* Botão Admin em Mobile - Mais Visível */

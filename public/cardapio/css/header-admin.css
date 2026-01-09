@@ -1,0 +1,64 @@
+/* Admin button in header - Ultra discreet */
+.btn-admin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: rgba(74, 159, 184, 0.05);
+    border: 1px solid rgba(74, 159, 184, 0.15);
+    border-radius: 8px;
+    color: rgba(150, 150, 150, 0.4);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    opacity: 0.4;
+    cursor: pointer;
+}
+
+.btn-admin:hover {
+    background: rgba(74, 159, 184, 0.12);
+    border-color: rgba(74, 159, 184, 0.3);
+    color: rgba(74, 159, 184, 0.8);
+    opacity: 0.8;
+    transform: scale(1.05);
+}
+
+.btn-admin svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.btn-admin:hover svg {
+    opacity: 1;
+    stroke: rgba(74, 159, 184, 0.8);
+}
+
+/* Mobile - ainda mais discreto */
+@media (max-width: 768px) {
+    .btn-admin {
+        width: 28px;
+        height: 28px;
+        opacity: 0.3;
+    }
+    
+    .btn-admin svg {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+/* Mobile pequeno */
+@media (max-width: 480px) {
+    .btn-admin {
+        width: 26px;
+        height: 26px;
+        opacity: 0.25;
+    }
+    
+    .btn-admin svg {
+        width: 11px;
+        height: 11px;
+    }
+}
