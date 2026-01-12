@@ -63,13 +63,22 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CSRF Protection - must be after body parsers and session
+// CSRF Protection - selective (not on API routes with JWT auth)
 const csrfProtection = csrf({ cookie: false }); // Use session instead of cookies
-app.use(csrfProtection);
+
+// Skip CSRF for API routes (they use JWT authentication)
+app.use((req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+        return next();
+    }
+    csrfProtection(req, res, next);
+});
 
 // Make CSRF token available to all views
 app.use((req, res, next) => {
-    res.locals.csrfToken = req.csrfToken();
+    if (req.csrfToken) {
+        res.locals.csrfToken = req.csrfToken();
+    }
     next();
 });
 
