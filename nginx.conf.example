@@ -5,7 +5,7 @@ limit_req_zone $binary_remote_addr zone=auth_limit:10m rate=5r/m;
 limit_req_zone $binary_remote_addr zone=upload_limit:10m rate=10r/m;
 
 server {
-    server_name lacasadelcahufa.srestaurante.com 193.181.210.162;
+    server_name lacasadelchaufa.srestaurante.com;
 
     # Tamanho máximo de upload (imagens de pratos e fotos de perfil)
     client_max_body_size 10M;
@@ -352,10 +352,10 @@ server {
     error_log                   /var/log/nginx/chaufa_error.log warn;
 
     listen 443 ssl; # managed by Certbot
-    ssl_certificate /etc/letsencrypt/live/lacasadelcahufa.srestaurante.com/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/lacasadelcahufa.srestaurante.com/privkey.pem; # managed by Certbot
-    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+    # ssl_certificate /etc/letsencrypt/live/lacasadelchaufa.srestaurante.com/fullchain.pem; # managed by Certbot
+    # ssl_certificate_key /etc/letsencrypt/live/lacasadelchaufa.srestaurante.com/privkey.pem; # managed by Certbot
+    # include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
 
 }
 
@@ -363,7 +363,7 @@ server {
 # CONFIGURAÇÃO HTTPS
 # ==========================================
 # Será configurada automaticamente pelo Certbot
-# Execute: sudo certbot --nginx -d lacasadelcahufa.srestaurante.com
+# Execute: sudo certbot --nginx -d lacasadelchaufa.srestaurante.com
 #
 # Após a configuração SSL, o Certbot adicionará automaticamente:
 # - Redirecionamento HTTP -> HTTPS
@@ -376,13 +376,13 @@ server {
 
 
 server {
-    if ($host = lacasadelcahufa.srestaurante.com) {
+    if ($host = lacasadelchaufa.srestaurante.com) {
         return 301 https://$host$request_uri;
     } # managed by Certbot
 
 
     listen 80;
-    server_name lacasadelcahufa.srestaurante.com 193.181.210.162;
+    server_name lacasadelchaufa.srestaurante.com;
     return 404; # managed by Certbot
 
 
