@@ -46,6 +46,12 @@
     
     <!-- FileSaver.js para compatibilidade universal de download (Chrome, Firefox, Safari iOS) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" integrity="sha512-Qlv6VSKh1gDKGoJbnyA5RMXYcvnpIqhO++MhIM2fStMcGT9i2T//tSwYFlcyoRRDcDZ+TYHpH8azBBCyhpSeqw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <!-- Country Flag Emoji Polyfill - Fix para bandeiras no Windows Chrome/Edge -->
+    <script type="module">
+        import { polyfillCountryFlagEmojis } from "https://cdn.skypack.dev/country-flag-emoji-polyfill";
+        polyfillCountryFlagEmojis();
+    </script>
 </head>
 <body>
     <div class="decorative-pattern"></div>

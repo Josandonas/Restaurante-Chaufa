@@ -11,6 +11,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/login/css/login.css">
+    
+    <!-- Country Flag Emoji Polyfill - Fix para bandeiras no Windows Chrome/Edge -->
+    <script type="module">
+        import { polyfillCountryFlagEmojis } from "https://cdn.skypack.dev/country-flag-emoji-polyfill";
+        polyfillCountryFlagEmojis();
+    </script>
 </head>
 <body>
     <div class="login-container">
