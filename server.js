@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
+const csrf = require('csurf');
 const path = require('path');
 require('dotenv').config();
 const MySQLStore = require('express-mysql-session')(session);
@@ -61,6 +62,16 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// CSRF Protection - must be after body parsers and session
+const csrfProtection = csrf({ cookie: false }); // Use session instead of cookies
+app.use(csrfProtection);
+
+// Make CSRF token available to all views
+app.use((req, res, next) => {
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
 
 // ============================================
 // ROTAS ESPECÍFICAS (DEVEM VIR ANTES DE express.static)

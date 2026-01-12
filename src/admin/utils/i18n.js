@@ -71,7 +71,10 @@ class I18n {
                 photoHint: 'Tamanho máximo: 5MB. Formatos: JPG, PNG, GIF, WEBP',
                 paginationShowing: 'Mostrando',
                 paginationOf: 'de',
-                paginationItems: 'itens'
+                paginationItems: 'itens',
+                searchPlaceholder: 'Buscar pratos...',
+                allCategories: 'Todas as categorias',
+                available: 'Disponível'
             },
             es: {
                 adminTitle: '🍽️ Panel Administrativo - La Casa del Chaufa',
@@ -141,7 +144,10 @@ class I18n {
                 photoHint: 'Tamaño máximo: 5MB. Formatos: JPG, PNG, GIF, WEBP',
                 paginationShowing: 'Mostrando',
                 paginationOf: 'de',
-                paginationItems: 'ítems'
+                paginationItems: 'ítems',
+                searchPlaceholder: 'Buscar platos...',
+                allCategories: 'Todas las categorías',
+                available: 'Disponible'
             }
         };
     }

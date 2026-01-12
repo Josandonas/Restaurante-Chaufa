@@ -531,8 +531,8 @@ class DishController {
         // Atualiza apenas o texto do botão contextual
         this.updateContextualButton(tab);
         
-        // Recarrega dados se necessário
-        if (tab === 'categorias') {
+        // Carregar categorias apenas na primeira vez
+        if (tab === 'categorias' && !window.categoryController.categorias.length) {
             window.categoryController.loadCategories();
         }
     }
@@ -574,8 +574,8 @@ class DishController {
         // Atualizar botão contextual
         this.updateContextualButton(this.currentTab);
         
-        // Carregar dados da aba se necessário
-        if (this.currentTab === 'categorias') {
+        // Carregar categorias apenas na primeira vez
+        if (this.currentTab === 'categorias' && !window.categoryController.categorias.length) {
             window.categoryController.loadCategories();
         }
     }

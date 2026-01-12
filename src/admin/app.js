@@ -128,11 +128,12 @@ class App {
         i18n.changeLanguage(lang);
         this.updateLanguageButtons();
         
-        // Recarregar categorias se a aba estiver ativa
-        const categoriesTab = document.getElementById('tab-categorias');
-        if (categoriesTab && categoriesTab.classList.contains('active')) {
-            categoryController.loadCategories();
+        // Atualizar botão contextual com o idioma correto
+        if (window.dishController) {
+            window.dishController.updateContextualButton(window.dishController.currentTab);
         }
+        
+        // Não precisa recarregar categorias - o i18n já atualiza os textos automaticamente
     }
 
     openLogoutModal() {

@@ -11,6 +11,31 @@ server {
     client_max_body_size 10M;
     client_body_buffer_size 128k;
 
+    # ==========================================
+    # SECURITY HEADERS
+    # ==========================================
+    
+    # Prevent clickjacking attacks
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    
+    # Prevent MIME type sniffing
+    add_header X-Content-Type-Options "nosniff" always;
+    
+    # Enable XSS protection in older browsers
+    add_header X-XSS-Protection "1; mode=block" always;
+    
+    # Control referrer information
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    
+    # Content Security Policy - adjust as needed
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'self';" always;
+    
+    # Strict Transport Security (HSTS) - força HTTPS por 1 ano
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    
+    # Permissions Policy (formerly Feature Policy)
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+
     # Compressão Gzip
     gzip on;
     gzip_vary on;
