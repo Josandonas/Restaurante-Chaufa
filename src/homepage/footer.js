@@ -10,11 +10,8 @@ export const footerTranslations = {
         location: 'Frente a la rotonda Itacamba, Puerto Quijarro',
         statusOpen: 'Abierto ahora',
         statusClosed: 'Cerrado ahora',
-        statusClosedWednesday: 'Cerrado (miércoles)',
-        scheduleDaysOpen: 'Lun-Mar, Jue-Dom',
+        scheduleDaysOpen: 'Lunes a Domingo',
         scheduleTime: '11:30 - 19:00',
-        scheduleDayClosed: 'Miércoles',
-        scheduleClosedLabel: 'Cerrado',
         whatsappMessage: 'Hola! Me gustaría hacer un pedido:'
     },
     pt: {
@@ -25,11 +22,8 @@ export const footerTranslations = {
         location: 'Em frente à rotatória Itacamba, Puerto Quijarro',
         statusOpen: 'Aberto agora',
         statusClosed: 'Fechado agora',
-        statusClosedWednesday: 'Fechado (quarta-feira)',
-        scheduleDaysOpen: 'Seg-Ter, Qui-Dom',
+        scheduleDaysOpen: 'Segunda a Domingo',
         scheduleTime: '11:30 - 19:00',
-        scheduleDayClosed: 'Quarta-feira',
-        scheduleClosedLabel: 'Fechado',
         whatsappMessage: 'Olá! Gostaria de fazer um pedido:'
     }
 };
@@ -65,16 +59,6 @@ export function checkBusinessHours(currentLang) {
     const statusLabel = document.getElementById('statusLabel');
     
     if (!statusIndicator || !statusDot || !statusLabel) return;
-    
-    // Quarta-feira = fechado
-    if (day === 3) {
-        statusIndicator.classList.remove('open');
-        statusIndicator.classList.add('closed');
-        statusDot.classList.remove('open');
-        statusDot.classList.add('closed');
-        statusLabel.textContent = t.statusClosedWednesday;
-        return;
-    }
     
     // Verificar horário
     if (currentTime >= openTime && currentTime < closeTime) {
@@ -131,13 +115,7 @@ export function updateFooterLanguage(currentLang) {
         if (time) time.textContent = t.scheduleTime;
     }
     
-    const scheduleClosed = document.getElementById('scheduleClosed');
-    if (scheduleClosed) {
-        const days = scheduleClosed.querySelector('.schedule-days');
-        const time = scheduleClosed.querySelector('.schedule-time');
-        if (days) days.textContent = t.scheduleDayClosed;
-        if (time) time.textContent = t.scheduleClosedLabel;
-    }
+    // Removed closed day schedule - restaurant now open 7 days a week
     
     // Localização
     const footerLocationText = document.getElementById('footerLocationText');
