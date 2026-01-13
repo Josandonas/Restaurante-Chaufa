@@ -14,7 +14,11 @@ html {
 
 body {
     font-family: 'Twemoji Country Flags', 'Georgia', 'Times New Roman', serif;
+    /* Solid background color for iOS status bar */
+    --bg-color: 26, 58, 66;
+    background: rgb(var(--bg-color));
     background: linear-gradient(135deg, #1a3a42 0%, #2d5a65 100%);
+    background-attachment: fixed;
     color: #f5f5f5;
     min-height: 100vh;
     /* iOS Safari viewport fix */
@@ -27,17 +31,43 @@ body {
     flex-direction: column;
 }
 
+/* iOS Status Bar Overlay - covers Dynamic Island/status bar area */
+.ios-statusbar-overlay {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: -80px;
+    height: 80px;
+    overflow: hidden;
+    z-index: 9999;
+}
+
+.ios-statusbar-overlay::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 150%;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    background-color: rgb(var(--bg-color) / 0.7);
+}
+
 body::after {
     content: '';
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
     background-image: url('/logos_imagens_app/back_mobile.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    background-attachment: fixed;
     opacity: 0.60;
     z-index: 0;
     pointer-events: none;
@@ -54,10 +84,15 @@ body::after {
 body::before {
     content: '';
     position: fixed;
+    /* Cover beyond viewport for animation */
     top: -50%;
     left: -50%;
     width: 200%;
     height: 200%;
+    margin: calc(env(safe-area-inset-top, 0px) * -1) 
+            calc(env(safe-area-inset-right, 0px) * -1) 
+            calc(env(safe-area-inset-bottom, 0px) * -1) 
+            calc(env(safe-area-inset-left, 0px) * -1);
     background: 
         radial-gradient(circle at 20% 50%, rgba(70, 150, 180, 0.08) 0%, transparent 50%),
         radial-gradient(circle at 80% 50%, rgba(100, 180, 200, 0.06) 0%, transparent 50%);
@@ -75,8 +110,10 @@ body::before {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
     opacity: 0.03;
     background-image: repeating-linear-gradient(
         45deg,
