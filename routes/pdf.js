@@ -6,6 +6,10 @@ const fs = require('fs');
 /**
  * Detecta o caminho do Chrome/Chromium baseado no ambiente
  */
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function getChromePath() {
     const isDevelopment = process.env.NODE_ENV === 'development';
     
@@ -116,8 +120,7 @@ router.get('/generate', async (req, res) => {
         }, lang);
         
         // Aguardar renderização após mudança de idioma
-        await page.waitForTimeout(3000);
-        
+        await new Promise(r => setTimeout(r, 3000));
         // Aguardar que os pratos sejam renderizados
         await page.waitForSelector('.highlight-card, .category-section', { timeout: 15000 });
         
@@ -139,7 +142,7 @@ router.get('/generate', async (req, res) => {
         });
         
         // Aguardar extra para garantir renderização completa das imagens
-        await page.waitForTimeout(2000);
+        await sleep(2000);
         
         // Remover elementos que não devem aparecer no PDF
         // console.log('🧹 Removendo elementos desnecessários...');
