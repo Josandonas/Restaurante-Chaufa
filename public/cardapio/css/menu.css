@@ -614,73 +614,286 @@ body::before {
 
 /* Footer styles moved to /public/cardapio/css/footer.css */
 
-/* Botão Flutuante WhatsApp - FAB */
+/* ============================================================================
+   WHATSAPP FAB - Pill Design com Ícone Circular
+   Botão em formato de cápsula com ícone circular branco + texto PT/ES
+   ============================================================================ */
+
 .whatsapp-fab {
+    /* Positioning - mais próximo da borda */
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: clamp(0.75rem, 2vw, 1rem);
+    right: clamp(0.75rem, 2vw, 1rem);
+    z-index: 1000;
+    
+    /* Layout - se ajusta ao conteúdo */
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: clamp(0.375rem, 1vw, 0.5rem);
+    padding: clamp(0.25rem, 0.75vw, 0.375rem);
+    padding-right: clamp(0.625rem, 1.5vw, 0.875rem);
+    min-height: clamp(2.75rem, 6vw, 3.5rem);
+    width: fit-content;
+    
+    /* Visual - Verde WhatsApp sólido */
+    background: #25D366;
+    border-radius: 2.5rem;
+    border: none;
+    box-shadow: 
+        0 3px 12px rgba(37, 211, 102, 0.35),
+        0 1px 6px rgba(0, 0, 0, 0.12);
+    
+    /* Typography */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 700;
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    letter-spacing: -0.01em;
+    color: #FFFFFF;
+    text-decoration: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    
+    /* Interaction */
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    
+    /* Animation */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: whatsappPulse 2.5s ease-in-out infinite;
+}
+
+/* Ícone Circular Branco */
+.whatsapp-icon {
+    width: clamp(2.25rem, 5vw, 2.75rem);
+    height: clamp(2.25rem, 5vw, 2.75rem);
+    flex-shrink: 0;
+    
+    /* Círculo branco de fundo */
+    background: #FFFFFF;
+    border-radius: 50%;
+    padding: clamp(0.4rem, 1.25vw, 0.5rem);
+    
+    /* Ícone verde dentro */
+    color: #25D366;
+    
+    /* Sombra sutil */
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-    border-radius: 50%;
-    color: #fff;
-    text-decoration: none;
-    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
-    z-index: 999;
-    transition: all 0.3s ease;
-    cursor: pointer;
+    
+    /* Animação de rotação a cada 10s */
+    animation: iconSpin 10s ease-in-out infinite;
 }
 
-/* Desktop: Hover simples */
-.whatsapp-fab:hover {
-    transform: translateY(-5px) scale(1.1);
-    box-shadow: 0 8px 30px rgba(37, 211, 102, 0.6);
+/* SVG dentro do círculo */
+.whatsapp-icon svg {
+    width: 100%;
+    height: 100%;
 }
 
-.whatsapp-fab svg {
-    width: 32px;
-    height: 32px;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+/* Text - quebra em 2 linhas */
+.whatsapp-fab-text {
+    white-space: normal;
+    line-height: 1.15;
+    font-weight: 700;
+    max-width: 2.75rem;
+    text-align: left;
+    word-break: break-word;
+    hyphens: auto;
 }
 
-/* Mobile/Tablet: Animações e auto-hide (max-width: 1024px) */
+/* ===== HOVER STATE (Desktop) ===== */
+@media (hover: hover) and (pointer: fine) {
+    .whatsapp-fab:hover {
+        background: #1EBE5C;
+        box-shadow: 
+            0 5px 18px rgba(37, 211, 102, 0.45),
+            0 2px 10px rgba(0, 0, 0, 0.18);
+        transform: translateY(-2px) scale(1.03);
+        animation-play-state: paused;
+    }
+    
+    .whatsapp-fab:hover .whatsapp-icon {
+        animation-play-state: paused;
+        transform: rotate(0deg);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }
+}
+
+/* ===== ACTIVE/CLICK STATE ===== */
+.whatsapp-fab:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 
+        0 2px 8px rgba(37, 211, 102, 0.3),
+        0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.whatsapp-fab:active .whatsapp-icon {
+    transform: scale(0.95);
+}
+
+/* ===== FOCUS STATE (Accessibility) ===== */
+.whatsapp-fab:focus-visible {
+    outline: 3px solid hsla(142, 70%, 49%, 0.5);
+    outline-offset: 3px;
+}
+
+/* ===== PULSE ANIMATION (Botão) ===== */
+@keyframes whatsappPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 
+            0 3px 12px rgba(37, 211, 102, 0.35),
+            0 1px 6px rgba(0, 0, 0, 0.12);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 
+            0 4px 16px rgba(37, 211, 102, 0.4),
+            0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+}
+
+/* ===== ICON SPIN ANIMATION (Ícone gira a cada 10s) ===== */
+@keyframes iconSpin {
+    0%, 90% {
+        transform: rotate(0deg);
+    }
+    92% {
+        transform: rotate(-10deg);
+    }
+    94% {
+        transform: rotate(10deg);
+    }
+    96% {
+        transform: rotate(-10deg);
+    }
+    98% {
+        transform: rotate(5deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+/* ===== AUTO-HIDE NO MOBILE/TABLET ===== */
 @media (max-width: 1024px) {
     .whatsapp-fab {
-        width: 56px;
-        height: 56px;
-        opacity: 0.7;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(80px) scale(0.85);
+        transition: opacity 0.5s ease-out, 
+                    transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
-    .whatsapp-fab:hover {
+    /* Visível quando classe .visible é adicionada */
+    .whatsapp-fab.visible {
         opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
     }
     
-    /* Auto-hide ao rolar (controlado por JavaScript) */
+    /* Escondido quando classe .hidden é adicionada - fade out suave */
     .whatsapp-fab.hidden {
         opacity: 0;
         pointer-events: none;
-        transform: translateY(100px);
+        transform: translateY(80px) scale(0.85);
+        transition: opacity 0.6s ease-out, 
+                    transform 0.6s cubic-bezier(0.4, 0, 0.6, 1);
     }
     
-    /* Mostrar ao parar de rolar */
+    /* Animação de pulso apenas quando visível */
     .whatsapp-fab.visible {
-        opacity: 0.7;
-        pointer-events: auto;
-        transform: translateY(0);
+        animation: whatsappPulse 2.5s ease-in-out infinite;
     }
     
-    .whatsapp-fab svg {
-        width: 30px;
-        height: 30px;
+    .whatsapp-fab.hidden {
+        animation: none;
     }
     
-    /* Animação sutil de pulso apenas quando visível */
-    .whatsapp-fab.visible:not(:hover) {
-        animation: subtlePulse 3s infinite;
+    /* Ícone continua girando mesmo quando botão está escondendo */
+    .whatsapp-fab .whatsapp-icon {
+        animation: iconSpin 10s ease-in-out infinite;
+    }
+}
+
+/* ===== TOUCH DEVICES ===== */
+@media (hover: none) and (pointer: coarse) {
+    .whatsapp-fab {
+        min-height: 2.875rem;
+    }
+    
+    .whatsapp-fab:active {
+        background: #1EBE5C;
+        transform: scale(0.96);
+    }
+}
+
+/* ===== TABLET ===== */
+@media (min-width: 769px) {
+    .whatsapp-fab {
+        bottom: 1rem;
+        right: 1rem;
+        padding: 0.375rem;
+        padding-right: 0.875rem;
+        min-height: 3.25rem;
+    }
+    
+    .whatsapp-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+    
+    .whatsapp-fab-text {
+        font-size: 0.9rem;
+        max-width: 2.5rem;
+    }
+}
+
+/* ===== DESKTOP ===== */
+@media (min-width: 1025px) {
+    .whatsapp-fab {
+        bottom: 1rem;
+        right: 1rem;
+        padding: 0.375rem;
+        padding-right: 0.875rem;
+        min-height: 3.5rem;
+    }
+    
+    .whatsapp-icon {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+    
+    .whatsapp-fab-text {
+        font-size: 0.95rem;
+        max-width: 2.75rem;
+    }
+}
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+    .whatsapp-fab {
+        animation: none;
+        transition-duration: 0.01ms;
+    }
+    
+    .whatsapp-icon {
+        animation: none;
+    }
+    
+    .whatsapp-fab:hover {
+        transform: none;
+    }
+}
+
+/* ===== HIGH CONTRAST MODE ===== */
+@media (prefers-contrast: high) {
+    .whatsapp-fab {
+        border: 2px solid hsl(0, 0%, 100%);
     }
 }
 

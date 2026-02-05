@@ -12,7 +12,10 @@ export const footerTranslations = {
         statusClosed: 'Cerrado ahora',
         scheduleDaysOpen: 'Lunes a Domingo',
         scheduleTime: '11:30 - 19:00',
-        whatsappMessage: 'Hola! Me gustaría hacer un pedido:'
+        scheduleDaysClosed: 'Miércoles',
+        scheduleTimeClosed: 'Cerrado',
+        whatsappMessage: 'Hola! Me gustaría hacer un pedido:',
+        whatsappButtonText: 'Pide Aquí'
     },
     pt: {
         contactTitle: 'Contato',
@@ -24,7 +27,10 @@ export const footerTranslations = {
         statusClosed: 'Fechado agora',
         scheduleDaysOpen: 'Segunda a Domingo',
         scheduleTime: '11:30 - 19:00',
-        whatsappMessage: 'Olá! Gostaria de fazer um pedido:'
+        scheduleDaysClosed: 'Quarta-feira',
+        scheduleTimeClosed: 'Fechado',
+        whatsappMessage: 'Olá! Gostaria de fazer um pedido:',
+        whatsappButtonText: 'Peça Aqui'
     }
 };
 
@@ -60,8 +66,16 @@ export function checkBusinessHours(currentLang) {
     
     if (!statusIndicator || !statusDot || !statusLabel) return;
     
-    // Verificar horário
-    if (currentTime >= openTime && currentTime < closeTime) {
+    // Quarta-feira (dia 3) = FECHADO
+    if (day === 3) {
+        statusIndicator.classList.remove('open');
+        statusIndicator.classList.add('closed');
+        statusDot.classList.remove('open');
+        statusDot.classList.add('closed');
+        statusLabel.textContent = t.statusClosed;
+    }
+    // Outros dias: verificar horário
+    else if (currentTime >= openTime && currentTime < closeTime) {
         statusIndicator.classList.remove('closed');
         statusIndicator.classList.add('open');
         statusDot.classList.remove('closed');
@@ -104,6 +118,12 @@ export function updateFooterLanguage(currentLang) {
     const whatsappFab = document.getElementById('whatsappFab');
     if (whatsappFab) {
         whatsappFab.href = `https://wa.me/59172622036?text=${whatsappMsg}`;
+        
+        // Atualizar texto do botão
+        const whatsappFabText = whatsappFab.querySelector('.whatsapp-fab-text');
+        if (whatsappFabText) {
+            whatsappFabText.textContent = t.whatsappButtonText;
+        }
     }
     
     // Horários
@@ -115,7 +135,14 @@ export function updateFooterLanguage(currentLang) {
         if (time) time.textContent = t.scheduleTime;
     }
     
-    // Removed closed day schedule - restaurant now open 7 days a week
+    // Horário fechado (quarta-feira)
+    const scheduleClosed = document.getElementById('scheduleClosed');
+    if (scheduleClosed) {
+        const days = scheduleClosed.querySelector('.schedule-days');
+        const time = scheduleClosed.querySelector('.schedule-time');
+        if (days) days.textContent = t.scheduleDaysClosed;
+        if (time) time.textContent = t.scheduleTimeClosed;
+    }
     
     // Localização
     const footerLocationText = document.getElementById('footerLocationText');

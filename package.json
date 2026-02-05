@@ -8,6 +8,7 @@
     "dev": "nodemon server.js",
     "serve": "node scripts/serve.js",
     "setup-db": "node scripts/setup-database.js",
+    "create-procedures": "node scripts/create-procedures.js",
     "build": "vite build",
     "build:watch": "vite build --watch",
     "preview": "vite preview"
