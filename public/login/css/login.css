@@ -189,9 +189,9 @@ body {
 /* ==================== LOGIN BOX (Mobile-First com Container Query) ==================== */
 
 .login-box {
-    background: var(--color-overlay);
-    backdrop-filter: blur(clamp(1rem, 2vw, 1.5rem));
-    -webkit-backdrop-filter: blur(clamp(1rem, 2vw, 1.5rem));
+   background: var(--color-overlay);                     /* mantém rgba(255,255,255,0.95) */
+    backdrop-filter: blur(16px) saturate(180%);           /* valor fixo + saturate para cor mais viva */
+    -webkit-backdrop-filter: blur(16px) saturate(180%);   /* prefixo obrigatório para iOS */
     padding: clamp(1.5rem, 5vw, 3rem) clamp(1.25rem, 4vw, 2.5rem);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-2xl);
@@ -203,6 +203,10 @@ body {
     overflow: visible;
     container-type: inline-size;
     container-name: login-card;
+    /* Adicione estas 3 linhas para corrigir renderização do blur no Safari iOS */
+    transform: translateZ(0);                             /* força layer GPU */
+    -webkit-transform: translateZ(0);
+    will-change: backdrop-filter, transform;
 }
 
 .login-box > * {
@@ -210,29 +214,8 @@ body {
     z-index: 1;
 }
 
-.login-box::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: 
-        linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%),
-        repeating-linear-gradient(
-            45deg,
-            transparent,
-            transparent 0.625rem,
-            rgba(255,255,255,0.03) 0.625rem,
-            rgba(255,255,255,0.03) 1.25rem
-        );
-    background-size: 200% 200%, 6.25rem 6.25rem;
-    animation: shimmer 20s linear infinite;
-    pointer-events: none;
-    z-index: 0;
-}
-
-@keyframes shimmer {
-    0% { background-position: -200% 0, 0 0; }
-    100% { background-position: 200% 0, 6.25rem 6.25rem; }
-}
+/* .login-box::before { ... } → REMOVIDO para corrigir padrão quadriculado no iOS/Safari */
+/* @keyframes shimmer { ... } → REMOVIDO */
 
 /* ==================== TYPOGRAPHY & LOGO ==================== */
 
