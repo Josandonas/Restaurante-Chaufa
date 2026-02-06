@@ -105,8 +105,8 @@ body {
     font-size: var(--text-base);
     line-height: 1.6;
     color: var(--color-text);
-    /*background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-    background-attachment: fixed;*/
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);    
+    background-attachment: fixed;
     min-height: 100vh;
     min-height: 100dvh;
     display: flex;
