@@ -22,10 +22,11 @@ function getChromePath() {
             '/usr/bin/chromium'
         ]
         : [
-            '/usr/bin/chromium-browser',      // Produção (Ubuntu/Debian)
-            '/usr/bin/chromium',
             '/usr/bin/google-chrome-stable',
-            '/usr/bin/google-chrome'
+            '/usr/bin/google-chrome',
+            '/usr/bin/chromium-browser',      // Produção (Ubuntu/Debian)
+            '/usr/bin/chromium'
+
         ];
     
     // Encontrar primeiro caminho que existe
@@ -302,7 +303,7 @@ router.get('/test', async (req, res) => {
         
         browser = await puppeteer.launch({
             headless: 'new',
-            executablePath: '/usr/bin/chromium-browser',
+            executablePath: '/usr/bin/google-chrome-stable',
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
         
