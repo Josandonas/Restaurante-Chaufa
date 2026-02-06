@@ -105,8 +105,8 @@ body {
     font-size: var(--text-base);
     line-height: 1.6;
     color: var(--color-text);
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);    
-    background-attachment: fixed;
+    /*background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    background-attachment: fixed;*/
     min-height: 100vh;
     min-height: 100dvh;
     display: flex;
@@ -114,7 +114,7 @@ body {
     justify-content: center;
     position: relative;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: hidden;
 }
 
 /* ==================== CONTAINER (Mobile-First) ==================== */
@@ -1085,3 +1085,50 @@ body {
    - 2561px+: 8K, multi-monitor
    
    ============================================================================ */
+/* Partículas flutuantes suaves - efeito moderno glass/orbs */
+.particles-bg {
+    position: fixed;
+    inset: 0;                           /* cobre toda a tela, incluindo Dynamic Island com viewport-fit=cover */
+    z-index: -10;                       /* bem atrás de tudo (ajuste se precisar ficar atrás do card mas antes do degradê) */
+    pointer-events: none;               /* não bloqueia cliques/touch */
+    overflow: hidden;
+    background: transparent;            /* ou herda seu degradê se quiser */
+}
+
+/* Duas camadas de partículas para profundidade */
+.particles-bg::before,
+.particles-bg::after {
+    content: '';
+    position: absolute;
+    width: 180%;                        /* maior que a tela para movimento suave */
+    height: 300%;                       /* permite "subir" e sumir no topo */
+    top: -100%;                         /* começa fora da tela para animação subir */
+    left: -40%;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.18) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 50% 10%, rgba(168, 181, 255, 0.12) 0%, transparent 35%);
+    border-radius: 50% 50% 0 0 / 60% 60% 0 0; /* forma orgânica */
+    animation: floatOrbs 35s linear infinite;
+    opacity: 0.7;
+}
+
+.particles-bg::after {
+    animation-delay: -17s;              /* offset para não sincronizar */
+    opacity: 0.5;
+    transform: scale(1.2) translateX(20%);
+}
+
+@keyframes floatOrbs {
+    0%   { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-60%) rotate(3deg); } /* sobe lentamente */
+}
+
+/* Ajuste para telas menores (mobile) - reduz intensidade */
+@media (max-width: 768px) {
+    .particles-bg::before,
+    .particles-bg::after {
+        opacity: 0.5;                   /* menos forte em mobile para não pesar */
+        animation-duration: 45s;        /* mais lento para economizar bateria */
+    }
+}
