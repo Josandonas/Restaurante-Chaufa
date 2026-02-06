@@ -113,7 +113,7 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
-    overflow-x: hidden;
+    overflow-x: auto;
     overflow-y: hidden;
 }
 
@@ -1085,80 +1085,3 @@ body {
    - 2561px+: 8K, multi-monitor
    
    ============================================================================ */
-/* === Estrelas/partículas flutuantes - céu noturno moderno === */
-
-#stars,
-#stars2,
-#stars3 {
-    position: fixed;
-    inset: 0;
-    z-index: -10;                    /* bem atrás de tudo, incluindo Dynamic Island */
-    pointer-events: none;
-    background: transparent;
-    overflow: hidden;
-}
-
-/* Camada pequena (muitas estrelas) */
-#stars {
-    width: 1px;
-    height: 1px;
-    box-shadow: 
-        1200px 800px #fff,  300px 1400px #fff,  1800px 600px #fff,  900px 1900px #fff,
-        400px 300px #fff,   1600px 1100px #fff, 700px 1700px #fff,   200px 900px #fff,
-        1500px 400px #fff,  100px 2000px #fff,  1300px 500px #fff,  600px 1500px #fff,
-        /* adicione mais se quiser densidade maior - gere aleatoriamente ou copie mais */
-        1100px 1200px #fff, 800px 100px #fff,   1900px 1300px #fff, 500px 800px #fff;
-    animation: animStar 60s linear infinite;
-}
-
-/* Camada média */
-#stars2 {
-    width: 2px;
-    height: 2px;
-    box-shadow: 
-        1400px 900px #fff,  500px 1600px #fff,  1700px 700px #fff,  800px 1800px #fff,
-        200px 400px #fff,   1500px 1200px #fff, 600px 1900px #fff,  300px 1000px #fff;
-    animation: animStar 90s linear infinite;
-}
-
-/* Camada grande (estrelas maiores, menos densas) */
-#stars3 {
-    width: 3px;
-    height: 3px;
-    box-shadow: 
-        1600px 1100px #fff, 700px 1700px #fff,  1900px 800px #fff,  400px 1400px #fff,
-        1000px 300px #fff,  1800px 1300px #fff;
-    animation: animStar 120s linear infinite;
-}
-
-/* Animação de subida lenta (parallax) */
-@keyframes animStar {
-    from { transform: translateY(0); }
-    to   { transform: translateY(-2000px); }
-}
-
-/* Para evitar que as partículas fiquem "cortadas" no topo/bottom em mobile */
-#stars::after,
-#stars2::after,
-#stars3::after {
-    content: "";
-    position: absolute;
-    top: 2000px;          /* continua a camada para loop infinito */
-    width: inherit;
-    height: inherit;
-    box-shadow: inherit;  /* herda as sombras */
-}
-
-/* Ajuste para seu degradê (mistura bem com roxo-azul) */
-html {
-    background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); /* exemplo noturno que combina */
-    min-height: 100dvh;
-}
-
-/* Se quiser as estrelas com leve brilho/cor do seu tema */
-#stars, #stars2, #stars3 {
-    box-shadow: /* substitua #fff por tons suaves do seu tema se preferir */
-        1200px 800px rgba(168,181,255,0.8),
-        300px 1400px rgba(102,126,234,0.6),
-        /* ... */
-}
