@@ -105,8 +105,8 @@ body {
     font-size: var(--text-base);
     line-height: 1.6;
     color: var(--color-text);
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-    background-attachment: fixed;
+    /*background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    background-attachment: fixed;*/
     min-height: 100vh;
     min-height: 100dvh;
     display: flex;
@@ -128,8 +128,8 @@ body {
     justify-content: center;
     padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem);
     position: relative;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-    overflow: hidden;
+    /* background removido aqui para evitar bug no iOS/Safari */
+    /* overflow: hidden; */  /* comente ou remova para teste */
 }
 
 /* ==================== DECORATIVE ELEMENTS ==================== */
